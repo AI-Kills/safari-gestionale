@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contratto di Viaggio</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- Libreria CSS per intl-tel-input -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- BANNER CON 3 IMMAGINI -->
+      <div class="banner">
+        <a href="https://www.iwsafari.com" target="_blank">
+          <img src="assets/logo IWS.png" alt="Logo IWS" />
+        </a>
+        <a href="https://www.impronteanordovest.com" target="_blank">
+          <img src="assets/logo INO.png" alt="Logo INO 2" />
+        </a>
+        <a href="https://www.impronteasudest.com" target="_blank">
+          <img src="assets/logo ISE.png" alt="Logo IWS 3" />
+        </a>
+      </div>
+
+      <!-- Titolo con sfondo colorato -->
+      <div class="header-banner">
+        <p class="titolo">Scheda di Partecipazione al Viaggio</p>
+      </div>
+
+      <!-- SEZIONE DATI CLIENTE -->
+      <div class="section">
+        <h2>Dati del Partecipante al Viaggio</h2>
+      </div>
+
+      <!-- Sezione Dati del Cliente riga 1 -->
+      <div class="form-row">
+        <div style="width: 22%">
+          <label for="nome">Nome</label>
+          <input
+            type="text"
+            id="nome"
+            name="nome"
+            oninput="forceUpperCase(this)"
+          />
+        </div>
+        <div style="width: 22%">
+          <label for="cognome">Cognome</label>
+          <input
+            type="text"
+            id="cognome"
+            name="cognome"
+            oninput="forceUpperCase(this)"
+          />
+        </div>
+        <div style="width: 25%">
+          <label for="telefono">Cellulare - Whatsapp</label>
+          <input type="tel" id="telefono" name="telefono" />
+          <p id="telefono-error" class="error-message">
+            Inserisci un numero valido.
+          </p>
+        </div>
+        <div style="width: 29%">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            onblur="validateEmail(this)"
+          />
+          <p id="email-error" class="error-message"></p>
+        </div>
+      </div>
+
+      <!-- Sezione Dati del Cliente riga 2 -->
+      <div class="form-row">
+        <div style="width: 7%">
+          <label for="sesso">Sesso</label>
+          <select id="sesso" name="sesso">
+            <option value="Maschio">M</option>
+            <option value="Femmina">F</option>
+          </select>
+        </div>
+        <div style="width: 13%">
+          <label for="data_nascita">Data di Nascita</label>
+          <input
+            type="date"
+            id="data_nascita"
+            name="data_nascita"
+            class="no-calendar"
+          />
+        </div>
+        <div style="width: 25%">
+          <label for="comune_nascita">Luogo di Nascita</label>
+          <input
+            type="text"
+            id="comune_nascita"
+            name="comune_nascita"
+            oninput="searchComune('comune_nascita', 'provincia_nascita')"
+          />
+        </div>
+        <div style="width: 5%">
+          <label for="provincia">Prov</label>
+          <input
+            type="text"
+            id="provincia_nascita"
+            name="provincia_nascita"
+            readonly
+          />
+        </div>
+        <div style="width: 13%">
+          <label for="passaporto">Passaporto n.</label>
+          <input
+            type="text"
+            id="passaporto"
+            name="passaporto"
+            oninput="forceUpperCase(this)"
+          />
+        </div>
+        <div style="width: 13%">
+          <label for="data_scad_passaporto">Data di Scadenza</label>
+          <input
+            type="date"
+            id="data_scad_passaporto"
+            name="data_scad_passaporto"
+            class="no-calendar"
+          />
+        </div>
+        <div style="width: 17%">
+          <label for="nazionalita">Nazionalità</label>
+          <input
+            type="text"
+            id="nazionalità"
+            name="nazionalita"
+            value="ITALIANA"
+            oninput="forceUpperCase(this)"
+          />
+        </div>
+      </div>
+
+      <!-- Sezione Dati del Cliente riga 3 -->
+      <div class="form-row">
+        <div style="width: 20%">
+          <label for="codice_fiscale">Codice Fiscale</label>
+          <input
+            type="text"
+            id="codice_fiscale"
+            name="codice_fiscale"
+            maxlength="16"
+            minlength="16"
+            required
+            oninput="validateCodiceFiscale(this)"
+            onblur="checkCodiceFiscaleLength(this)"
+          />
+          <p id="codice-fiscale-error" class="error-message"></p>
+        </div>
+        <div style="width: 36%">
+          <label for="indirizzo">Indirizzo di Residenza</label>
+          <input
+            type="text"
+            id="indirizzo"
+            name="indirizzo"
+            oninput="forceUpperCase(this)"
+          />
+        </div>
+        <div style="width: 10%">
+          <label for="cap_nascita">CAP</label>
+          <input
+            type="text"
+            id="cap_nascita"
+            name="cap_nascita"
+            maxlength="5"
+            onblur="validateCAP(this)"
+          />
+          <p id="cap-error" class="error-message"></p>
+        </div>
+        <div style="width: 25%">
+          <label for="comune">Comune</label>
+          <input
+            type="text"
+            id="comune"
+            name="comune"
+            oninput="searchComune('comune', 'provincia')"
+          />
+        </div>
+        <div style="width: 5%">
+          <label for="provincia">Prov</label>
+          <input type="text" id="provincia" name="provincia" readonly />
+        </div>
+      </div>
+
+      <!-- Sezione Dati del Cliente riga 4 -->
+      <div class="checkbox-group">
+        <label>
+          <input type="checkbox" name="assistenza" value="mobilita" />
+          Viaggiatore con mobilità ridotta
+        </label>
+        <label>
+          <input type="checkbox" name="minore" value="minore" />
+          Minore non accompagnato
+        </label>
+        <label>
+          <input type="checkbox" name="gravidanza" value="gravidanza" />
+          Donna in stato di gravidanza
+        </label>
+      </div>
+
+      <!-- SEZIONE DATI VIAGGIO -->
+      <div class="section">
+        <h2>Servizi Scelti (programma dettagliato in allegato)</h2>
+      </div>
+
+      <div class="form-row">
+        <div style="width: 50%">
+          <label for="servizi">Identificativo del viaggio</label>
+          <input
+            type="text"
+            id="servizi"
+            name="servizi"
+            oninput="forceUpperCase(this)"
+          />
+        </div>
+        <div style="width: 12%">
+          <label for="data_partenza">Data di Partenza</label>
+          <input
+            type="date"
+            id="data_partenza"
+            name="data_partenza"
+            class="no-calendar"
+          />
+        </div>
+        <div style="width: 12%">
+          <label for="data_ritorno">Data di Ritorno</label>
+          <input
+            type="date"
+            id="data_ritorno"
+            name="data_ritorno"
+            class="no-calendar"
+          />
+        </div>
+        <div style="width: 26%">
+          <label for="organizzatore">Organizzatore</label>
+          <input
+            type="text"
+            id="organizzatore"
+            name="organizzatore"
+            placeholder="Born Free di Sebastiani Carlo & C. sas"
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <label>
+          <input type="checkbox" name="viaggio" value="individuale" />
+          Viaggio individuale
+        </label>
+        <label>
+          <input type="checkbox" name="viaggio" value="gruppo" />
+          Viaggio di gruppo con minimo partecipanti
+        </label>
+        <div style="width: 4%">
+          <input
+            type="text"
+            id="npartecipanti"
+            name="npartecipanti"
+            class="inputcolored"
+            placeholder="0"
+          />
+        </div>
+        <label
+          >data di risoluzione del contratto per mancato <br />raggiungimento
+          del numero minimo</label
+        >
+        <div style="width: 12%">
+          <input
+            type="text"
+            id="conferma"
+            name="conferma"
+            placeholder="CONFERMATO"
+            class="inputcolored"
+          />
+        </div>
+      </div>
+
+      <!-- SEZIONE QUOTA PARTECIPAZIONE -->
+      <div class="section">
+        <h2>Quota di Partecipazione e Pagamenti</h2>
+      </div>
+
+      <div class="two-box-container">
+        <!---------------------------------------------------------
+        Box Sinistro: Servizio, Quantità, Costo Unitario e Totale 
+        ---------------------------------------------------------->
+        <div class="box-left">
+          <!-- RIGA TITOLI -->
+          <div class="form-row quota-row-title">
+            <div>Descrizione Servizio</div>
+            <div>N.</div>
+            <div>Costo Unitario <br />(€)</div>
+            <div>Totale <br />(€)</div>
+          </div>
+
+          <!-- RIGA SERVIZIO 1 -->
+          <div class="quota-row">
+            <input type="text" />
+            <input
+              type="number"
+              min="0"
+              onchange="calculateTotal()"
+              class="quantity no-spinner"
+            />
+            <input
+              type="text"
+              onblur="formatUnitCostToItalian(this);"
+              class="unit-cost no-spinner"
+            />
+            <div class="total">0,00</div>
+          </div>
+
+          <!-- RIGA SERVIZIO 2 -->
+          <div class="quota-row">
+            <input type="text" />
+            <input
+              type="number"
+              min="0"
+              onchange="calculateTotal()"
+              class="quantity no-spinner"
+            />
+            <input
+              type="text"
+              onblur="formatUnitCostToItalian(this);"
+              class="unit-cost no-spinner"
+            />
+            <div class="total">0,00</div>
+          </div>
+
+          <!-- RIGA SERVIZIO 3 -->
+          <div class="quota-row">
+            <input type="text" />
+            <input
+              type="number"
+              min="0"
+              onchange="calculateTotal()"
+              class="quantity no-spinner"
+            />
+            <input
+              type="text"
+              onblur="formatUnitCostToItalian(this);"
+              class="unit-cost no-spinner"
+            />
+            <div class="total">0,00</div>
+          </div>
+
+          <!-- RIGA SERVIZIO 4 -->
+          <div class="quota-row">
+            <input type="text" />
+            <input
+              type="number"
+              min="0"
+              onchange="calculateTotal()"
+              class="quantity no-spinner"
+            />
+            <input
+              type="text"
+              onblur="formatUnitCostToItalian(this);"
+              class="unit-cost no-spinner"
+            />
+            <div class="total">0,00</div>
+          </div>
+
+          <!-- RIGA SERVIZIO 5 -->
+          <div class="quota-row">
+            <input type="text" />
+            <input
+              type="number"
+              min="0"
+              onchange="calculateTotal()"
+              class="quantity no-spinner"
+            />
+            <input
+              type="text"
+              onblur="formatUnitCostToItalian(this);"
+              class="unit-cost no-spinner"
+            />
+            <div class="total">0,00</div>
+          </div>
+
+          <!-- RIGA SERVIZIO ASSICURAZIONE -->
+          <div class="quota-row">
+            <div>
+              <select
+                id="assicurazione"
+                name="assicurazione"
+                onchange="toggleAssicurazione()"
+                required
+                class="red-text"
+              >
+                <option value="" disabled selected>
+                  Scegli se assicurazione sottoscritta o rifiutata
+                </option>
+                <option value="accettata">
+                  Assicurazione Annullamento Sottoscritta
+                </option>
+                <option value="rifiutata">
+                  Assicurazione Annullamento Rifiutata
+                </option>
+              </select>
+            </div>
+            <input
+              type="number"
+              min="0"
+              id="assicurazione-quantity"
+              class="quantity no-spinner readonly"
+              readonly
+            />
+            <input
+              type="text"
+              id="assicurazione-unit-cost"
+              placeholder=""
+              onblur="validateAssicurazioneCost(this); formatUnitCostToItalian(this);"
+              class="unit-cost no-spinner readonly"
+              readonly
+            />
+            <div class="total">0.00</div>
+          </div>
+
+          <!-- RIGA TOTALE -->
+          <div class="quota-row">
+            <h3>Totale Complessivo</h3>
+            <div></div>
+            <div></div>
+            <div class="total"><span id="overall-total">0.00</span></div>
+            <div></div>
+          </div>
+
+          <span class="titoloparagrafo">Assicurazioni</span>
+
+          <!-- Testo introduttivo (sempre visibile) -->
+          <p>
+            Oltre alle eventuali polizze già incluse nel pacchetto
+            dell’organizzatore, il viaggiatore è stato informato della
+            possibilità di stipulare una o più polizze assicurative facoltative
+            a copertura delle spese di recesso per motivi soggettivi o oggettivi
+            che non legittimano il recesso senza penale, e/o copertura delle
+            spese di assistenza, compreso il rientro in caso di malattia,
+            infortunio o decesso, la cui documentazione pre-contrattuale è già
+            stata consegnata al viaggiatore.
+          </p>
+
+          <!-- Descrizioni specifiche in base alla scelta -->
+          <div id="assicurazione-descrizione">
+            <!-- Descrizione per "ACQUISTARE" (assicurazione sottoscritta) -->
+            <p id="descrizione-acquistare" style="display: none">
+              <b>ACQUISTARE</b> le assicurazioni indicate alla voce prezzo del
+              presente contratto, dichiarando altresì: - che le polizze
+              proposte, in considerazione del luogo di destinazione, del numero
+              di partecipanti e delle caratteristiche dei servizi turistici
+              scelti, sono coerenti con le proprie richieste ed esigenze
+              assicurative specifiche connesse alla tipologia di viaggio
+              acquistato; - di aver ricevuto, esaminato attentamente e compreso
+              la documentazione pre-contrattuale (comprensiva dell’informativa
+              Privacy) messa a sua disposizione, in particolare le esclusioni di
+              garanzia e le franchigie; - di non avere già in corso medesime
+              coperture assicurative e di voler quindi procedere con l’acquisto.
+            </p>
+            <!-- Descrizione per "RINUNCIARE" (assicurazione rifiutata) -->
+            <p id="descrizione-rinunciare" style="display: none">
+              <b>RINUNCIARE</b> all’assicurazione annullamento che copre le
+              penali in caso di cancellazione.
+            </p>
+          </div>
+        </div>
+
+        <!---------------------------------------------------------
+        Box Destro: Acconti e Saldo 
+        ---------------------------------------------------------->
+        <div class="box-right">
+          <!-- RIGA TITOLI -->
+          <div class="form-row quota-row-payment">
+            <div></div>
+            <div>
+              Pagamenti <br />
+              (€)
+            </div>
+          </div>
+
+          <!-- Acconto 1 -->
+          <div class="payment-row">
+            <div class="label">Acconto 1</div>
+            <input
+              class="total"
+              type="text"
+              id="acconto1"
+              name="acconto1"
+              oninput="calculateSaldo()"
+              onblur="formatInputToItalian(this)"
+            />
+          </div>
+
+          <!-- Data Acconto 1 -->
+          <div class="payment-row">
+            <div class="label">Entro il</div>
+            <input
+              type="date"
+              id="data_acconto1"
+              name="data_acconto1"
+              class="no-calendar"
+            />
+          </div>
+
+          <!-- Acconto 2 -->
+          <div class="payment-row">
+            <div class="label">Acconto 2</div>
+            <input
+              class="total"
+              type="text"
+              id="acconto2"
+              name="acconto2"
+              oninput="calculateSaldo()"
+              onblur="formatInputToItalian(this)"
+            />
+          </div>
+
+          <!-- Data Acconto 2 -->
+          <div class="payment-row">
+            <div class="label">Entro il</div>
+            <input
+              type="date"
+              id="data_acconto2"
+              name="data_acconto2"
+              class="no-calendar"
+            />
+          </div>
+
+          <!-- Saldo -->
+          <div class="payment-row">
+            <div class="label">Saldo</div>
+            <input class="total" type="text" id="saldo" name="saldo" readonly />
+          </div>
+
+          <!-- Data Saldo -->
+          <div class="payment-row">
+            <div class="label">Entro il</div>
+            <input
+              type="date"
+              id="data_saldo"
+              name="data_saldo"
+              class="no-calendar"
+            />
+          </div>
+
+          <p>
+            Il mancato ricevimento delle somme sopra indicate alle scadenze
+            stabilite comporta l'automatica risoluzione di diritto del
+            contratto.
+          </p>
+          <p>
+            <br /><span class="titoloparagrafo">Coordinate Bancarie</span>
+            <br />Born Free di Sebastiani Carlo e c.sas <br />Banca Intesa San
+            Paolo <br />IBAN IT80P0306970155100000000677 <br />Swift BCITITMM
+          </p>
+
+          <!-- NOTE DEL VENDITORE -->
+
+          <br />
+          <span class="titoloparagrafo">Note del Venditore</span>
+          <br />
+          <textarea class="input-min"></textarea>
+        </div>
+      </div>
+
+      <!-- SEZIONE PENALI DI CANCELLAZIONE -->
+      <div class="section">
+        <h2>Penali in caso di cancellazione</h2>
+      </div>
+
+      <!---------------------------------------------------------
+      Box Uguali Affiancati
+      ---------------------------------------------------------->
+      <div class="two-box-container">
+        <div class="box-50">
+          <h4>Penalità di cancellazione dei servizi a terra</h4>
+          <div class="form-row">
+            <div style="width: 8%">
+              <input
+                type="text"
+                id="percentuale"
+                name="percentuale"
+                class="inputcolored"
+                placeholder="75%"
+              />
+            </div>
+            <div style="width: 8%">
+              <input
+                type="text"
+                id="fino"
+                name="percentuale"
+                class="inputcolored"
+                placeholder="75%"
+              />
+            </div>
+
+            <div style="width: 8%">
+              <input
+                type="text"
+                id="gg2"
+                name="gg2"
+                class="inputcolored"
+                placeholder="gg"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div style="width: 8%">
+              <input
+                type="text"
+                id="percentuale"
+                name="percentuale"
+                class="inputcolored"
+                placeholder="75%"
+              />
+            </div>
+            <div style="width: 8%">
+              <input
+                type="text"
+                id="gg1"
+                name="gg1"
+                class="inputcolored"
+                placeholder="gg"
+              />
+            </div>
+            <div style="width: 8%">
+              <input
+                type="text"
+                id="gg2"
+                name="gg2"
+                class="inputcolored"
+                placeholder="gg"
+              />
+            </div>
+          </div>
+
+          <p>
+            15 % fino a 61 giorni di calendario prima della data del primo
+            servizio
+            <br />75 % da 60 a 31 giorni di calendario prima della data del
+            primo servizio <br />100 % da 30 a 0 giorni di calendario prima
+            della data del primo servizio
+          </p>
+        </div>
+
+        <div class="box-50">
+          <h4>Penalità di cancellazione dei voli aerei</h4>
+          <p>
+            Se il cliente ha acquistato anche i voli aerei, le condizioni di
+            cancellazione e di modifica dipendono dalla tariffa applicata dalla
+            compagnia aerea. In questo caso il volo non è rimborsabile in nessun
+            caso.
+          </p>
+        </div>
+      </div>
+
+      <!----------------------------------------- 
+                  CONDIZIONI 
+------------------------------------------->
+      <div class="section">
+        <h2>ACCETTAZIONE DELLA PROPOSTA</h2>
+        <p>
+          La presente PROPOSTA CONTRATTUALE deve intendersi IRREVOCABILE per un
+          periodo di sette giorni, salvo se diversamente pattuito con il
+          contraente. Contestualmente alla sottoscrizione del presente
+          documento, il contraente si impegna a versare un acconto nella misura
+          indicata dall’organizzatore e/o venditore. In caso di richiesta di
+          servizi che comportano il pagamento immediato (quale biglietteria
+          aerea soggetta a time limit o servizi non rimborsabili per policy del
+          fornitore degli stessi), le somme per procedere all’acquisto di tali
+          servizi potranno essere richieste in via immediata. IL CONTRATTO SI
+          INTENDE PERFEZIONATO NEL MOMENTO IN CUI L’ORGANIZZATORE E/O IL
+          VENDITORE CONFERMA LA PRESENTE PROPOSTA AL VIAGGIATORE. Il contraente
+          dichiara:
+          <br />- di aver ricevuto copia del catalogo dell’organizzatore o,
+          laddove mancante, della descrizione dei servizi e del programma di
+          viaggio, con le relative condizioni, e le Condizioni Generali di
+          Contratto di Pacchetto Turistico; <br />- di aver letto il presente
+          contratto e le condizioni generali di contratto applicate
+          dall’organizzatore che formano parte integrante dello stesso tra cui,
+          in particolare le spese di recesso (penali di cancellazione) e gli
+          obblighi previsti in capo al viaggiatore; <br />- di essere
+          consapevole di poter recedere dal contratto in qualsiasi momento prima
+          dell’inizio del pacchetto dietro pagamento delle spese di recesso
+          applicate dall’organizzatore. In caso di pacchetto su misura il
+          contraente dovrà rimborsare all’organizzatore tutte le spese sostenute
+          per l’espletamento dell’incarico (es. voli non rimborsabili, penalità
+          applicate dalle strutture alberghiere) oltre quanto indicato in
+          contratto quale liquidazione del danno alla parte contraente pronta
+          all’adempimento; <br />- di aver ricevuto ed esaminato attentamente la
+          documentazione precontrattuale (comprensiva dell’Informativa Privacy)
+          di ogni assicurazione viaggio (inclusa o facoltativa), <br />- di aver
+          ricevuto, letto e compreso le condizioni di assicurazione, tra cui in
+          particolare le franchigie, le esclusioni di garanzia, le modalità e le
+          tempistiche per aprire un sinistro, di non avere già in corso medesime
+          coperture assicurative, di ritenere la/e polizza/e coerente/i con le
+          proprie richieste ed esigenze e di essere stato informato che
+          l’apertura e la gestione del sinistro nonché l’invio dei documenti
+          alla compagnia assicuratrice sono onere del viaggiatore; <br />- di
+          essere stato informato sui documenti necessari per effettuare il
+          viaggio (inclusi eventuali minorenni o stranieri) e sulla situazione
+          sanitaria e sociopolitica dello Stato ove avrà luogo il viaggio o la
+          vacanza e dell’opportunità di verificare prima della partenza le
+          indicazioni ufficiali di carattere generale fornite dal Ministero
+          degli Esteri tramite il sito www.viaggiaresicuri.it o la Centrale
+          Operativa Telefonica al numero 06 491115 e sul sito dell’OMS tramite
+          il sito www.who.int; <br />- di essere stato informato della
+          possibilità di cedere il contratto ad altro viaggiatore entro il
+          termine massimo di sette giorni prima della partenza (alle condizioni
+          e dietro pagamento dei costi stabiliti dall’organizzatore) e che ogni
+          difetto di conformità o reclamo DEVE essere comunicato dal viaggiatore
+          SENZA RITARDO (direttamente all’organizzatore o tramite l’agenzia
+          venditrice). <br />Il contraente anche qualora non sia un partecipante
+          al viaggio, si impegna a comunicare quanto sopra, nonché le condizioni
+          applicabili al viaggio, a tutti i partecipanti allo stesso. Se la
+          presente proposta contrattuale è stipulata alla presenza delle parti
+          in agenzia verrà consegnata una copia al contraente. Se è stipulata a
+          distanza gli verrà fornita una copia su supporto durevole (es. email)
+          e le parti non potranno contestare la mancata conoscenza delle
+          informazioni scambiate. Se è stipulata fuori dai locali commerciali il
+          contraente acconsente che la copia o una conferma gli venga fornita su
+          supporto durevole (es. email); in tutte le predette ipotesi le parti
+          non potranno contestare la mancata conoscenza delle informazioni
+          scambiate. In caso di contratto concluso fuori dai locali commerciali
+          il viaggiatore può recedere entro cinque giorni senza penali e senza
+          fornire motivazioni. Tale diritto è escluso in caso di offerte
+          speciali con tariffe diminuite rispetto a quelle correnti (art. 41 c.7
+          codice turismo), nonché per i contratti a distanza ai sensi dell’art.
+          47 c.1 lett.g) codice consumo. Si allega informativa privacy e modulo
+          informativo standard (Allegato A del codice del turismo).
+        </p>
+
+        <h2>
+          INFORMATIVA E CONSENSO CLIENTE FINALE - Art. 13 Regolamento UE
+          2016/679 (“Regolamento”)
+        </h2>
+        <p>
+          Con la presente, Born Free di Sebastiani Carlo & C. sas (proprietaria
+          dei brand Impronte Wilderness Safari, Impronte a Nord Ovest e Impronte
+          a Sud Est, con sede legale in Via Massa Avenza, 38/B 54100 Massa e
+          sede operativa in Via Cimabue, 22 - 55041 Lido di Camaiore, nella sua
+          qualità di Titolare del trattamento, La informa che i Suoi dati
+          saranno trattati esclusivamente per l’erogazione e la gestione dei
+          servizi turistici e/o di viaggio richiesti; il conferimento dei dati è
+          facoltativo, ma si rende necessario per l’esecuzione del contratto. Il
+          trattamento dei Suoi dati avverrà, nel rispetto delle necessarie
+          regole di sicurezza, con modalità manuali e/o informatiche. Qualora il
+          trattamento abbia ad oggetto anche categorie particolari di dati
+          personali (ad es. cliente diversamente abile), la relativa base
+          giuridica del trattamento sarà l’art. 9.2.a) del Regolamento, e
+          dunque, il consenso dell’Interessato (cfr. box infra). Nel rispetto di
+          quanto previsto nel Regolamento (art. 49.1b) e delle ulteriori norme
+          vigenti, i Suoi dati potranno essere comunicati alle Compagnie
+          Assicuratrici ed a soggetti terzi, anche in paesi extra UE, per
+          l’espletamento della prenotazione del viaggio (strutture recettive,
+          compagnie aeree, etc.). I Suoi dati non saranno illegittimamente
+          divulgati, ma potranno essere comunicati ai Responsabili esterni ed ai
+          soggetti incaricati del trattamento preposti alla gestione della
+          pratica viaggio. L’elenco aggiornato e completo dei responsabili è
+          disponibile presso il sito internet del Titolare (area privacy) e
+          comunque può essere richiesto al Titolare ai recapiti sopra indicati.
+          Ai sensi degli articoli 15 e seguenti del Regolamento, l’interessato,
+          in qualunque momento, ha il diritto di:
+          <b>1). </b>chiedere l’accesso ai suoi dati personali;
+          <b>2). </b>chiedere la rettifica o la cancellazione degli stessi;
+          <b>3). </b>chiedere la limitazione del trattamento nei casi previsti
+          dall’art. 18 del Regolamento; <b>4). </b>ottenere in un formato
+          strutturato, di uso comune e leggibile da dispositivo automatico i
+          dati che lo riguardano, nei casi previsti dall’art. 20 del
+          Regolamento; <b>5). </b>revocare il consenso prestato;
+          <b>6). </b>proporre reclamo all’autorità di controllo competente
+          (Garante per la Protezione dei Dati Personali), qualora ritenga che il
+          trattamento dei suoi dati sia contrario alla normativa in vigore. È
+          altresì prevista la facoltà per l’Interessato di formulare una
+          richiesta di opposizione al trattamento dei dati ex articolo 21 del
+          GDPR nella quale dare evidenza delle ragioni che giustifichino
+          l’opposizione: il Titolare si riserva di valutare l’istanza, che non
+          verrebbe accettata in caso di esistenza di motivi legittimi cogenti
+          per procedere al trattamento che prevalgano sugli interessi, diritti e
+          libertà dell’interessato. Le richieste vanno rivolte per iscritto a
+          [privacy@iwsafari.com]. <br /><b
+            >Presa Visione e Consenso al Trattamento dei Dati Personali ai sensi
+            del Regolamento UE 2016/679.</b
+          >
+          <br />Il sottoscritto dichiara di avere ricevuto e di aver preso
+          visione delle informazioni di cui all’art. 13 del Regolamento UE
+          2016/679, in particolare riguardo ai diritti riconosciuti dal
+          Regolamento UE 2016/679 e di acconsentire, ai sensi e per gli effetti
+          dell’art. 7 e ss. del Regolamento, al trattamento dei dati personali,
+          anche sensibili e particolari1, e all’eventuale comunicazione degli
+          stessi in paesi extra UE, con le modalità e per le finalità indicate
+          nell’informativa stessa, comunque strettaemente connesse e strumentali
+          alla gestione del contratto di viaggio.
+        </p>
+
+        <h2>
+          Allegato A parte II (Modulo Informativo Standard per Contratti di
+          Pacchetto Turistico)
+        </h2>
+        <p>
+          La combinazione di servizi turistici che vi viene proposta è un
+          pacchetto ai sensi della direttiva (UE) 2015/2302. Pertanto,
+          beneficerete di tutti i diritti dell’UE che si applicano ai pacchetti.
+          Born Free di Sebastiani Carlo & C. sas sarà pienamente responsabile
+          della corretta esecuzione del pacchetto nel suo insieme. Inoltre, come
+          previsto dalla legge, Born Free di Sebastiani Carlo & C. sas dispone
+          di una protezione per rimborsare i vostri pagamenti e, se il trasporto
+          è incluso nel pacchetto, garantire il vostro rimpatrio nel caso in cui
+          diventi insolvente. Diritti fondamentali ai sensi della direttiva (UE)
+          2015/2302:
+          <b>1) </b>I viaggiatori riceveranno tutte le informazioni essenziali
+          sul pacchetto prima della conclusione del contratto di pacchetto
+          turistico. <b>2) </b>Vi è sempre almeno un professionista responsabile
+          della corretta esecuzione di tutti i servizi turistici inclusi nel
+          contratto. <b>3) </b>Ai viaggiatori viene comunicato un numero
+          telefonico di emergenza o i dati di un punto di contatto attraverso
+          cui raggiungere l’organizzatore o l’agente di viaggio. <b>4) </b>I
+          viaggiatori possono trasferire il pacchetto a un’altra persona, previo
+          ragionevole preavviso ed eventualmente dietro costi aggiuntivi.
+          <b>5) </b>Il prezzo del pacchetto può essere aumentato solo se
+          aumentano i costi specifici (per esempio, i prezzi del carburante) e
+          se espressamente previsto nel contratto, e comunque non oltre 20
+          giorni dall’inizio del pacchetto. Se l’aumento del prezzo è superiore
+          all’8% del prezzo del pacchetto il viaggiatore può risolvere il
+          contratto. Se l’organizzatore si riserva il diritto di aumentare il
+          prezzo, il viaggiatore ha diritto a una riduzione di prezzo se vi è
+          una diminuzione dei costi pertinenti. <b>6) </b>I viaggiatori possono
+          risolvere il contratto senza corrispondere spese di risoluzione e
+          ottenere il rimborso integrale dei pagamenti se uno qualsiasi degli
+          elementi essenziali del pacchetto, diverso dal prezzo, è cambiato in
+          modo sostanziale. Se, prima dell’inizio del pacchetto, il
+          professionista responsabile del pacchetto annulla lo stesso, i
+          viaggiatori hanno la facoltà di ottenere il rimborso e, se del caso,
+          un indennizzo. <b>7) </b>I viaggiatori possono, in circostanze
+          eccezionali, risolvere il contratto senza corrispondere spese di
+          risoluzione prima dell’inizio del pacchetto, ad esempio se sussistono
+          seri problemi di sicurezza nel luogo di destinazione che possono
+          pregiudicare il pacchetto. Inoltre, i viaggiatori possono in qualunque
+          momento, prima dell’inizio del pacchetto, risolvere il contratto
+          dietro pagamento di adeguate e giustificabili spese di risoluzione.
+          <b>8) </b>Se, dopo l’inizio del pacchetto, elementi sostanziali dello
+          stesso non possono essere forniti secondo quanto pattuito, dovranno
+          essere offerte al viaggiatore idonee soluzioni alternative, senza
+          supplemento di prezzo. I viaggiatori possono risolvere il contratto,
+          senza corrispondere spese di risoluzione, qualora i servizi non siano
+          eseguiti secondo quanto pattuito e questo incida in misura
+          significativa sull’esecuzione del pacchetto e l’organizzatore non
+          abbia posto rimedio al problema. <b>9) </b>I viaggiatori hanno altresì
+          diritto a una riduzione di prezzo e/o al risarcimento per danni in
+          caso di mancata o non conforme esecuzione dei servizi turistici.
+          <b>10) </b>L’organizzatore è tenuto a prestare assistenza qualora il
+          viaggiatore si trovi in difficoltà. Se l’organizzatore o, in alcuni
+          Stati membri, il venditore diventa insolvente, i pagamenti saranno
+          rimborsati. Se l’organizzatore o, se del caso, il venditore diventa
+          insolvente dopo l’inizio del pacchetto e se nello stesso è incluso il
+          trasporto, il rimpatrio dei viaggiatori è garantito. Born Free di
+          Sebastiani Carlo & C. sas ha sottoscritto una protezione in caso
+          d’insolvenza n. 40321512001772 con Tua Assicurazioni Spa, Largo Tazio
+          Nuvolari n. 1 - 20143 Milano - tel. +39 800533533. <br />I viaggiatori
+          possono contattare tale entità o, se del caso, il Ministero dei Beni e
+          delle Attività Culturali e del Turismo - Direzione generale del
+          Turismo, Via del Collegio Romano, 27 00186 Roma e-mail:
+          fondogaranzia.turismo@beniculturali.it, quale autorità italiana
+          competente ai sensi dell’art. 48 del Codice del Turismo qualora i
+          servizi siano negati causa insolvenza di Born Free di Sebastiani Carlo
+          & C. sas. Sito web in cui è reperibile la direttiva (UE) 2015/2302,
+          recepita nella legislazione nazionale:
+          http://www.gazzettaufficiale.it/eli/id/2018/06/06/18G00086/sg
+          <br />Per presa visione e accettazione
+        </p>
+
+        <h2>CONDIZIONI GENERALI DI CONTRATTO DI PACCHETTO TURISTICO</h2>
+
+        <h4>PREMESSA: CONTENUTO DEL CONTRATTO DI PACCHETTO TURISTICO</h4>
+        <p>
+          Costituiscono parte integrante del contratto di pacchetto turistico
+          oltreche le condizioni generali che seguono,la descrizione del
+          pacchetto turisticocontenuta nel catalogo (online o cartaceo),ovvero
+          nel separato programma di viaggio,nonché la conferma di prenotazione.
+          Nel sottoscrivere la proposta di compravendita di pacchetto turistico,
+          il viaggiatore deve tener bene a menteche essa dà per letto ed
+          accettato, persé e per i soggetti indicati nel contratto,sia il
+          contratto di pacchetto turistico percome ivi disciplinato, sia le
+          avvertenzee condizioni in essa contenute, sia lepresenti condizioni
+          generali.
+        </p>
+
+        <h4>1. FONTI LEGISLATIVE</h4>
+        <p>
+          La vendita di pacchetti turistici e servizi turistici collegati è
+          disciplinata dal Codice del Turismo (artt. 32-51 - novies) così come
+          modificato dal d.lgs. 62/2018 che attua la direttiva UE 2015/2302 e
+          sue successive modificazioni e dalle disposizioni del codice civile in
+          tema di trasporto e mandato, in quanto applicabili.
+        </p>
+
+        <h4>2. REGIME AMMINISTRATIVO</h4>
+        <p>
+          L’organizzatore e il venditore del pacchetto turistico, cui il
+          viaggiatore si rivolge, devono essere abilitati all’esecuzione delle
+          rispettive attività in base alla legislazione vigente, anche regionale
+          o comunale ed operare secondo quanto ivi previsto. L’Organizzatore e
+          il venditore stabiliti sul territorio italiano devono essere coperti
+          da contratto di assicurazione per la responsabilità civile a favore
+          del viaggiatore per il risarcimento dei danni derivanti dalla
+          violazione dei rispettivi obblighi assunti con i rispettivi contratti.
+          I contratti di organizzazione di pacchetto turistico sono assistiti da
+          polizze assicurative o garanzie bancarie che, nei casi di insolvenza o
+          fallimento dell’organizzatore o del venditore garantiscono, senza
+          ritardo su richiesta del viaggiatore, il rimborso del prezzo versato
+          per l’acquisto del pacchetto e il rientro immediato del viaggiatore
+          nel caso in cui il pacchetto include il trasporto del viaggiatore,
+          nonché, se necessario, il pagamento del vitto e dell’alloggio prima
+          del rientro. Tale obbligo si applica anche ai professionisti che
+          agevolano servizi turistici collegati, per il rimborso di tutti i
+          pagamenti che ricevono dai viaggiatori
+        </p>
+
+        <h4>3. DEFINIZIONI</h4>
+        <p>
+          Ai fini del contratto di pacchetto turistico s’intende per:
+          <b>a) </b>“viaggiatore”: chiunque intende concludere un contratto,
+          stipula un contratto o è autorizzato a viaggiare in base a un
+          contratto di pacchetto turistico o servizio turistico collegato;
+          <b>b) </b>“professionista”: qualsiasi persona fisica o giuridica
+          pubblica o privata che, nell’ambito della sua attività commerciale,
+          industriale, artigianale o professionale agisce, nei contratti di
+          pacchetto turistico o servizio turistico collegato, anche tramite
+          altra persona che opera in suo nome o per suo conto, in veste di
+          organizzatore, venditore, professionista che agevola servizi turistici
+          collegati o di fornitore di servizi turistici, ai sensi della
+          normativa vigente; <b>c) </b>“organizzatore”: un professionista che
+          combina pacchetti e li vende o li offre in vendita direttamente o
+          tramite o insieme a un altro professionista, oppure il professionista
+          che trasmette i dati relativi al viaggiatore a un altro professionista
+          conformemente alla lettera c), numero 2.4) dell’art. 33 del codice del
+          turismo; <b>d) </b>“venditore” o “intermediario”: il professionista
+          diverso dall’organizzatore che vende o offre in vendita pacchetti
+          combinati da un organizzatore; <b>e) </b>“stabilimento”: lo
+          stabilimento definito dall’articolo 8, comma 1, lettera e) del decreto
+          legislativo 26/03/2010, n. 5; <b>f) </b>“supporto durevole”: ogni
+          strumento che permette al viaggiatore o al professionista di
+          conservare le informazioni che gli sono personalmente indirizzate in
+          modo da potervi accedere in futuro per un periodo di tempo adeguato
+          alle finalità cui esse sono destinate e che consente la riproduzione
+          identica delle informazioni memorizzate; <b>g) </b>“circostanze
+          inevitabili e straordinarie”: una situazione fuori dal controllo della
+          parte che invoca una tale situazione e le cui conseguenze non
+          sarebbero state evitate nemmeno adottando tutte le ragionevoli misure;
+          <b>h) </b>“difetto di conformità”: un inadempimento dei servizi
+          turistici inclusi in un pacchetto; <b>i) </b>i) minore: di età
+          inferiore ai 18 anni; <b>l) </b>“rientro” o “rimpatrio”: il ritorno
+          del viaggiatore al luogo di partenza o ad altro luogo concordato dalle
+          parti contraenti. <b>m) </b>“punto vendita”: qualsiasi locale, mobile
+          o immobile, adibito alla vendita al dettaglio o sito web di vendita al
+          dettaglio o analogo strumento di vendita online, anche nel caso in cui
+          siti web di vendita al dettaglio o strumenti di vendita online sono
+          presentati ai viaggiatori come un unico strumento, compreso il
+          servizio telefonico.
+        </p>
+
+        <h4>
+          4. NOZIONE DI PACCHETTO TURISTICO E SERVIZIO TURISTICO COLLEGATO
+        </h4>
+        <p>
+          <b>4.1. </b>Si intende “pacchetto turistico” la combinazione di almeno
+          due tipi diversi di servizi turistici (ossia: <b>1. </b>il trasporto
+          di passeggeri; <b>2. </b>l’alloggio che non costituisce parte
+          integrante del trasporto di passeggeri e non è destinato a fini
+          residenziali o per corsi di lingua di lungo periodo; <b>3. </b>il
+          noleggio di auto, di altri veicoli o motoveicoli e che richiedano una
+          patente di guida di categoria A; <b>4. </b>qualunque altro servizio
+          turistico che non costituisce parte integrante di uno dei servizi
+          turistici di cui ai numeri 1), 2) o 3), e non sia un servizio
+          finanziario o assicurativo, non qualificabile come servizio turistico
+          integrativo) ai fini dello stesso viaggio o della stessa vacanza, se
+          si verifica almeno una delle seguenti condizioni: <b>1) </b>tali
+          servizi sono combinati da un unico professionista, anche su richiesta
+          del viaggiatore o conformemente a una sua selezione, prima che sia
+          concluso un contratto unico per tutti i servizi; <b>2) </b>tali
+          servizi, anche se conclusi con contratti distinti con singoli
+          fornitori di servizi turistici, sono: <b>a) </b>acquistati presso un
+          unico punto vendita e selezionati prima che il viaggiatore acconsenta
+          al pagamento; <b>b) </b>offerti, venduti o fatturati a un prezzo
+          forfettario o globale; <b>c) </b>pubblicizzati o venduti con la
+          denominazione “pacchetto” o denominazione analoga; <b>d) </b>combinati
+          dopo la conclusione di un contratto con cui il professionista consente
+          al viaggiatore di scegliere tra una selezione di tipi diversi di
+          servizi turistici, oppure acquistati presso professionisti distinti
+          attraverso processi collegati di prenotazione per via telematica ove
+          il nome del viaggiatore, gli estremi del pagamento e l’indirizzo di
+          posta elettronica siano trasmessi dal professionista con cui e’
+          concluso il primo contratto a uno o più professionisti e il contratto
+          con quest’ultimo o questi ultimi professionisti sia concluso al più
+          tardi 24 ore dopo la conferma della prenotazione del primo servizio
+          turistico; <br /><b>4.2. </b>Si intende “servizio turistico collegato”
+          almeno due tipi diversi di servizi turistici acquistati ai fini dello
+          stesso viaggio o della stessa vacanza, che non costituiscono un
+          pacchetto, e che comportano la conclusione di contratti distinti con i
+          singoli fornitori di servizi turistici, se un professionista agevola,
+          alternativamente: <b>1) </b>al momento di un’unica visita o un unico
+          contatto con il proprio punto vendita, la selezione distinta e il
+          pagamento distinto di ogni servizio turistico da parte dei
+          viaggiatori; <b>2) </b>l’acquisto mirato di almeno un servizio
+          turistico aggiuntivo presso un altro professionista quando tale
+          acquisto e’ concluso entro le 24 ore dalla conferma della prenotazione
+          del primo servizio turistico.
+        </p>
+        <h4>5. INFORMAZIONI AL VIAGGIATORE - SCHEDA TECNICA</h4>
+        <p>
+          <b>5.1. </b>Prima dell’inizio del viaggio l’organizzatore e il
+          venditore comunicano al viaggiatore le seguenti informazioni:
+          <b>a) </b>orari, località di sosta intermedia e coincidenze. Nel caso
+          in cui l’orario esatto non sia ancora stabilito, l’organizzatore e, se
+          del caso, il venditore, informano il viaggiatore dell’orario
+          approssimativo di partenza e ritorno; <b>b) </b>informazioni
+          sull’identità del vettore aereo operativo, ove non nota al momento
+          della prenotazione, giusta previsione art.11 Reg. Ce 211105 (Art. 11,
+          comma 2 Reg. Ce 2111/05: Se l’identità del vettore aereo effettivo o
+          dei vettori aerei effettivi non è ancora nota al momento della
+          prenotazione, il contraente del trasporto aereo fa in modo che il
+          passeggero sia informato del nome del vettore o dei vettori aerei che
+          opereranno in quanto vettori aerei effettivi per il volo o i voli
+          interessati. In tal caso, il contraente del trasporto aereo farà in
+          modo che il passeggero sia informato dell’identità del vettore o dei
+          vettori aerei effettivi non appena la loro identità sia stata
+          accertata ed il loro eventuale divieto operativo nell’Unione Europea”;
+          <b>c) </b>ubicazione, caratteristiche principali e, ove prevista, la
+          categoria turistica dell’alloggio ai sensi del regolamento del paese
+          di destinazione; <b>d) </b>i pasti forniti inclusi o meno;
+          <b>e) </b>visite, escursioni o altri servizi inclusi nel prezzo totale
+          pattuito del pacchetto; <b>f) </b>i servizi turistici prestati al
+          viaggiatore in quanto membro di un gruppo e, in tal caso, le
+          dimensioni approssimative del gruppo; <b>g) </b>la lingua in cui sono
+          prestati i servizi; <b>h) </b>se il viaggio o la vacanza sono idonei a
+          persone a mobilità ridotta e, su richiesta del viaggiatore,
+          informazioni precise sull’idoneità del viaggio o della vacanza che
+          tenga conto delle esigenze del viaggiatore. Richieste particolari
+          sulle modalità di erogazione e\o di esecuzione di taluni servizi
+          facenti parte del pacchetto turistico, compresa la necessità di
+          ausilio in aeroporto per persone con ridotta mobilità, la richiesta di
+          pasti speciali a bordo o nella località di soggiorno, dovranno essere
+          avanzate in fase di richiesta di prenotazione e risultare oggetto di
+          specifico accordo tra il viaggiatore e l’organizzatore, se del caso
+          anche per il tramite dell’agenzia di viaggio mandataria; <b>i) </b>il
+          prezzo totale del pacchetto comprensivo di tasse e tutti i diritti,
+          imposte e altri costi aggiuntivi, ivi comprese le eventuali spese
+          amministrative e di gestione delle pratiche, oppure, ove questi non
+          siano ragionevolmente calcolabili prima della conclusione del
+          contratto, un’indicazione del tipo di costi aggiuntivi che il
+          viaggiatore potrebbe dover ancora sostenere; <b>j) </b>le modalità di
+          pagamento, compreso l’eventuale importo o percentuale del prezzo da
+          versare a titolo di acconto e il calendario per il versamento del
+          saldo, o le garanzie finanziarie che il viaggiatore è tenuto a pagare
+          o fornire; <b>k) </b>il numero minimo di persone richiesto per il
+          pacchetto e il termine di cui all’articolo 41, comma 5, lettera a),
+          prima dell’inizio del pacchetto per l’eventuale risoluzione del
+          contratto in caso di mancato raggiungimento del numero; <b>l) </b>le
+          informazioni di carattere generale concernenti le condizioni in
+          materia di passaporti e\o visti, compresi i tempi approssimativi per
+          l’ottenimento dei visti, e le formalità sanitarie del paese di
+          destinazione; <b>m) </b>informazioni sulla facoltà per il viaggiatore
+          di recedere dal contratto in qualunque momento prima dell’inizio del
+          pacchetto dietro pagamento di adeguate spese di recesso, o, se
+          previste, le spese di recesso standard richieste dall’organizzatore ai
+          sensi dell’articolo 41, comma l del D.Lgs. /2011 e specificate al
+          successivo art. 10 comma 3; <b>n) </b>informazioni sulla
+          sottoscrizione facoltativa o obbligatoria di un’assicurazione che
+          copra le spese di recesso unilaterale dal contratto da parte del
+          viaggiatore o le spese di assistenza, compreso il rimpatrio, in caso
+          di infortunio, malattia o decesso; <b>o) </b>gli estremi della
+          copertura di cui all’articolo , commi l, 2 e 3 Dlgs. /2011; <br /><b
+            >5.2. </b
+          >Organizzazione tecnica Born Free di Sebastiani Carlo & C. sas, sede
+          legale, via Massa avenza 38/B 5100 Massa sede operativa via Cimabue,
+          22 5501 Lido di Camaiore. Autorizzazione 015180/201 del 1/12/201 in
+          conformità con quanto disposto dalla legge regionale n. 86 del 20
+          Dicembre 2016. Polizza assicurativa Responsabilità Civile
+          1/2/31/10822888 Unipolsai in conformità con quanto previsto dagli
+          articoli 15 e 16 del d.lgs 111/5.
+        </p>
+
+        <h4>6. PRENOTAZIONI - PROPOSTA D’ACQUISTO</h4>
+        <p>
+          <b>6.1. </b>Al momento della conclusione del contratto di pacchetto
+          turistico o, comunque, appena possibile, l’organizzatore o il
+          venditore, fornisce al viaggiatore una copia o una conferma del
+          contratto su un supporto durevole. <b>6.2. </b>Il viaggiatore ha
+          diritto a una copia cartacea qualora il contratto di pacchetto
+          turistico sia stato stipulato alla contemporanea presenza fisica delle
+          parti. <b>6.3. </b>Per quanto riguarda i contratti negoziati fuori dei
+          locali commerciali, definiti all’art.5 c.1, lett. h), del d. lgs.
+          206/2005, una copia o la conferma del contratto di pacchetto turistico
+          è fornita al viaggiatore su carta o, se il viaggiatore acconsente, su
+          un altro supporto durevole. <b>6.4. </b>Il contratto di pacchetto
+          turistico si intende perfezionato, con conseguente conclusione del
+          contratto, solo nel momento in cui l’organizzatore invierà conferma,
+          al viaggiatore presso il venditore, anche a mezzo sistema telematico.
+          <b>6.5. </b>Il viaggiatore deve comunicare al venditore, prima della
+          prenotazione, eventuali richieste specifiche che si considerano
+          oggetto del contratto solo se possibili, riportate per iscritto nel
+          contratto ed accettate dall’organizzatore. <b>6.6. </b>I documenti di
+          viaggio (es. voucher) verranno consegnati al viaggiatore in tempo
+          utile prima della partenza e il viaggiatore dovrà conservarli e
+          portarli con sé durante il viaggio, per poter usufruire dei servizi
+          regolarmente prenotati, unitamente ad altri eventuali documenti (es.
+          biglietti aerei) consegnati dal venditore. Il viaggiatore è tenuto a
+          verificare la correttezza dei dati riportati sui predetti documenti e
+          sul contratto di viaggio ed a comunicare immediatamente al venditore
+          eventuali errori. Il viaggiatore deve comunicare all’organizzatore i
+          dati dei partecipanti esattamente come riportati sui documenti
+          personali d’identità. <b>6.7. </b>Eventuali escursioni, servizi o
+          prestazioni acquistati e pagati dai viaggiatori a destinazione sono
+          estranei al presente contratto. Pertanto nessuna responsabilità in
+          merito a ciò potrà essere ascritta all’organizzatore o al venditore,
+          neppure nell’eventualità che, a titolo di cortesia, accompagnatori,
+          guide, personale residente, o corrispondenti locali possano occuparsi
+          della loro prenotazione.
+        </p>
+
+        <h4>7. PAGAMENTI</h4>
+        <p>
+          <b>7.1.</b> All’atto della sottoscrizione del contratto dovrà essere
+          corrisposta: a) la quota d’iscrizione o gestione pratica (vedi art.
+          8); b) acconto nella misura indicata dall’organizzatore o dal
+          venditore. Il saldo dovrà essere improrogabilmente versato entro il
+          termine stabilito dall’organizzatore nel proprio catalogo o nella
+          conferma di prenotazione. <b>7.2.</b> Il mancato pagamento delle somme
+          di cui sopra, alle date stabilite, al pari della mancata rimessione
+          all’organizzatore delle somme versate dal viaggiatore al venditore
+          comporterà l’automatica risoluzione di diritto del contratto da
+          operarsi con semplice comunicazione scritta, via fax o via e-mail,
+          presso il venditore, o presso il domicilio anche elettronico, ove
+          comunicato, del viaggiatore. Il saldo del prezzo si considera avvenuto
+          quando le somme pervengono all’organizzatore direttamente dal
+          viaggiatore o per il tramite del venditore.
+        </p>
+
+        <h4>8. PREZZO E REVISIONE DEL PREZZO</h4>
+        <p>
+          <b>8.1.</b> Il prezzo del pacchetto turistico è determinato nel
+          contratto, con riferimento a quanto indicato in catalogo o sul sito
+          web dell’organizzatore, o programma fuori catalogo/su misura ed agli
+          eventuali aggiornamenti degli stessi cataloghi o programmi fuori
+          catalogo successivamente intervenuti, o nel sito web dell’Operatore.
+          Esso potrà essere variato, in aumento o diminuzione, soltanto in
+          conseguenza alle variazioni di: <b>-</b> prezzo del trasporto di
+          passeggeri in funzione del costo del carburante o altre fonti di
+          energia; <b>-</b> il livello di diritti e tasse sui servizi turistici
+          inclusi nel contratto imposti da terzi non direttamente coinvolti
+          nell’esecuzione del pacchetto, comprese le tasse di atterraggio, di
+          sbarco o di imbarco nei porti e negli aeroporti; <b>-</b> tassi di
+          cambio pertinenti al pacchetto in questione. Un aumento di prezzo è
+          possibile solo previa comunicazione su supporto durevole da parte
+          dell’organizzatore al viaggiatore unitamente alla giustificazione di
+          tale aumento e alle modalità di calcolo, almeno 20 giorni prima
+          dell’inizio del pacchetto. Se l’aumento di prezzo eccede l’8% del
+          prezzo complessivo del pacchetto si applica il successivo punto .2. In
+          caso di diminuzione del prezzo, l’organizzatore ha diritto di detrarre
+          le spese amministrative e di gestione delle pratiche effettive dal
+          rimborso dovuto al viaggiatore, delle quali è tenuto a fornire prova
+          su richiesta del viaggiatore. <b>8.2.</b> Il prezzo è composto da: a)
+          quota di iscrizione o quota gestione pratica; b) quota di
+          partecipazione: espressa in catalogo o nella quotazione del pacchetto
+          fornita dal venditore al viaggiatore; c) costo eventuali polizze
+          assicurative contro i rischi di annullamento, recesso e/o spese
+          mediche o altri servizi richiesti; d) costo eventuali visti e tasse di
+          ingresso ed uscita dai Paesi meta della vacanza; e) oneri e tasse
+          aeroportuali e/o portuali.
+        </p>
+
+        <h4>
+          9. RECESSO DELL’ORGANIZZATORE, MODIFICA O ANNULLAMENTO DEL PACCHETTO
+          TURISTICO PRIMA DELLA PARTENZA
+        </h4>
+        <p>
+          <b>9.1.</b> Prima dell’inizio del pacchetto, l’organizzatore può
+          unilateralmente modificare le condizioni del contratto diverse dal
+          prezzo, purché si tratti di modifiche di scarsa importanza,
+          comunicandole al viaggiatore su un supporto durevole, anche tramite il
+          venditore. <b>9.2.</b> Se, prima dell’inizio del pacchetto,
+          l’organizzatore è costretto a modificare in modo significativo una o
+          più caratteristiche principali dei servizi turistici o non può
+          soddisfare le richieste specifiche accettate in precedenza e riportate
+          espressamente nel contratto o propone di aumentare il prezzo del
+          pacchetto di oltre l’8%, il viaggiatore, entro un periodo ragionevole
+          specificato dall’organizzatore con la comunicazione di modifica, pu
+          accettare la modifica proposta o recedere dal contratto senza
+          corrispondere spese di recesso. In caso di recesso, l’organizzatore
+          può offrire al viaggiatore un pacchetto sostitutivo di qualità
+          equivalente o superiore. La comunicazione di modifica indica al
+          viaggiatore le modifiche proposte, la loro incidenza sul prezzo del
+          pacchetto, il termine entro il quale il viaggiatore è tenuto a
+          informare l’organizzatore della sua decisione e le conseguenze della
+          mancata risposta del viaggiatore entro il predetto periodo nonché
+          l’eventuale pacchetto sostitutivo offerto e il relativo prezzo.
+          <b>9.3.</b> Se le modifiche del contratto di pacchetto turistico o il
+          pacchetto sostitutivo comportano un pacchetto di qualità o costo
+          inferiore, il viaggiatore ha diritto a un’adeguata riduzione del
+          prezzo. <b>9.4.</b> In caso di recesso dal contratto di pacchetto
+          turistico ai sensi del precedente comma se il viaggiatore non accetta
+          un pacchetto sostitutivo, l’organizzatore rimborsa senza
+          ingiustificato ritardo e in ogni caso entro 14 giorni dal recesso dal
+          contratto, tutti i pagamenti effettuati da o per conto del viaggiatore
+          e si applicano le disposizioni di cui all’art. 3, commi 2, 3, 4, 5, 6,
+          7, 8 codice turismo. <b>9.5.</b> L’organizzatore pu recedere dal
+          contratto di pacchetto turistico e offrire al viaggiatore il rimborso
+          integrale dei pagamenti effettuati per il pacchetto, ma non è tenuto a
+          versare un indennizzo supplementare se: <b>a)</b> il numero di persone
+          iscritte al pacchetto è inferiore al minimo previsto dal contratto e
+          l’organizzatore comunica il recesso dal contratto al viaggiatore entro
+          il termine fissato nel contratto e in ogni caso non più tardi di 20
+          giorni prima dell’inizio del pacchetto in caso di viaggi che durano
+          più di 6 giorni, di 7 giorni prima della partenza in caso di viaggi
+          che durano tra 2 e 6 giorni, di 8 ore prima della partenza nel caso di
+          viaggi che durano meno di 2 giorni; <b>b)</b> l’organizzatore non è in
+          grado di eseguire il contratto a causa di circostanze inevitabili e
+          straordinarie e comunica il recesso dallo stesso, al viaggiatore,
+          senza ingiustificato ritardo prima dell’inizio del pacchetto.
+        </p>
+
+        <h4>10. RECESSO DEL VIAGGIATORE</h4>
+        <p>
+          <b>10.1.</b> Il viaggiatore pu recedere dal contratto in qualunque
+          momento prima dell’inizio del pacchetto, dietro pagamento di adeguate
+          spese di recesso, o, se previste, delle spese di recesso standard
+          (penali di cancellazione) stabilite dall’organizzatore, che dipendono
+          dalla destinazione prescelta e dal momento in cui il viaggiatore
+          recede rispetto alla data di partenza. In assenza di specificazione
+          delle spese standard di recesso, l’importo delle spese di recesso
+          corrisponde al prezzo del pacchetto diminuito dei risparmi di costo e
+          degli introiti che derivano dalla riallocazione dei servizi turistici.
+          <b>10.2.</b> Il viaggiatore può stipulare polizze assicurative a
+          copertura delle predette spese di recesso unilaterale da parte del
+          viaggiatore o delle spese di assistenza, compreso il rientro, in caso
+          di infortunio, malattia o decesso. In base al pacchetto prescelto,
+          l’organizzatore informa il viaggiatore sulla sottoscrizione
+          facoltativa o obbligatoria di tali assicurazioni. <b>10.3.</b> Le
+          spese di recesso non sono dovute per le ipotesi previste dal
+          precedente articolo 9.2. In caso di circostanze inevitabili e
+          straordinarie verificatesi nel luogo di destinazione o nelle sue
+          immediate vicinanze e che hanno un’incidenza sostanziale
+          sull’esecuzione del pacchetto o sul trasporto di passeggeri verso la
+          destinazione, il viaggiatore ha diritto di recedere dal contratto,
+          prima dell’inizio del pacchetto, senza corrispondere spese di recesso,
+          ed al rimborso integrale dei pagamenti effettuati per il pacchetto, ma
+          non ha diritto a un indennizzo supplementare. <b>10.4.</b> In caso di
+          contratti negoziati fuori dei locali commerciali (così come definiti
+          dall’art. 45 c.1 lett. h) codice consumo), il viaggiatore ha diritto
+          di recedere dal contratto di vendita di pacchetto turistico entro un
+          periodo di cinque giorni dalla data della conclusione del contratto o
+          dalla data in cui riceve le condizioni contrattuali e le informazioni
+          preliminari se successiva, senza penali e senza fornire alcuna
+          motivazione. Nei casi di offerte con tariffe sensibilmente diminuite
+          rispetto alle offerte correnti, il diritto di recesso è escluso. In
+          tale ultimo caso l’organizzatore documenta la variazione del prezzo
+          evidenziando adeguatamente l’esclusione del diritto di recesso.
+          <b>10.5.</b> La comunicazione di recesso da parte del viaggiatore
+          deve. avvenire in forma scritta, anche per email, entro le ore 18 del
+          giorno lavorativo (ad esclusione del sabato e dei giorni festivi). La
+          comunicazione di cancellazione sarà ritenuta valida soltanto dopo
+          conferma scritta di ricezione da parte del venditore o organizzatore.
+        </p>
+
+        <h4>11. MODIFICHE DOPO LA PARTENZA</h4>
+        <p>
+          <b>11.1.</b> Se per circostanze sopravvenute non imputabili
+          all’organizzatore è impossibile fornire, in corso d’esecuzione del
+          contratto, una parte sostanziale, per valore o qualità, della
+          combinazione dei servizi turistici pattuiti nel contratto di pacchetto
+          turistico, l’organizzatore offre, senza supplemento di prezzo a carico
+          del viaggiatore, soluzioni alternative adeguate di qualità, ove
+          possibile equivalente o superiore, rispetto a quelle specificate nel
+          contratto, affinch l’esecuzione del pacchetto possa continuare,
+          inclusa l’eventualità che il ritorno del viaggiatore al luogo di
+          partenza non sia fornito come concordato. <b>11.2.</b> Se le soluzioni
+          alternative proposte comportano un pacchetto di qualità inferiore
+          rispetto a quella specificata nel contratto di pacchetto turistico,
+          l’organiz- zatore concede al viaggiatore un’adeguata riduzione del
+          prezzo. Il viaggiatore può respingere le soluzioni alternative
+          proposte solo se non sono comparabili a quanto convenuto nel contratto
+          di pacchetto turistico o se la riduzione del prezzo concessa è
+          inadeguata. <b>11.3.</b> Se è impossibile predisporre soluzioni
+          alternative o il viaggiatore respinge le soluzioni alternative
+          proposte, conformi a quanto indicato al punto 11.1, al viaggiatore è
+          riconosciuta una riduzione del prezzo. In caso di inadempimento
+          dell’obbligo di offerta si applica il punto 15.5.
+          <b>11.4.</b> Laddove, a causa di circostanze sopravvenute non
+          imputabili all’organizzatore, è impossibile assicurare il rientro del
+          viaggiatore come pattuito nel contratto di pacchetto turistico, si
+          applicano i punti 15.6 e 15.7.
+        </p>
+
+        <h4>12. SOSTITUZIONI E CESSIONE DEL CONTRATTO AD ALTRO VIAGGIATORE</h4>
+        <p>
+          <b>12.1.</b> Il viaggiatore può far sostituire a sé altra persona
+          sempre che: <b>a)</b> l’organizzatore ne sia informato entro e non
+          oltre sette giorni prima dell’inizio del pacchetto; <b>b)</b> la
+          persona cui intende cedere il contratto soddisfi tutte le condizioni
+          per la fruizione del servizio ed in particolare i requisiti relativi
+          al passaporto, ai visti, ai certificati sanitari; <b>c)</b> i servizi
+          medesimi o altri servizi in sostituzione possano essere erogati a
+          seguito della sostituzione; <b>d)</b> vengano versate
+          all’organizzatore tutte le spese amministrative e di gestione pratica
+          per procedere alla sostituzione, nella misura che verrà quantificata
+          prima della cessione, fornendo, su richiesta del cedente, la prova
+          relativa ai diritti, imposte o altri costi aggiuntivi risultanti dalla
+          cessione. I costi di cessione potrebbero includere, ad esempio,
+          l’acquisto di nuovi titoli di trasporto alla tariffa disponibile e
+          vigente al momento della richiesta di cessione; si precisa che i costi
+          della biglietteria sono soggetti a continue modifiche e fluttuazioni
+          di prezzo e dipendono dalla classe di prenotazione, dalla
+          disponibilità di posti volo, dalla tipologia di tariffa, dalla classe
+          del volo, dalla data di emissione e da quella del volo.
+          <b>12.2.</b> Il cedente e il cessionario del contratto di pacchetto
+          turistico sono solidalmente responsabili per il pagamento del saldo
+          del prezzo e degli eventuali diritti, imposte e altri costi
+          aggiuntivi, ivi comprese le eventuali spese amministrative e di
+          gestione delle pratiche, risultanti da tale cessione. <b>12.3.</b> In
+          applicazione dell’art. del Codice della Navigazione, la sostituzione
+          sarà possibile solo col consenso del vettore. <b>12.4.</b> Se il
+          viaggiatore richiede la variazione di un elemento e/o servizio
+          turistico di una pratica già confermata e purché la richiesta non
+          costituisca novazione contrattuale e sempre che ne risulti possibile
+          l’attuazione, dovrà corrispondere all’organizzatore le spese
+          amministrative e di gestione pratica e le spese conseguenti alla
+          modifica stessa (nell’ipotesi debba essere riemessa biglietteria
+          aerea, o di altro mezzo di trasporto) la cessione comporterà
+          l’applicazione della tariffa disponibile in tale data).
+          <b>12.5.</b> Salvo ove diversamente indicato in relazione a singole
+          pratiche, le spese amministrative e di gestione pratica sono pari ad
+          100,00 a persona per ogni sostituzione o cessione ad altro
+          viaggiatore.
+        </p>
+
+        <h4>13. OBBLIGHI DEI VIAGGIATORI</h4>
+        <p>
+          <b>13.1.</b> Nel corso delle trattative e comunque prima della
+          conclusione del contratto, ai cittadini italiani sono fornite le
+          informazioni di carattere generale - aggiornate alla data di stampa
+          del catalogo – concernenti le condizioni in materia di passaporti e
+          visti, compresi i tempi approssimativi per l’ottenimento dei visti e
+          le formalità sanitarie del paese di destinazione. <b>13.2.</b> Per le
+          norme relative all’espatrio dei minori italiani si rimanda
+          espressamente a quanto indicato sul sito della Polizia di Stato. Si
+          precisa comunque che i minori devono essere in possesso di un
+          documento individuale valido per l’espatrio (passaporto, o per i Paesi
+          UE, carta di identità valida per l’espatrio con indicazione dei nomi
+          dei genitori). I minori di anni 14 e i minori per i quali è necessaria
+          l’Autorizzazione emessa dalla Autorità Giudiziaria, dovranno essere
+          seguite le prescrizioni indicate sul sito della Polizia di Stato
+          http://www.poliziadistato.it/articolo/11/. <b>13.3.</b> I cittadini
+          stranieri devono essere in possesso di passaporto individuale ed
+          eventuale visto d’ingresso e potranno reperire le necessarie ed
+          aggiornate informazioni attraverso le loro rappresentanze diplomatiche
+          presenti in Italia e/o i rispettivi canali informativi governativi
+          ufficiali. <b>13.4.</b> I viaggiatori provvederanno, prima della
+          partenza, a verificare presso le competenti autorità (per i cittadini
+          italiani le locali Questure ovvero il Ministero degli Affari Esteri
+          tramite il sito www. viaggiaresicuri.it ovvero la Centrale Operativa
+          Telefonica al numero 06.1115) che i propri documenti siano in regola
+          con le indicazioni fornite e ad adeguarsi in tempo utile prima
+          dell’inizio del pacchetto. In assenza di tale verifica, nessuna
+          responsabilità per la mancata partenza di uno o più viaggiatori potrà
+          essere imputata al venditore o all’organizzatore. <b>13.5.</b> I
+          viaggiatori dovranno in ogni caso informare il venditore e
+          l’organizzatore della propria cittadinanza prima della richiesta di
+          prenotazione e, al momento della partenza dovranno accertarsi di
+          essere muniti dei certificati di vaccinazione, del passaporto
+          individuale e di ogni altro documento valido per tutti i Paesi toccati
+          dall’itinerario, nonché dei visti di soggiorno, di transito e dei
+          certificati sanitari che fossero eventualmente richiesti.
+          <b>13.6.</b> Al fine di valutare la situazione di sicurezza
+          socio\politica, sanitaria e ogni altra informazione utile relativa ai
+          Paesi e luoghi di destinazione e nelle loro immediate vicinanze e,
+          dunque, l’utilizzabilità oggettiva dei servizi acquistati o da
+          acquistare e l’eventuale incidenza sostanziale sull’esecuzione del
+          pacchetto, il viaggiatore avrà l’onere di assumere le informazioni
+          ufficiali di carattere generale presso il Ministero Affari Esteri, e
+          divulgate attraverso il sito istituzionale della Farnesina
+          www.viaggiaresicuri.it. Le informazioni di cui sopra non possono
+          essere contenute nei cataloghi degli organizzatori - on line o
+          cartacei – poiché essi contengono informazioni descrittive di
+          carattere generale e non informazioni soggette a modifiche ad opera di
+          autorità ufficiali. Le informazioni aggiornate pertanto dovranno
+          essere assunte a cura dei viaggiatori, visualizzando tutte le
+          informazioni presenti sul sito web del Ministero degli Affari Esteri
+          www. viaggiaresicuri.it (schede “Paesi”, “salute in viaggio” e
+          “avvertenze”). Il viaggiatore è tenuto in base al principio della
+          diligenza del buon padre di famiglia a verificare la correttezza dei
+          propri documenti personali e di eventuali minori, nonché di munirsi di
+          documenti validi per l’espatrio secondo le regole del proprio Stato e
+          le convenzioni che regolano la materia. Il viaggiatore deve provvedere
+          ad espletare le relative formalità anche considerando che il venditore
+          o l’organizzatore non hanno l’obbligo di procurare visti o documenti.
+          <b>13.7.</b> Ove alla data di prenotazione la destinazione prescelta
+          risultasse, dai canali informativi istituzionali, località oggetto di
+          “sconsiglio o “avvertimento” per motivi di sicurezza, il viaggiatore
+          che dovesse successivamente esercitare il recesso non potrà invocare,
+          ai fini dell’esonero o della riduzione della richiesta di indennizzo
+          per il recesso operato, il venir meno della causa contrattuale
+          connessa alle condizioni di sicurezza del Paese. <b>13.8.</b> I
+          viaggiatori dovranno attenersi all’osservanza delle regole di normale
+          prudenza e diligenza ed a quelle specifiche in vigore nei Paesi
+          destinazione del viaggio, a tutte le informazioni fornite loro
+          dall’organizzatore, nonché ai regolamenti, alle disposizioni
+          amministrative o legislative relative al pacchetto turistico. I
+          viaggiatori saranno chiamati a rispondere di tutti i danni che
+          l’organizzatore e/o il venditore dovessero subire anche a causa del
+          mancato rispetto degli obblighi sopra indicati, ivi incluse le spese
+          necessarie al loro rimpatrio. Inoltre, l’organizzatore può pretendere
+          dal viaggiatore il pagamento di un costo ragionevole per l’assistenza
+          fornitagli, qualora il problema sia causato intenzionalmente dal
+          viaggiatore o per sua colpa, nei limiti delle spese sostenute.
+          <b>13.9.</b> Il viaggiatore è tenuto a fornire all’organizzatore o al
+          venditore tutti i documenti, le informazioni e gli elementi in suo
+          possesso utili per l’esercizio del diritto di regresso nei confronti
+          dei soggetti che abbiano causato o contribuito al verificarsi delle
+          circostanze o dell’evento da cui sono derivati l’indennizzo, la
+          riduzione del prezzo, il risarcimento o altri obblighi in questione
+          nonché dei soggetti tenuti a fornire servizi di assistenza ed alloggio
+          in forza di altre disposizioni, nel caso in cui il viaggiatore non
+          possa rientrare nel luogo di partenza, nonché per l’esercizio del
+          diritto di surroga nei confronti di terzi responsabili del danno ed è
+          responsabile verso l’organizzatore del pregiudizio arrecato al diritto
+          di surrogazione. <b>13.10.</b> Il viaggiatore deve sempre comunicare
+          TEMPESTIVAMENTE all’organizzatore, anche tramite il venditore,
+          eventuali difetti di conformità riscontrati durante l’esecuzione del
+          pacchetto, come indicato al successivo articolo 15.
+        </p>
+
+        <h4>14. CLASSIFICAZIONE ALBERGHIERA</h4>
+        <p>
+          La classificazione ufficiale delle strutture alberghiere viene fornita
+          in catalogo od in altro materiale informativo soltanto in base alle
+          espresse e formali indicazioni delle competenti autorità del Paese in
+          cui il servizio è erogato. In assenza di classificazioni ufficiali
+          riconosciute dalle competenti Pubbliche Autorità dei Paesi membri
+          della UE cui il servizio si riferisce, o in ipotesi di strutture
+          commercializzate quale “Villaggio Turistico” l’organizzatore si
+          riserva la facoltà di fornire in catalogo o sul sito web o sul
+          programma di viaggio una propria descrizione della struttura
+          ricettiva, tale da permettere una valutazione e conseguente
+          accettazione della stessa da parte del viaggiatore.
+        </p>
+
+        <h4>
+          15. RESPONSABILITÀ DELL’ORGANIZ-ZATORE PER INESATTA ESECUZIONE DEL
+          PACCHETTO
+        </h4>
+        <p>
+          <b>15.1.</b> Ai sensi dell’art. 42 codice turismo, l’organizzatore è
+          responsabile dell’esecuzione di tutti i servizi turistici previsti dal
+          contratto di pacchetto turistico, indipendentemente dal fatto che tali
+          servizi turistici debbano essere prestati dall’organizzatore stesso,
+          dai suoi ausiliari o preposti quando agiscono nell’esercizio delle
+          loro funzioni, dai terzi della cui opera si avvale o da altri
+          fornitori di servizi turistici, ai sensi dell’art. 1228 del codice
+          civile. <b>15.2.</b> Il viaggiatore, ai sensi degli articoli 1175 e
+          1375 c.c., informa l’organizzatore, direttamente o tramite il
+          venditore, tempestivamente, tenuto conto delle circostanze del caso,
+          di eventuali difetti di conformità rilevati durante l’esecuzione di un
+          servizio turistico previsto dal contratto di pacchetto turistico.
+          <b>15.3.</b> Se uno dei servizi turistici non è eseguito secondo
+          quanto pattuito nel contratto di pacchetto turistico, l’organizzatore
+          pone rimedio al difetto di conformità, a meno che ciò risulti
+          impossibile oppure risulti eccessivamente oneroso, tenendo conto
+          dell’entità del difetto di conformità e del valore dei servizi
+          turistici interessati dal difetto. Se l’organizzatore non pone rimedio
+          al difetto, si applica il punto 16. <b>15.4.</b> Fatte salve le
+          eccezioni di cui al comma precedente, se l’organizzatore non pone
+          rimedio al difetto di conformità entro un periodo ragionevole fissato
+          dal viaggiatore in relazione alla durata e alle caratteristiche del
+          pacchetto, con la contestazione effettuata tempestivamente ai sensi
+          del punto 13.2, il viaggiatore può ovviare personalmente al difetto e
+          chiedere il rimborso delle spese necessarie, purché esse siano
+          ragionevoli e documentate; se l’organizzatore rifiuta di porre rimedio
+          al difetto di conformità o se è necessario ovviarvi immediatamente non
+          occorre che il viaggiatore specifichi un termine. <b>15.5.</b> Se un
+          difetto di conformità, ai sensi dell’articolo 1455 c.c., costituisce
+          un inadempimento di non scarsa importanza dei servizi turistici
+          inclusi in un pacchetto e l’organizzatore non vi ha posto rimedio
+          entro un periodo ragionevole stabilito dal viaggiatore in relazione
+          alla durata e alle caratteristiche del pacchetto, con la contestazione
+          effettuata ai sensi del punto 15.2, il viaggiatore può, senza spese,
+          risolvere di diritto e con effetto immediato il contratto di pacchetto
+          turistico o, se del caso, chiedere, ai sensi del successivo punto 16
+          una riduzione del prezzo, salvo comunque l’eventuale risarcimento dei
+          danni. In caso di risoluzione del contratto, se il pacchetto
+          comprendeva il trasporto dei passeggeri, l’organizzatore provvede
+          anche al rientro del viaggiatore con un trasporto equivalente senza
+          ingiustificato ritardo e senza costi aggiuntivi per il viaggiatore.
+          <b>15.6.</b> Laddove sia impossibile assicurare il rientro del
+          viaggiatore, l’organizzatore sostiene i costi dell’alloggio
+          necessario, ove possibile di categoria equivalente a quanto era
+          previsto dal contratto, per un periodo non superiore a 3 notti per
+          viaggiatore o per il periodo più lungo eventualmente previsto dalla
+          normativa dell’Unione europea relativa ai diritti dei passeggeri,
+          applicabile ai pertinenti mezzi di trasporto. <b>15.7.</b> La
+          limitazione dei costi di cui al precedente comma 15.6 non si applica
+          alle persone a mobilità ridotta, definite dall’art. 2, par. 1, lett.
+          a), del Reg. (CE) n. 110/2006, e ai loro accompagnatori, alle donne in
+          stato di gravidanza, ai minori non accompagnati e alle persone
+          bisognose di assistenza medica specifica, purché l’organizzatore abbia
+          ricevuto comunicazione delle loro particolari esigenze almeno 8 ore
+          prima dell’inizio del pacchetto.
+        </p>
+
+        <h4>16. RIDUZIONE DEL PREZZO E RISARCIMENTO DEI DANNI</h4>
+        <p>
+          <b>16.1.</b> Il viaggiatore ha diritto a un’adeguata riduzione del
+          prezzo per il periodo durante il quale vi sia stato difetto di
+          conformità, a meno che l’organizzatore dimostri che tale difetto è
+          imputabile al viaggiatore. <b>16.2.</b> Il viaggiatore ha diritto di
+          ricevere dall’organizzatore il risarcimento adeguato per qualunque
+          danno che può aver subito in conseguenza di un difetto di conformità.
+          <b>16.3.</b> Al viaggiatore non è riconosciuto il risarcimento dei
+          danni se l’organizzatore dimostra che il difetto di conformità è
+          imputabile al viaggiatore o a un terzo estraneo alla fornitura dei
+          servizi turistici inclusi nel contratto di pacchetto turistico ed è
+          imprevedibile o inevitabile oppure è dovuto a circostanze inevitabili
+          e straordinarie. <b>16.4.</b> All’organizzatore si applicano le
+          limitazioni previste dalle convenzioni internazionali in vigore che
+          vincolano l’Italia o l’UE, relative alla misura del risarcimento o
+          alle condizioni a cui è dovuto da parte di un fornitore che presta un
+          servizio turistico incluso in un pacchetto. <b>16.5.</b> Il presente
+          contratto espressamente prevede la limitazione del risarcimento dovuto
+          dall’organizzatore, salvo che per i danni alla persona o quelli
+          causati intenzionalmente o per colpa, nella misura non inferiore al
+          triplo del prezzo totale del pacchetto. <b>16.6.</b> Il risarcimento o
+          la riduzione del prezzo concessi ai sensi del codice del turismo e il
+          risarcimento o la riduzione del prezzo concessi ai sensi di altri
+          regolamenti comunitari e convenzioni internazionali applicabili devono
+          detrarsi gli uni dagli altri.
+        </p>
+
+        <h4>17. OBBLIGO DI ASSISTENZA</h4>
+        <p>
+          <b>17.1.</b> L’organizzatore presta adeguata assistenza senza ritardo
+          al viaggiatore che si trova in difficoltà anche nelle circostanze di
+          cui al punto 15.7, in particolare fornendo le opportune informazioni
+          riguardo ai servizi sanitari, alle autorità locali e all’assistenza
+          consolare e lo assiste nell’effettuare comunicazioni a distanza e
+          aiutandolo a trovare servizi turistici alternativi. <b>17.2.</b> Il
+          viaggiatore può indirizzare messaggi, richieste o reclami relativi
+          all’esecuzione del pacchetto direttamente al venditore tramite il
+          quale l’ha acquistato, il quale, a propria volta, tempestivamente
+          inoltra tali messaggi, richieste o reclami all’organizzatore.
+        </p>
+
+        <h4>18. RESPONSABILITÀ DEL VENDITORE</h4>
+        <p>
+          Il venditore deve indicare la propria qualità ed è responsabile
+          esclusivamente dell’ese-cuzione del mandato conferitogli dal
+          viaggiatore con il contratto di intermediazio-ne di viaggio,
+          indipendentemente dal fatto che la prestazione sia resa dal venditore
+          stesso, dai suoi ausiliari o preposti quando agiscono nell’esercizio
+          delle loro funzioni o dai terzi della cui opera si avvalga, dovendo
+          l’adempimento delle obbligazioni assunte essere valutato con riguardo
+          alla diligenza richiesta per l’esercizio della corrispondente attività
+          professionale.
+        </p>
+
+        <h4>
+          19. ASSICURAZIONE CONTRO LE SPESE DI ANNULLAMENTO E DI RIMPATRIO
+        </h4>
+        <p>
+          Se non espressamente comprese nel prezzo, è possibile e consigliabile,
+          stipulare al momento della prenotazione presso gli uffici
+          dell’organizzatore o del venditore speciali polizze assicurative a
+          copertura delle spese di recesso (sempre dovute tranne le specifiche
+          eccezioni previste dal codice del turismo) di cui al punto 10, nonch
+          quelle derivanti da infortuni e/o malattie che coprano anche le spese
+          di rimpatrio e per la perdita e/o danneggiamento del bagaglio. I
+          diritti nascenti dai contratti di assicurazione devono essere
+          esercitati dal viaggiatore direttamente nei confronti delle Compagnie
+          di Assicurazioni contraenti, alle condizioni e con le modalità
+          previste nelle polizze medesime, prestando attenzione, in particolare,
+          alle tempistiche per l’apertura del sinistro, alle franchigie,
+          limitazioni ed esclusioni. Il contratto di assicurazione in essere tra
+          viaggiatore e Compagnia assicuratrice ha forza di legge tra le parti
+          ed esplica i suoi effetti tra viaggiatore e Compagnia assicuratrice ai
+          sensi dell’art. 105 c.c. I viaggiatori, al momento della prenotazione,
+          devono comunicare al venditore eventuali necessità specifiche o
+          problematiche per le quali si dovesse rendere necessaria e/o opportuna
+          l’emis-sione di polizze diverse da quelle proposte o incluse nel
+          prezzo del pacchetto.
+        </p>
+
+        <h4>20. STRUMENTI ALTERNATIVI DI RISOLUZIONE DELLE CONTROVERSIE</h4>
+        <p>
+          L’organizzatore fornirà al viaggiatore informazioni riguardo alle
+          eventuali esistenti procedure di trattamento dei reclami e ai
+          meccanismi di risoluzione alternativa delle controversie (ADR -
+          Alternative Dispute Resolution), ai sensi del decreto legislativo 6
+          settembre 2005, n. 206 e, se presente, all’organismo ADR da cui il
+          professionista e’ disciplinato e alla piattaforma di risoluzione delle
+          controversie online ai sensi del regolamento (UE) n. 52/2013.
+        </p>
+
+        <h4>21. GARANZIE AL VIAGGIATORE</h4>
+        <p>
+          <b>21.1.</b> L’organizzatore e il venditore stabiliti in Italia sono
+          coperti da contratto di assicurazione per la responsabilità civile a
+          favore del viaggiatore per il risarcimento dei danni derivanti dalla
+          violazione dei rispettivi obblighi assunti con i rispettivi contratti.
+          <b>21.2.</b> I contratti di organizzazione di pacchetto turistico sono
+          assistiti da polizze assicurative o garanzie bancarie che, per i
+          viaggi all’estero e i viaggi che si svolgono all’interno di un singolo
+          Paese, ivi compresi i viaggi in Italia, nei casi di insolvenza o
+          fallimento dell’organizzatore o del venditore garantiscono, senza
+          ritardo su richiesta del viaggiatore, il rimborso del prezzo versato
+          per l’acquisto del pacchetto e il rientro immediato del viaggiatore
+          nel caso in cui il pacchetto include il trasporto del viaggiatore,
+          nonché, se necessario, il pagamento del vitto e dell’alloggio prima
+          del rientro. In alternativa al rimborso del prezzo o al rientro
+          immediato, può essere offerta al viaggiatore la continuazione del
+          pacchetto con le modalità di cui agli articoli 0 e 2 codice turismo.
+          <b>21.3.</b> Le medesime garanzie sono prestate dai professionisti che
+          agevolano servizi turistici collegati per il rimborso di tutti i
+          pagamenti che ricevono dai viaggiatori, nella misura in cui un
+          servizio turistico che fa parte di un servizio turistico collegato non
+          sia effettuato a causa dello stato di insolvenza o fallimento dei
+          professionisti.
+        </p>
+
+        <h4>22. SINGOLI SERVIZI TURISTICI E SERVIZI TURISTICI COLLEGATI</h4>
+        <p>
+          I contratti aventi ad oggetto l’offerta del solo servizio di
+          trasporto, del solo servizio di soggiorno, ovvero di qualunque altro
+          separato servizio turistico, non si possono configurare come
+          fattispecie negoziale di organizzazione di viaggio ovvero di pacchetto
+          turistico, non godono delle tutele previste dal codice del turismo e
+          si applicheranno le condizioni contrattuali del singolo fornitore. La
+          responsabilità del corretto adempimento del contratto è del fornitore
+          del servizio. In caso di prenotazione di servizi turistici collegati
+          il viaggiatore dispone di una protezione volta a rimborsare i
+          pagamenti ricevuti per servizi non prestati a causa dell’insolvenza
+          del professionista che ha incassato le somme pagate dal viaggiatore.
+          Tale protezione non prevede alcun rimborso in caso di insolvenza del
+          pertinente fornitore del servizio.
+        </p>
+
+        <h4>INFORMAZIONE AI SENSI DEL REG. (CE) n. 2027/97</h4>
+        <p>
+          Risarcimento in caso di morte o lesioni: non vi sono limiti finanziari
+          di responsabilità in caso di lesioni o morte del passeggero. Per danni
+          fino a 100.000 DSP (equivalenti a circa 121.000 euro) il vettore aereo
+          non può contestare le richieste di risarcimento. Al di là di tale
+          importo il vettore aereo può contestare una richiesta di risarcimento
+          solo se è in grado di provare che il danno non gli è imputabile -
+          Anticipi di pagamento: in caso di lesioni o morte di un passeggero, il
+          vettore deve versare entro 15 giorni dall’identificazione della
+          persona avente titolo al risarcimento, un anticipo di pagamento per
+          far fronte a immediate necessità economiche. In caso di morte,
+          l’anticipo non può essere inferiore a 16.000 DSP (equivalente a circa
+          1.00 euro) ritardi nel trasporto dei passeggeri: In caso di ritardo,
+          il vettore è responsabile per il danno a meno che non abbia preso
+          tutte le misure possibili per evitarlo o che fosse impossibile
+          prendere tali misure. La responsabilità per il danno è limitata a .150
+          DSP (equivalenti a circa 5000 euro) Ritardi nel trasporto dei bagagli:
+          In caso di ritardo, il vettore aereo è responsabile per il danno a
+          meno che non abbia preso tutte le misure possibili per evitarlo o che
+          fosse impossibile prendere tali misure. Le responsabilità per il danno
+          è limitata a 1.000 DSP (equivalente a circa 1200 euro) - Distruzione,
+          perdita o danno dei bagagli: Il vettore aereo è responsabile nel caso
+          di distruzione, perdita o danno dei bagagli fino a 1.000 DSP
+          (equivalente a circa 1200 euro). In caso di bagaglio registrato, il
+          vettore aereo è responsabile del danno anche se il suo comportamento è
+          esente da colpa, salvo difetto inerente al bagaglio stesso. Per quanto
+          riguarda il bagaglio non registrato,il vettore aereo è responsabile
+          solo se il danno gli è imputabile - Limiti di responsabilità più
+          elevati per il bagaglio: I passeggeri possono beneficiare di un limite
+          di responsabilità più elevato rilasciando una dichiarazione speciale,
+          al più tardi al momento della registrazione, e pagando un supplemento
+          - Reclami relativi al bagaglio: In caso di danno, ritardo, perdita o
+          distruzione durante il trasporto del bagaglio, il passeggero deve
+          sporgere quanto prima reclamo per iscritto al vettore. Nel caso in cui
+          il bagaglio registrato sia danneggiato, il passeggero deve sporgere
+          reclamo per iscritto entro 7 giorni, e in caso di ritardo entro 21
+          giorni, dalla data in cui il bagaglio è stato messo a disposizione del
+          passeggero - Responsabilità del vettore contraente e del vettore
+          effettivo: Se il vettore aereo che opera il volo non è il vettore
+          aereo contraente, il passeggero ha il diritto di presentare una
+          richiesta di risarcimento o un reclamo a entrambi. Se il nome o codice
+          di un vettore aereo figura sul biglietto, questo vettore è il vettore
+          contraente - Termini per l’azione di risarcimento: Le vie legali
+          devono essere adite entro due anni dalla data di arrivo o dalla data
+          alla quale il volo sarebbe dovuto arrivare.
+        </p>
+        <br />
+        <p>
+          <i
+            >Comunicazione obbligatoria ex art. 17 L. 38/2006 - “La legge
+            italiana punisce con la reclusione i reati concernenti la
+            prostituzione e la pornografia minorile, anche se commessi
+            all’estero”.</i
+          >
+        </p>
+
+        <h2>GARANZIE PER I VIAGGIATORI</h2>
+        <p>
+          Il mondo del turismo si sta riempiendo velocemente di pseudo-esperti e
+          sedicenti professionisti dai siti accattivanti e social ricchi di
+          belle immagini. Ma sapevate che prenotando un viaggio con qualcuno non
+          in possesso di regolare licenza nessuna assicurazione né legislazione
+          in tema di turismo sarà dalla vostra in caso di problemi? Perché
+          quella del tour operator o dell’agenzia di viaggi è una vera
+          professione e non può essere improvvisata. Internet è uno strumento
+          poderoso e ci avvicina in un clic a persone che sono in terre lontane.
+          Potrebbe così venire in mente di affidarsi ad agenzie locali con sede
+          fuori dall’Unione Europea, magari con l’idea non propriamente vera di
+          risparmiare denaro. Ma le leggi italiane ed europee in materia di
+          turismo sono chiare e non vi affiancheranno in caso di contenzioso,
+          fallimento o danni. A maggior tutela dei propri viaggiatori di Born
+          Free di Sebastiani Carlo & C. sas, ha sottoscritto una polizza
+          assicurativa e aderito all’iniziativa di legalità e trasparenza
+          denominata “chiedimi il cinque” promossa dalla Federazione Turismo
+          Organizzato.
+        </p>
+      </div>
+    </div>
+    <!-- Fine container -->
+
+    <!-- COLLEGAMENTO AI FILE JAVA SCRIPT -->
+    <script src="js/calcoli.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/comuni.js"></script>
+    <!-- Libreria JS per intl-tel-input -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+  </body>
+</html>

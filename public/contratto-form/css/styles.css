@@ -1,0 +1,468 @@
+/* ------------------------------
+   Stili globali
+------------------------------ */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin: 20px;
+    background-color: #fff;
+  }
+  
+  .container {
+    background: #fff;
+    padding: 10px;
+    max-width: 900px;
+    margin: auto;
+  }
+  
+  /* ------------------------------
+     Banner
+  ------------------------------ */
+  .banner {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-left: 20px;
+  }
+  
+  .banner a {
+    display: inline-block;
+  }
+  
+  .banner img {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.4s ease-in-out;
+  }
+  
+  .banner img:hover {
+    transform: scale(1.05);
+  }
+  
+  .banner a img:hover {
+    transform: scale(1.1);
+  }
+  
+  /* ------------------------------
+     Header Banner
+  ------------------------------ */
+  .header-banner {
+    background-color: #ab790d;
+    padding: 8PX 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .titolo {
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  
+  /* ------------------------------
+     Sezioni e Titoli
+  ------------------------------ */
+  .section {
+    margin: 40px 0 20px;
+    font-size: 14px;
+  }
+  
+  .section h2 {
+    border-bottom: 1px solid #ab790d;
+    font-size: 16px;
+    padding-bottom: 3px;
+  }
+  
+  h2{
+    color: #ab790d;
+    margin-bottom: 5px;
+  }
+
+  h3{
+    color: #989696;
+    margin-bottom: 5px;
+    margin-left: 5PX;
+  }
+
+  p{
+    color: #989696;
+    text-align: justify;
+    font-size: 11px;
+    font-weight: lighter;
+    margin-top: 0;
+    margin-bottom: 0px;
+  }
+
+  p b {
+    color: #817d7d; /* Testo nero per le lettere in grassetto */
+}
+
+  .titoloparagrafo {
+    color: #ab790d;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  h4{
+    color: #000;
+    font-weight: 600;
+    padding: 0;
+    font-size: 12px;
+    margin-bottom: 3px;
+    margin-top: 10px;
+  }
+
+
+  
+
+  /* ------------------------------
+     Form e campi di input
+  ------------------------------ */
+  .form-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+  }
+  
+  input,
+  select {
+    width: 100%;
+    padding: 5px 5px 5px 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: #989696;
+    height: 28px;
+  }
+  
+  label {
+    font-size: 10px;
+    margin-left: 3px;
+    color: #989696;
+  }
+  
+  input::placeholder {
+    font-size: 12px;
+    color: #989696;
+  }
+
+  input.inputdata {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: #fff;
+  }
+
+  input.inputcolored {
+    width: 100%;
+    border: none;              /* Rimuove il bordo */
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: #989696;
+    background-color: #fcfaf6;
+    text-align: center;
+    }
+  
+    textarea.input-min {
+      min-height: 40px; /* Altezza minima desiderata */
+      height: auto;
+      padding: 5px 5px 0px 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      color: #000;
+      resize: none; /* Disabilita il ridimensionamento manuale (opzionale) */
+      width: 100%;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      text-align: justify;
+      overflow-y: hidden; /* Nasconde la scrollbar verticale */
+    }
+
+  
+  /* ------------------------------
+     Checkbox Group
+  ------------------------------ */
+  .checkbox-group {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    flex-wrap: nowrap;
+    margin-top: 10px;
+  }
+  
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+    color: #989696;
+    border: 1px solid #989696;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+  }
+
+  .checkbox-group input[type="checkbox"]:checked {
+    background: #ab790d;   /* Colore del box selezionato */
+    border-color: #ab790d;
+  }  
+
+  .checkbox-group input[type="checkbox"]:checked::after {
+    content: "\2713";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 16px;
+  }
+
+
+  
+  /* ------------------------------
+     Error Message
+  ------------------------------ */
+  .error-message {
+    display: none;
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+  
+  /* ------------------------------
+     Rimozione delle freccette per gli input number
+  ------------------------------ */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  .no-spinner {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  
+  /* ------------------------------
+     Campi in sola lettura
+  ------------------------------ */
+  .readonly {
+    cursor: not-allowed;
+  }
+  
+  /* ------------------------------
+     Allineamento dei campi unit-cost
+  ------------------------------ */
+  .unit-cost {
+    text-align: right;
+  }
+  
+  /* ------------------------------
+     Testo rosso (per l’opzione iniziale Assicurazione)
+  ------------------------------ */
+  .red-text {
+    color: #ab790d;
+  }
+  
+  /* ------------------------------
+     Media Query per checkbox-group
+  ------------------------------ */
+  @media (max-width: 600px) {
+    .checkbox-group {
+      flex-wrap: wrap;
+    }
+  }
+  
+  /* ------------------------------
+     Suggerimenti (Autocomplete)
+  ------------------------------ */
+  .autocomplete {
+    position: relative;
+    display: inline-block;
+    width: 30%;
+  }
+  
+  .autocomplete-list {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    width: 30%;
+    box-shadow: 0 4px 6px #ccc;
+    font-size: 12px;
+  }
+  
+  .autocomplete-list div {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .autocomplete-list div:hover {
+    background-color: #ccc;
+  }
+  
+  /* ------------------------------
+     Rimozione dell'icona del calendario nei campi data
+  ------------------------------ */
+  .no-calendar::-webkit-calendar-picker-indicator {
+    display: none !important;
+    -webkit-appearance: none;
+  }
+  
+  .no-calendar {
+    position: relative;
+  }
+  
+  .no-calendar::before {
+    content: "";
+    position: absolute;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    background: none;
+    pointer-events: none;
+  }
+  
+  /* ------------------------------
+     Tabella Quota (layout grid)
+  ------------------------------ */
+  .quota-row input,
+  .quota-row select, 
+  .payment-row input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  /* ------------------------------
+     Stile per la colonna Totale
+  ------------------------------ */
+  .total {
+    text-align: right;
+    font-weight: bold;
+    padding: 5px;
+    background-color: #fcfaf6;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #989696;
+    box-sizing: border-box;
+    height: 28px;
+  }
+
+
+/* ----------------------------------------------------
+     CONTENITORE PRINCIPALEPER I DUE BOX AFFIANCATI
+---------------------------------------------------- */  
+.two-box-container {
+    display: flex;
+    gap: 50px; /* Spazio tra i due box */
+    margin-bottom: 20px;
+  }
+  
+/* >>> BOX SINISTRO */
+  .box-left {
+    flex: 0 0 70%;  /* Imposta una base fissa del 70% */
+    padding: 0px;
+  }
+
+/* Stile per la riga intestazione BOX SINISTRO */
+  .quota-row-title {
+    display: grid;
+    grid-template-columns: 55% 5% 16% 16%;
+    gap: 10px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #989696;
+    text-align: center;
+  }
+  
+  /* Stile per le righe dei servizi */
+  .quota-row {
+    display: grid;
+    grid-template-columns: 58% 5% 16% 16%;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+  }
+
+    
+/* >>> BOX DESTRO */
+.box-right {
+    flex: 0 0 20%;  /* Imposta una base fissa del 25% */
+    padding: 0px;
+  }
+  
+/* Stile per la riga intestazione BOX DESTRO */
+.quota-row-payment {
+    display: grid;
+    grid-template-columns: 30% 50%;
+    gap: 10px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #989696;
+    text-align: center;
+  }
+
+  /* Stile per le righe dei pagamenti */
+  .payment-row {
+    display: grid;
+    grid-template-columns: 30% 50%;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+  }
+  
+  /* Stile per le etichette delle righe dei pagamenti */
+  .payment-row .label {
+    width: 80px;  /* Regola la larghezza in base alle tue esigenze */
+    font-size: 14px;
+    color: #989696;
+  }
+
+  /* >>> BOX STESSA DIMENSIONE */
+  .box-50 {
+    flex: 0 0 50%;  /* Imposta una base fissa del 70% */
+    padding: 0px;
+  }
+
+  
+ /* ASSICURAZIONE N. E COSTO Rende il campo non modificabile visivamente */
+.readonly {
+  background-color: #cdc1a7;
+  cursor: not-allowed;
+  border: 1px solid #ab790d;
+}
+
+/* Testo per l'opzione iniziale dell'assicurazione */
+.red-text {
+  color: #ab790d;
+}
+
+

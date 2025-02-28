@@ -1,0 +1,198 @@
+[
+  {
+    "id": "d12f8d65-912c-44d8-96fe-b35da12e6898",
+    "nome": "ALASKA"
+  },
+  {
+    "id": "79aab76a-f174-4c7c-a414-5c558bc061f6",
+    "nome": "BAJA CALIFORNIA"
+  },
+  {
+    "id": "56b8c426-d890-44d9-afd6-061b60ca43fa",
+    "nome": "BALI"
+  },
+  {
+    "id": "513ec38d-a6bd-4f19-bb48-d289657b59fa",
+    "nome": "BOTSWANA"
+  },
+  {
+    "id": "953e248e-edee-433c-a7d4-6a013f8856f2",
+    "nome": "CAMBOGIA"
+  },
+  {
+    "id": "5c5dc6fa-50f8-4b52-9d75-0bd8181b7b79",
+    "nome": "CANADA"
+  },
+  {
+    "id": "f80becb4-5063-4a9c-b75d-cb3c8af41963",
+    "nome": "COLOMBIA"
+  },
+  {
+    "id": "af6798be-e239-4347-982a-342a4f9aa84b",
+    "nome": "DANIMARCA"
+  },
+  {
+    "id": "ce4dc024-f5a1-4817-9ae1-146218edebee",
+    "nome": "EGITTO"
+  },
+  {
+    "id": "831a0640-4cd8-4a37-b9ca-a6614b99a502",
+    "nome": "ETHIOPIA"
+  },
+  {
+    "id": "b721b772-0c4f-487f-834c-4ed23c21adff",
+    "nome": "FILIPPINE"
+  },
+  {
+    "id": "9f7468d5-5a4c-41d4-9ac8-2179d04cf35a",
+    "nome": "FINLANDIA"
+  },
+  {
+    "id": "e77f5145-8dcd-4225-a974-f278e4e0c103",
+    "nome": "GIAPPONE"
+  },
+  {
+    "id": "137d8e29-2379-439d-83cb-d01493b95254",
+    "nome": "GIORDANIA"
+  },
+  {
+    "id": "7e9adceb-0f2b-4832-acdb-3b24c8ae4898",
+    "nome": "HAWAI"
+  },
+  {
+    "id": "a35b680d-1b9e-456c-b83c-c811ca091a6e",
+    "nome": "INDIA"
+  },
+  {
+    "id": "dea72354-a94f-4822-b821-a2f64af115df",
+    "nome": "INDONESIA"
+  },
+  {
+    "id": "09959818-6c5e-4097-8145-6c614e7e179b",
+    "nome": "IRLANDA"
+  },
+  {
+    "id": "a7c26643-8775-49b7-a4c1-e97fe3674bb6",
+    "nome": "ISLANDA"
+  },
+  {
+    "id": "9efe6bda-c604-47bd-8a81-46c04a042b8e",
+    "nome": "ITALIA"
+  },
+  {
+    "id": "f8709674-8283-435c-8067-672f831877f4",
+    "nome": "KENYA"
+  },
+  {
+    "id": "21c300df-7bf7-4516-aed1-357a08c9787d",
+    "nome": "LAOS"
+  },
+  {
+    "id": "0dc35c1e-c00b-4d35-abc6-b8b96ddb9bc2",
+    "nome": "LAPPONIA"
+  },
+  {
+    "id": "914ef58e-fa7b-45d1-8862-63b1c65f5260",
+    "nome": "MADAGASCAR"
+  },
+  {
+    "id": "7519956c-78a5-4085-999d-57770a62d93f",
+    "nome": "MALDIVE"
+  },
+  {
+    "id": "ab4952cf-f904-4bf2-878b-cc0a6b0febca",
+    "nome": "MAROCCO"
+  },
+  {
+    "id": "0912df3d-0536-4ff7-8ac7-ce325620f4af",
+    "nome": "MAURITIUS"
+  },
+  {
+    "id": "ffc8ccc9-3073-488a-82ab-bf16e46ee6a0",
+    "nome": "MOZAMBICO"
+  },
+  {
+    "id": "2d58d9cb-69ab-42e8-92b3-387aa0ff8630",
+    "nome": "NAMIBIA"
+  },
+  {
+    "id": "c352f737-78a8-4fae-99ea-fdeeaaf99c91",
+    "nome": "NORVEGIA"
+  },
+  {
+    "id": "bc290dae-aef5-4fa0-a178-11a8d689c4ac",
+    "nome": "OMAN"
+  },
+  {
+    "id": "288ba406-f796-48ec-9b74-28c161f5ea0b",
+    "nome": "PORTOGALLO"
+  },
+  {
+    "id": "b2ba7ac2-04f8-4b09-9c78-f6b2497a7862",
+    "nome": "RWANDA"
+  },
+  {
+    "id": "e81af7c9-ca5a-4688-a3d0-0875523b10d5",
+    "nome": "SEYCHELLES"
+  },
+  {
+    "id": "462a8115-9bdf-4f00-a02b-89f296ac7a31",
+    "nome": "SPAGNA"
+  },
+  {
+    "id": "a9add0d5-dcb0-4b8c-b346-c5694b3f4738",
+    "nome": "SRI LANKA"
+  },
+  {
+    "id": "79c3b329-cf53-48dc-830e-1746d20c6e90",
+    "nome": "STATI UNITI"
+  },
+  {
+    "id": "38dfef01-32fa-4880-a28e-061850fc8689",
+    "nome": "SUDAFRICA"
+  },
+  {
+    "id": "5acdead6-9770-4662-9d2b-fa41235f91ae",
+    "nome": "SUDAMERICA"
+  },
+  {
+    "id": "602fa94b-831c-496d-b0a9-a3ced34214a5",
+    "nome": "SVALBARD"
+  },
+  {
+    "id": "19adfa06-e586-4d2a-bf91-a26b65d3368d",
+    "nome": "SVEZIA"
+  },
+  {
+    "id": "3563dc48-567d-4141-9f59-5b0a37fe0c6a",
+    "nome": "TANZANIA"
+  },
+  {
+    "id": "cbfed75b-f0f5-4454-b38d-94a5d61c37b3",
+    "nome": "THAILANDIA"
+  },
+  {
+    "id": "3c078153-6173-40b4-a643-8654733f4123",
+    "nome": "TURCHIA"
+  },
+  {
+    "id": "e1a6db9a-0d0b-4eed-8b27-d9477ef3126c",
+    "nome": "UGANDA"
+  },
+  {
+    "id": "2958452f-d7d8-499b-97f9-7adc9e0c3eaa",
+    "nome": "VIETNAM"
+  },
+  {
+    "id": "6ec512a9-e931-4748-8e51-1cbf9b0f7702",
+    "nome": "ZAMBIA"
+  },
+  {
+    "id": "b8e7bbcd-0430-4e68-898d-ca8ff28fd300",
+    "nome": "esempio"
+  },
+  {
+    "id": "8eee216f-8434-4efa-928c-c08be419806c",
+    "nome": "example"
+  }
+]

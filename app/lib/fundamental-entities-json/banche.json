@@ -1,0 +1,46 @@
+[
+  {
+    "id": "a9f88073-db28-4a5d-88c2-e9253ce350c6",
+    "nome": "INTESA SAN PAOLO"
+  },
+  {
+    "id": "3fbafd74-bfa9-4758-b28e-10f757f67c4e",
+    "nome": "MC 4988"
+  },
+  {
+    "id": "82d2fda8-908a-4508-83af-854b8d64ab13",
+    "nome": "VISA CREDIT 9029"
+  },
+  {
+    "id": "5497c63c-73b8-4708-9611-068d3336e969",
+    "nome": "VISA DEBIT 6369"
+  },
+  {
+    "id": "ad7b167a-21d6-4ca2-97a5-2ec95dac13ab",
+    "nome": "REVOL SERENELLA 5240"
+  },
+  {
+    "id": "23d18dce-c778-4d6d-81c3-04618daccb15",
+    "nome": "REVOL CARLO 1288"
+  },
+  {
+    "id": "539e3adf-9c2f-4b84-bf0e-f8d3186c1836",
+    "nome": "REVOL STD CARLO 6368"
+  },
+  {
+    "id": "ee582f1a-cb92-454b-be1b-d2211ce7175b",
+    "nome": "REVOL MARCO 2787"
+  },
+  {
+    "id": "0ccc9dd9-e66d-44c3-9fb4-11f193ed3a65",
+    "nome": "REVOL VALENTINA 0693"
+  },
+  {
+    "id": "12bfc811-c01b-4e5c-a58c-d35de697372b",
+    "nome": "REVOLUT MAIN"
+  },
+  {
+    "id": "7035d854-c5fc-4bf2-807b-5eefce623ee2",
+    "nome": "PAYPAL"
+  }
+]

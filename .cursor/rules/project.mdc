@@ -1,0 +1,179 @@
+---
+description: the structure of the project
+globs: 
+alwaysApply: true
+---
+{
+  "projectName": "Gestionale",
+  "projectType": "Next.js Web Application",
+  "projectDescription": "A management system (gestionale) for a travel agency that handles clients, quotes, and flights with authentication",
+  "technologies": {
+    "framework": "Next.js 15",
+    "language": "TypeScript",
+    "styling": "Tailwind CSS",
+    "authentication": "NextAuth",
+    "database": "PostgreSQL",
+    "stateManagement": "React Context",
+    "uiLibraries": ["Shadcn UI", "Framer Motion", "Heroicons"],
+    "dataValidation": "Zod",
+    "dataTables": "TanStack Table"
+  },
+  "architecture": {
+    "type": "Next.js App Router",
+    "patterns": {
+      "authentication": "Uses Next.js middleware and NextAuth for route protection",
+      "apiRoutes": "Route handlers for data operations organized by entity",
+      "componentStructure": "Components are split between reusable UI components and domain-specific blocks",
+      "stateManagement": "React context providers for application-wide state"
+    }
+  },
+  "directoryStructure": {
+    "app": {
+      "description": "Main application code using Next.js App Router",
+      "children": {
+        "api": {
+          "description": "API routes for backend functionality",
+          "patterns": "Uses Next.js Route Handlers API",
+          "children": {
+            "clienti": {
+              "description": "Client-related API endpoints",
+              "filePatterns": "route.ts for CRUD operations"
+            },
+            "preventivi": {
+              "description": "Quote-related API endpoints",
+              "children": {
+                "preventivi-by-cliente": {"description": "Get quotes by client ID"},
+                "data-preventivo-completi": {"description": "Get complete quote details"},
+                "update": {"description": "Update quote endpoints"},
+                "create": {"description": "Create quote endpoints"},
+                "number-of-preventivi": {"description": "Count quotes"}
+              }
+            },
+            "voli": {
+              "description": "Flight-related API endpoints"
+            }
+          }
+        },
+        "context": {
+          "description": "React context providers",
+          "keyFiles": {
+            "spinner-context.tsx": "Loading state management"
+          }
+        },
+        "dashboard": {
+          "description": "Main dashboard interface",
+          "children": {
+            "(overview)": {
+              "description": "Dashboard overview page with grouped route",
+              "keyFiles": {
+                "page.tsx": "Main dashboard page",
+                "layout.tsx": "Dashboard layout",
+                "loading.tsx": "Loading state UI",
+                "style.css": "Dashboard-specific styles"
+              },
+              "children": {
+                "test": {"description": "Testing components"},
+                "preventivi-table": {"description": "Quotes table view"},
+                "settings": {"description": "User settings"},
+                "general-interface": {"description": "General dashboard interface elements"},
+                "clienti-table": {"description": "Clients table view"},
+                "contratto": {"description": "Contract management"},
+                "functional-analysis": {"description": "Functional analysis components"},
+                "aggiungi": {"description": "Add new item forms"}
+              }
+            }
+          }
+        },
+        "lib": {"description": "App-specific library code"},
+        "login": {"description": "Login page and authentication UI"},
+        "signup": {"description": "Signup page for user registration"},
+        "seed": {"description": "Data seeding functionality"},
+        "ui": {"description": "App-specific UI components"}
+      },
+      "keyFiles": {
+        "appConfig.ts": "Application configuration constants",
+        "layout.tsx": "Root layout component with providers",
+        "page.tsx": "Root page component (landing page)"
+      }
+    },
+    "components": {
+      "description": "Reusable React components",
+      "children": {
+        "blocks": {
+          "description": "Complex component compositions for domain-specific UI blocks"
+        },
+        "ui": {
+          "description": "Basic UI components built with Shadcn",
+          "keyFiles": {
+            "button.tsx": "Button component with variants",
+            "alert-dialog.tsx": "Modal dialog for alerts",
+            "checkbox.tsx": "Checkbox input component",
+            "dropdown-menu.tsx": "Dropdown menu component",
+            "input.tsx": "Input field component",
+            "label.tsx": "Form label component",
+            "pagination.tsx": "Pagination controls for tables",
+            "popover.tsx": "Popover component for tooltips/menus",
+            "select.tsx": "Select dropdown component",
+            "table.tsx": "Table component",
+            "badge.tsx": "Badge/tag component",
+            "aurora-background.tsx": "Animated background component"
+          }
+        }
+      }
+    },
+    "lib": {
+      "description": "Global utility functions and helpers",
+      "keyFiles": {
+        "utils.ts": "General utility functions"
+      }
+    },
+    "public": {
+      "description": "Static assets like images, fonts, and favicon"
+    }
+  },
+  "configurationFiles": {
+    "auth.config.ts": "NextAuth configuration for authentication providers and settings",
+    "auth.ts": "Authentication implementation and session management",
+    "middleware.ts": "Next.js middleware for route protection",
+    "next.config.mjs": "Next.js configuration for build settings",
+    "tailwind.config.ts": "Tailwind CSS configuration for design system",
+    "components.json": "Shadcn UI components configuration",
+    "postcss.config.js": "PostCSS configuration for CSS processing",
+    "tsconfig.json": "TypeScript configuration",
+    "package.json": "Project dependencies and scripts"
+  },
+  "domainEntities": [
+    {
+      "name": "Cliente",
+      "description": "Client/customer entity",
+      "relatedDirectories": ["app/api/clienti", "app/dashboard/(overview)/clienti-table"]
+    },
+    {
+      "name": "Preventivo",
+      "description": "Quote/estimate entity",
+      "relatedDirectories": ["app/api/preventivi", "app/dashboard/(overview)/preventivi-table"]
+    },
+    {
+      "name": "Volo",
+      "description": "Flight entity",
+      "relatedDirectories": ["app/api/voli"]
+    },
+    {
+      "name": "Contratto",
+      "description": "Contract entity",
+      "relatedDirectories": ["app/dashboard/(overview)/contratto"]
+    }
+  ],
+  "dataFlow": {
+    "clientData": "API routes fetch client data from PostgreSQL which is displayed in clienti-table and used in preventivi forms",
+    "quoteData": "API routes manage quotes that are linked to clients and possibly flights",
+    "authentication": "NextAuth handles login/signup and protects dashboard routes through middleware"
+  },
+  "commonPatterns": {
+    "apiRoutes": "Use Next.js route handlers with route.ts files",
+    "uiComponents": "Use Shadcn UI with custom variants defined in button.tsx and other component files",
+    "dataFetching": "Server components fetch data directly, client components use API routes",
+    "tableViews": "Tables use TanStack Table with custom Shadcn styling",
+    "forms": "Forms likely use Zod for validation with server actions for submission"
+  }
+} 
