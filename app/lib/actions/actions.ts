@@ -1222,17 +1222,6 @@ export const searchClienti = async (
           .map((r) => [r.id, r])
       ).values()
     );
-    console.log("clienti: ", clienti);
-    // Write to a temp file that can be read with fx
-    const dir = "./json-test";
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(
-      `${dir}/allClienti.json`,
-      JSON.stringify(clienti, null, 2)
-    );
-
     return clienti.map(
       (c) =>
         new ClienteInputGroup(
