@@ -13,9 +13,28 @@ export default async function Page() {
             ...cliente,
             ...preventivo
         };
+
+
+        /*
+        *  #### campi da mostrare ###
+        * nome e cognome
+        * telefono
+        * email
+        * destinazione
+        * note (quelle del preventivo),  note operative
+        * adulti bambini
+        * data partenza
+        * operatore
+        * stato
+        * data preventivo
+        * numero preventivo
+        * feedback
+        */
         return Object.fromEntries(
             Object.entries(flattenedObject)
-                //.filter(([key]) => !key.includes('id'))
+                .filter(([key, value]) => {
+                    console.log(key, value);
+                    return !key.includes('id')})
                 .map(
                     ([key, value]) => {
                         if (value instanceof Date) return [key, value.toLocaleDateString()];

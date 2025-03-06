@@ -13,7 +13,7 @@ import bcrypt from 'bcrypt';
 import { User } from './app/lib/definitions';
 
 async function getUser(email: string): Promise<User | undefined> {
-  try {
+  try {  
     const user = await pool.query<User>('SELECT * FROM users WHERE email = $1', [email]);
     return user.rows[0];
   } catch (error) {

@@ -58,7 +58,7 @@ import {
   Filter,
   ListFilter,
 } from "lucide-react";
-import { useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Cliente } from "@/app/lib/definitions";
 
 
@@ -237,6 +237,7 @@ export default function TableClienti({ data }: { data: Cliente[] }) {
     },
   });
 
+
   // Get unique status values
   const uniqueStatusValues = useMemo(() => {
     const statusColumn = table.getColumn("tipo");
@@ -275,7 +276,12 @@ export default function TableClienti({ data }: { data: Cliente[] }) {
 
     table.getColumn("tipo")?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
   };
-
+  useEffect(() => { 
+    console.log(' cd kjhgfd');
+    (window as any).clienti = data;
+    console.log(data);
+  }, []);
+  
   return (
     <div className="space-y-4">
       {/* Filters */}

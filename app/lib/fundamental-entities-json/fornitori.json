@@ -378,5 +378,25 @@
     "id": "13d0e4c6-2bf0-44f0-bbfa-93d97ef96c62",
     "nome": "VIAGGI MADE IN TOUR",
     "valuta": null
+  },
+  {
+    "id": "356bca06-6313-4a0a-af93-52bd13ed66a3",
+    "nome": "Amadeus",
+    "valuta": null
+  },
+  {
+    "id": "5aa3c232-b226-45dc-a533-23d2aeeb4478",
+    "nome": "Ethiopian Airline",
+    "valuta": null
+  },
+  {
+    "id": "c8bc957f-2cba-4b67-9d58-bed08b0e5e9a",
+    "nome": "Airlink - 4Z",
+    "valuta": null
+  },
+  {
+    "id": "36819deb-8ee2-4273-aede-2d7bf426cfa7",
+    "nome": "pezza",
+    "valuta": null
   }
 ]
