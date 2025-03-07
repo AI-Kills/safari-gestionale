@@ -12,9 +12,7 @@ export default function RootLayout({
     <html lang="en">  
         <body className={`${inter.className} antialiased`}>
             <Shell>
-              <Background>
                 {children}
-              </Background>
             </Shell>
         </body> 
     </html>

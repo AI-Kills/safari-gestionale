@@ -14,27 +14,27 @@ export default async function Page() {
             ...preventivo
         };
 
-
-        /*
-        *  #### campi da mostrare ###
-        * nome e cognome
-        * telefono
-        * email
-        * destinazione
-        * note (quelle del preventivo),  note operative
-        * adulti bambini
-        * data partenza
-        * operatore
-        * stato
-        * data preventivo
-        * numero preventivo
-        * feedback
-        */
+       const columnsToShow = [
+        'nome',
+        'cognome',
+        'telefono',
+        'email',
+        'destinazione',
+        'note',
+        'note_operative',
+        'adulti',
+        'bambini',
+        'data_partenza',
+        'operatore',
+        'stato',
+        'data_preventivo',
+        'numero_preventivo'
+       ]
         return Object.fromEntries(
             Object.entries(flattenedObject)
                 .filter(([key, value]) => {
                     console.log(key, value);
-                    return !key.includes('id')})
+                    return !key.includes('id')  && columnsToShow.includes(key)})
                 .map(
                     ([key, value]) => {
                         if (value instanceof Date) return [key, value.toLocaleDateString()];
