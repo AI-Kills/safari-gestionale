@@ -685,43 +685,51 @@ export default function CreaPreventivoGeneralInterface() {
     return (
         <div className='flex flex-col'>
             {feedback && <Feedback<any> result={feedback} />}
-            <div className="general-interface-container">
+            <div className="general-interface-container max-w-[850px]">
                 <h1 className={`mb-4 text-xl md:text-2xl`}>GENERAL INTERFACE PREVENTIVO</h1>
                 {/* Cliente */}
                 <div>
+
                     <div className="flex flex-row items-center">
                         <h3 className="text-xl md:text-2xl pt-4 pb-1">Cliente</h3>
-                        <button className="bg-blue-500 text-white mt-3 ml-3 h-8 flex items-center justify-center p-2 rounded-md" onClick={() => clearAll()}>CLEAR</button>
+                        <button className="bg-brown-400 ml-auto text-white mt-3 ml-3 h-8 flex items-center justify-center p-4 hover:bg-brown-500 rounded-full" onClick={() => clearAll()}>CLEAR</button>
                     </div>
+                    
                     <div className="flex flex-col">
-                        <div className="flex flex-row">
+                        <div className="flex flex-row space-x-1">
+                            <InputText label="Cognome" name="cognome" onChange={(e) => onVCCliente(e, 'cognome')} value={cliente?.cognome} className="w-[200px]"/>
+                            <InputText label="Nome" name="nome" onChange={(e) => onVCCliente(e, 'nome')} value={cliente?.nome} className="w-[200px]"/>
                             <InputEmail label="Email" name="email" onChange={(e) => onVCCliente(e, 'email')} value={cliente?.email} />
                             <InputTell label="Telefono" name="tel" onChange={(e) => onVCCliente(e, 'tel')} value={cliente?.tel} />
-                            <InputText label="Nome" name="nome" onChange={(e) => onVCCliente(e, 'nome')} value={cliente?.nome} />
-                            <InputText label="Cognome" name="cognome" onChange={(e) => onVCCliente(e, 'cognome')} value={cliente?.cognome} />
-                            <InputSelect label="Sesso" name="sesso" options={['M', 'F']} onChange={(e) => onVCCliente(e, 'sesso')} value={cliente?.sesso} />
-                        </div>
-                        <div className="pb-4">
-                            <div className="flex flex-row">
-                                <InputText label="Indirizzo" name="indirizzo" onChange={(e) => onVCCliente(e, 'indirizzo')} value={cliente?.indirizzo} />
-                                <InputText label="CAP" name="cap" onChange={(e) => onVCCliente(e, 'cap')} value={cliente?.cap} />
-                                <InputText label="Città" name="citta" onChange={(e) => onVCCliente(e, 'citta')} value={cliente?.citta} />
-                                <InputText label="Luogo di nascita" name="luogo_nascita" onChange={(e) => onVCCliente(e, 'luogo_nascita')} value={cliente?.luogo_nascita} />
-                                <InputText label="Provincia di nascita" name="provincia_nascita" onChange={(e) => onVCCliente(e, 'provincia_nascita')} value={cliente?.provincia_nascita} />
-                                <InputText label="Numero passaporto" name="numero_passaporto" onChange={(e) => onVCCliente(e, 'numero_passaporto')} value={cliente?.numero_passaporto} />
-                                <InputDate label="Scadenza passaporto" name="data_scadenza_passaporto" onChange={(e) => onVCCliente(e, 'data_scadenza_passaporto')} value={cliente?.data_scadenza_passaporto ? moment(cliente?.data_scadenza_passaporto).format('YYYY-MM-DD') : ''} />
-                                <InputText label="Nazionalità" name="nazionalita" onChange={(e) => onVCCliente(e, 'nazionalita')} value={cliente?.nazionalita} />
-                                <InputText label="Provincia" name="provincia" onChange={(e) => onVCCliente(e, 'provincia')} value={cliente?.provincia} />
+                            <InputSelect label="Sesso" name="sesso" options={['M', 'F']} onChange={(e) => onVCCliente(e, 'sesso')} value={cliente?.sesso} className="w-[60px]"/>
+                             </div>
+                        
+                        
+                            <div className="flex flex-row space-x-1">
+                                <InputText label="Indirizzo" name="indirizzo" onChange={(e) => onVCCliente(e, 'indirizzo')} value={cliente?.indirizzo} className="w-[280px]"/>
+                                <InputText label="CAP" name="cap" onChange={(e) => onVCCliente(e, 'cap')} value={cliente?.cap} className="w-[90px]"/>
+                                <InputText label="Città" name="citta" onChange={(e) => onVCCliente(e, 'citta')} value={cliente?.citta} className="w-[200px]"/>
+                                <InputText label="Prov R" name="provincia" onChange={(e) => onVCCliente(e, 'provincia')} value={cliente?.provincia} className="w-[60px]"/>
+                                <InputText label="Codice Fiscale" name="codice fiscale" onChange={(e) => onVCCliente(e, 'cf')} value={cliente?.cf} className="w-[200px]"/>
                             </div>
-                            <div className="flex flex-row">
-                                <InputSelect label="Tipo" name="tipo" options={['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA']} onChange={(e) => onVCCliente(e, 'tipo')} value={cliente?.tipo} />
-                                <InputSelect label="Provenienza" name="provenienza" options={provenienzaOptions} onChange={(e) => onVCCliente(e, 'provenienza')} value={cliente?.provenienza} />
-                                <InputText label="Collegato" name="collegato" onChange={(e) => onVCCliente(e, 'collegato')} value={cliente?.collegato} />
-                                <InputText label="CF" name="cf" onChange={(e) => onVCCliente(e, 'cf')} value={cliente?.cf} />
-                                <InputDate label="Data di nascita" name="data_di_nascita" onChange={(e) => onVCCliente(e, 'data_di_nascita')} value={cliente?.data_di_nascita ? moment(cliente?.data_di_nascita).format('YYYY-MM-DD') : ''} />
-                            </div>
-                            <InputText textarea label="Note" name="note" onChange={(e) => onVCCliente(e, 'note')} value={cliente?.note} />
-                        </div>
+
+                            <div className="flex flex-row space-x-1">
+                            <InputDate label="Data di Nascita" name="data_di_nascita" onChange={(e) => onVCCliente(e, 'data_di_nascita')} value={cliente?.data_di_nascita ? moment(cliente?.data_di_nascita).format('YYYY-MM-DD') : ''} />
+                                <InputText label="Luogo di Nascita" name="luogo_nascita" onChange={(e) => onVCCliente(e, 'luogo_nascita')} value={cliente?.luogo_nascita} className="w-[190px]"/>
+                                <InputText label="Prov N" name="provincia_nascita" onChange={(e) => onVCCliente(e, 'provincia_nascita')} value={cliente?.provincia_nascita} className="w-[60px]"/>
+                                <InputText label="Numero Passaporto" name="numero_passaporto" onChange={(e) => onVCCliente(e, 'numero_passaporto')} value={cliente?.numero_passaporto} className="w-[140px]"/>
+                                <InputDate label="Scadenza Passaporto" name="data_scadenza_passaporto" onChange={(e) => onVCCliente(e, 'data_scadenza_passaporto')} value={cliente?.data_scadenza_passaporto ? moment(cliente?.data_scadenza_passaporto).format('YYYY-MM-DD') : ''} />
+                                <InputText label="Nazionalità" name="nazionalita" onChange={(e) => onVCCliente(e, 'nazionalita')} value={cliente?.nazionalita} className="w-[135px]"/>
+                                </div>
+                            
+                            <div className="flex flex-row space-x-1">
+                                <InputSelect label="Tipo" name="tipo" options={['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA']} onChange={(e) => onVCCliente(e, 'tipo')} value={cliente?.tipo} className="w-[180px]"/>
+                                <InputSelect label="Provenienza" name="provenienza" options={provenienzaOptions} onChange={(e) => onVCCliente(e, 'provenienza')} value={cliente?.provenienza} className="w-[130px]"/>
+                                <InputText label="Collegato" name="collegato" onChange={(e) => onVCCliente(e, 'collegato')} value={cliente?.collegato} className="w-[200px]"/>
+                                <InputText textarea label="Note Cliente" name="note cliente" onChange={(e) => onVCCliente(e, 'note')} value={cliente?.note} className="w-[355px]"/>
+                                </div>
+                            
+                        
                     </div>
                     {/* lista clienti trovati */}
                     {isSearchingClienti && !showClientiTrovati &&

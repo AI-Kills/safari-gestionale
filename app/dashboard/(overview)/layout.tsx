@@ -7,6 +7,7 @@ import { SpinnerContextProvider } from '@/app/context/spinner-context';
 import './style.css';
 import { SessionProvider } from 'next-auth/react';
 export default async function Layout({ children }: { children: React.ReactNode }) {
+  
   // Map of links to display in the side navigation.
   const links = [
     { name: 'Preventivo', href: '/dashboard/general-interface' },
@@ -25,7 +26,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
       <SessionProvider>
       <div className="flex h-screen flex-col">
         <div className='m-2 pb-8 logo-container'>
-          <Image className='sidenav__logo' src="https://www.iwsafari.com/sites/default/files/verde.jpg" alt="logo" width={257} height={100} />
+          <Image className='sidenav__logo' src="/logoTondo.png" alt="logo" width={130} height={130} />
         </div>
         <div className='flex flex-col md:flex-row md:overflow-hidden'>
           <SideNav links={links} />
@@ -37,5 +38,4 @@ export default async function Layout({ children }: { children: React.ReactNode }
       </SessionProvider>
     </SpinnerContextProvider>
   );
-  {/** prima modifica serenella */}
 }

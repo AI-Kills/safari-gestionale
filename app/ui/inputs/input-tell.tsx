@@ -1,4 +1,6 @@
 import { InputInterface } from "./input-interface";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export default function InputTell({
     state,
@@ -11,24 +13,19 @@ export default function InputTell({
     return (
         <div>
             {label && (
-                <label
-                    className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-                    htmlFor={label}
-                >
-                    {label}
-                </label>
+                <Label htmlFor={label}>{label}</Label>
             )}
             {!label && (
                 <div className="mt-5"></div>
             )
             }
             <div className="relative">
-                <input
-                    className="peer h-input-height block w-full rounded-md border border-gray-200 py-[9px] text-sm outline-2 placeholder:text-gray-500"
+                <Input
+                    className="w-[140px]"
                     id={label}
                     type="text"
                     name={name}
-                    placeholder="phone"
+                    placeholder=""
                     pattern="^\+[1-9]\d{1,14}$"
                     value={value ?? ''}
                     onChange={onChange}

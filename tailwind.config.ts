@@ -32,6 +32,11 @@ const config: Config = {
           '500': '#0070F3',
           '600': '#2F6FEB'
         },
+        brown: {
+          '300':'#FF9F05',
+          '400':'#dad0ae',
+          '500':'#937057',
+        },
         isorange: '#be401e',
         isyellow: '#d99b20',
         background: 'hsl(var(--background))',

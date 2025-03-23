@@ -116,29 +116,29 @@ console.log("data ricevuti: ",data)
 
   // Get unique status values
   const uniqueStatusValues = useMemo(() => {
-    const statusColumn = table.getColumn("tipo");
+    const statusColumn = table.getColumn("Tipo");
 
     if (!statusColumn) return [];
 
     const values = Array.from(statusColumn.getFacetedUniqueValues().keys());
 
     return values.sort();
-  }, [table.getColumn("tipo")?.getFacetedUniqueValues()]);
+  }, [table.getColumn("Tipo")?.getFacetedUniqueValues()]);
 
   // Get counts for each status
   const statusCounts = useMemo(() => {
-    const statusColumn = table.getColumn("tipo");
+    const statusColumn = table.getColumn("Tipo");
     if (!statusColumn) return new Map();
     return statusColumn.getFacetedUniqueValues();
-  }, [table.getColumn("tipo")?.getFacetedUniqueValues()]);
+  }, [table.getColumn("Tipo")?.getFacetedUniqueValues()]);
 
   const selectedStatuses = useMemo(() => {
-    const filterValue = table.getColumn("tipo")?.getFilterValue() as string[];
+    const filterValue = table.getColumn("Tipo")?.getFilterValue() as string[];
     return filterValue ?? [];
-  }, [table.getColumn("tipo")?.getFilterValue()]);
+  }, [table.getColumn("Tipo")?.getFilterValue()]);
 
   const handleStatusChange = (checked: boolean, value: string) => {
-    const filterValue = table.getColumn("tipo")?.getFilterValue() as string[];
+    const filterValue = table.getColumn("Tipo")?.getFilterValue() as string[];
     const newFilterValue = filterValue ? [...filterValue] : [];
 
     if (checked) {
@@ -150,7 +150,7 @@ console.log("data ricevuti: ",data)
       }
     }
 
-    table.getColumn("tipo")?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
+    table.getColumn("Tipo")?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
   };
 
   return (
