@@ -23,6 +23,7 @@ import moment from 'moment';
 import Feedback from '@/app/ui/feedback/feedback';
 import { Preventivo } from '@/app/lib/definitions';
 import { FaqSection } from '@/components/blocks/faq';
+import { Button } from "@/components/ui/button";
 
 
 export default function CreaPreventivoGeneralInterface() {
@@ -682,19 +683,34 @@ export default function CreaPreventivoGeneralInterface() {
         console.log('the preventivoAlCliente state is: ', preventivoAlCliente);
         setErrorsList([]);
     }, [preventivoAlCliente]);
+
     return (
         <div className='flex flex-col'>
             {feedback && <Feedback<any> result={feedback} />}
             <div className="general-interface-container max-w-[850px]">
                 <h1 className={`mb-4 text-xl md:text-2xl`}>GENERAL INTERFACE PREVENTIVO</h1>
-                {/* Cliente */}
+                
+    {/* -----------------------------------------------------------
+         CLIENTE 
+        ----------------------------------------------------------- */}
                 <div>
-
-                    <div className="flex flex-row items-center">
+                    <div className="flex flex-row items-center gap-2">
                         <h3 className="text-xl md:text-2xl pt-4 pb-1">Cliente</h3>
-                        <button className="bg-brown-400 ml-auto text-white mt-3 ml-3 h-8 flex items-center justify-center p-4 hover:bg-brown-500 rounded-full" onClick={() => clearAll()}>CLEAR</button>
+                        <div className="ml-auto flex gap-2">
+                            <Button
+                                className=""
+                                onClick={async () => submitCreateCliente()} >
+                                Crea Cliente
+                            </Button>
+
+                            <Button 
+                                className="" 
+                                onClick={() => clearAll()} >
+                                CLEAR
+                            </Button>
+                        </div>
                     </div>
-                    
+                
                     <div className="flex flex-col">
                         <div className="flex flex-row space-x-1">
                             <InputText label="Cognome" name="cognome" onChange={(e) => onVCCliente(e, 'cognome')} value={cliente?.cognome} className="w-[200px]"/>
@@ -702,210 +718,214 @@ export default function CreaPreventivoGeneralInterface() {
                             <InputEmail label="Email" name="email" onChange={(e) => onVCCliente(e, 'email')} value={cliente?.email} />
                             <InputTell label="Telefono" name="tel" onChange={(e) => onVCCliente(e, 'tel')} value={cliente?.tel} />
                             <InputSelect label="Sesso" name="sesso" options={['M', 'F']} onChange={(e) => onVCCliente(e, 'sesso')} value={cliente?.sesso} className="w-[60px]"/>
-                             </div>
+                        </div>
                         
-                        
-                            <div className="flex flex-row space-x-1">
-                                <InputText label="Indirizzo" name="indirizzo" onChange={(e) => onVCCliente(e, 'indirizzo')} value={cliente?.indirizzo} className="w-[280px]"/>
-                                <InputText label="CAP" name="cap" onChange={(e) => onVCCliente(e, 'cap')} value={cliente?.cap} className="w-[90px]"/>
-                                <InputText label="Città" name="citta" onChange={(e) => onVCCliente(e, 'citta')} value={cliente?.citta} className="w-[200px]"/>
-                                <InputText label="Prov R" name="provincia" onChange={(e) => onVCCliente(e, 'provincia')} value={cliente?.provincia} className="w-[60px]"/>
-                                <InputText label="Codice Fiscale" name="codice fiscale" onChange={(e) => onVCCliente(e, 'cf')} value={cliente?.cf} className="w-[200px]"/>
-                            </div>
+                        <div className="flex flex-row space-x-1">
+                            <InputText label="Indirizzo" name="indirizzo" onChange={(e) => onVCCliente(e, 'indirizzo')} value={cliente?.indirizzo} className="w-[310px]"/>
+                            <InputText label="CAP" name="cap" onChange={(e) => onVCCliente(e, 'cap')} value={cliente?.cap} className="w-[90px]"/>
+                            <InputText label="Città" name="citta" onChange={(e) => onVCCliente(e, 'citta')} value={cliente?.citta} className="w-[200px]"/>
+                            <InputText label="Prov R" name="provincia" onChange={(e) => onVCCliente(e, 'provincia')} value={cliente?.provincia} className="w-[60px]"/>
+                            <InputText label="Codice Fiscale" name="codice fiscale" onChange={(e) => onVCCliente(e, 'cf')} value={cliente?.cf} className="w-[170px]"/>
+                        </div>
 
-                            <div className="flex flex-row space-x-1">
+                        <div className="flex flex-row space-x-1">
                             <InputDate label="Data di Nascita" name="data_di_nascita" onChange={(e) => onVCCliente(e, 'data_di_nascita')} value={cliente?.data_di_nascita ? moment(cliente?.data_di_nascita).format('YYYY-MM-DD') : ''} />
-                                <InputText label="Luogo di Nascita" name="luogo_nascita" onChange={(e) => onVCCliente(e, 'luogo_nascita')} value={cliente?.luogo_nascita} className="w-[190px]"/>
-                                <InputText label="Prov N" name="provincia_nascita" onChange={(e) => onVCCliente(e, 'provincia_nascita')} value={cliente?.provincia_nascita} className="w-[60px]"/>
-                                <InputText label="Numero Passaporto" name="numero_passaporto" onChange={(e) => onVCCliente(e, 'numero_passaporto')} value={cliente?.numero_passaporto} className="w-[140px]"/>
-                                <InputDate label="Scadenza Passaporto" name="data_scadenza_passaporto" onChange={(e) => onVCCliente(e, 'data_scadenza_passaporto')} value={cliente?.data_scadenza_passaporto ? moment(cliente?.data_scadenza_passaporto).format('YYYY-MM-DD') : ''} />
-                                <InputText label="Nazionalità" name="nazionalita" onChange={(e) => onVCCliente(e, 'nazionalita')} value={cliente?.nazionalita} className="w-[135px]"/>
-                                </div>
+                            <InputText label="Luogo di Nascita" name="luogo_nascita" onChange={(e) => onVCCliente(e, 'luogo_nascita')} value={cliente?.luogo_nascita} className="w-[200px]"/>
+                            <InputText label="Prov N" name="provincia_nascita" onChange={(e) => onVCCliente(e, 'provincia_nascita')} value={cliente?.provincia_nascita} className="w-[60px]"/>
+                            <InputText label="Numero Passaporto" name="numero_passaporto" onChange={(e) => onVCCliente(e, 'numero_passaporto')} value={cliente?.numero_passaporto} className="w-[140px]"/>
+                            <InputDate label="Scadenza Passaporto" name="data_scadenza_passaporto" onChange={(e) => onVCCliente(e, 'data_scadenza_passaporto')} value={cliente?.data_scadenza_passaporto ? moment(cliente?.data_scadenza_passaporto).format('YYYY-MM-DD') : ''} />
+                            <InputText label="Nazionalità" name="nazionalita" onChange={(e) => onVCCliente(e, 'nazionalita')} value={cliente?.nazionalita} className="w-[146px]"/>
+                       </div>
                             
-                            <div className="flex flex-row space-x-1">
-                                <InputSelect label="Tipo" name="tipo" options={['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA']} onChange={(e) => onVCCliente(e, 'tipo')} value={cliente?.tipo} className="w-[180px]"/>
-                                <InputSelect label="Provenienza" name="provenienza" options={provenienzaOptions} onChange={(e) => onVCCliente(e, 'provenienza')} value={cliente?.provenienza} className="w-[130px]"/>
-                                <InputText label="Collegato" name="collegato" onChange={(e) => onVCCliente(e, 'collegato')} value={cliente?.collegato} className="w-[200px]"/>
-                                <InputText textarea label="Note Cliente" name="note cliente" onChange={(e) => onVCCliente(e, 'note')} value={cliente?.note} className="w-[355px]"/>
-                                </div>
-                            
-                        
+                        <div className="flex flex-row space-x-1">
+                            <InputSelect label="Tipo" name="tipo" options={['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA']} onChange={(e) => onVCCliente(e, 'tipo')} value={cliente?.tipo} className="w-[160px]"/>
+                            <InputSelect label="Provenienza" name="provenienza" options={provenienzaOptions} onChange={(e) => onVCCliente(e, 'provenienza')} value={cliente?.provenienza} className="w-[130px]"/>
+                            <InputText label="Collegato" name="collegato" onChange={(e) => onVCCliente(e, 'collegato')} value={cliente?.collegato} className="w-[190px]"/>
+                            <InputText textarea label="Note Cliente" name="note cliente" onChange={(e) => onVCCliente(e, 'note')} value={cliente?.note} className="w-[354px]"/>
+                        </div>
                     </div>
-                    {/* lista clienti trovati */}
+
+    {/* -----------------------------------------------------------
+         LISTA CLIENTI TROVATI
+        ----------------------------------------------------------- */}                       
+                        
                     {isSearchingClienti && !showClientiTrovati &&
-                        <div className="flex flex-col pt-4">
+                        <div className="flex flex-col">
                             <p>Ricerca clienti...</p>
                         </div>
                     }
+
                     {showClientiTrovati &&
                         <div className="flex flex-col pt-4">
-                            <p>Lista clienti corrispondenti:</p>
+                            <p>LISTA CLIENTI CORRISPONDENTI:</p>
                             {clientiTrovati?.length > 0 && clientiTrovati.map((c, i) => (
+                            <div key={c.id} className="flex flex-col gap-2">
+                                <div className="flex flex-row gap-1 pt-2 justify-between text-sm text-grey-500">
+                                    <p>{c.cognome} {c.nome}  -  {c.email}</p>
+                                <div className="flex flex-row justify-end gap-2">           
+                                <Button
+                                    className=""
+                                    onClick={() => { onClickMostraListaPreventivi(c); }} >
+                                    {showPreventiviClienteList && c.id == clienteDaAggiornare.id ? 'Nascondi lista preventivi' : 'Lista Prev'}
+                                </Button>
+                                            
+                                <Button
+                                    className=""
+                                    onClick={() => onClickNuovoPreventivo(c)} >
+                                    Nuovo Prev
+                                </Button>
 
-                                <div key={c.id} className="flex flex-col gap-2">
-                                    <div className="flex flex-row gap-1 pt-4 justify-between">
-                                        <p> {i + 1}. {c.nome}, {c.cognome}, {c.email}</p>
-                                        <div className="flex flex-row justify-end gap-2">
-                                            <button
-                                                className="bg-blue-500 text-white h-8 flex items-center justify-center p-2 rounded-md"
-                                                onClick={() => { onClickMostraListaPreventivi(c); }}
-                                            >
-                                                {showPreventiviClienteList && c.id == clienteDaAggiornare.id ? 'Nascondi lista preventivi' : 'Mostra lista preventivi'}
+                                <Button
+                                    className=""
+                                    onClick={() => onClickShowFormAggiornaCliente(c)} >
+                                    {showFormAggiornaCliente && clienteDaAggiornare.id == c.id ? 'Annulla' : 'Aggiorna Cliente'}
+                                </Button>
+                            </div>
+                        </div>
 
-                                            </button>
-                                            <button
-                                                className="bg-blue-500 text-white h-8 flex items-center justify-center p-2 rounded-md"
-                                                onClick={() => onClickNuovoPreventivo(c)}
-                                            >
-                                                Nuovo preventivo
-                                            </button>
-                                            <button
-                                                className="bg-blue-500 text-white h-8 flex items-center justify-center p-2 rounded-md"
-                                                onClick={() => onClickShowFormAggiornaCliente(c)}
-                                            >
-                                                {showFormAggiornaCliente && clienteDaAggiornare.id == c.id ? 'Annulla' : 'Aggiorna cliente'}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {showFormAggiornaCliente && clienteDaAggiornare.id == c.id &&
-                                        <div>
-                                            <div className="flex flex-row">
-                                                <InputEmail label="Email" name="email" onChange={(e) => onVCClienteDaAggiornare(e, 'email')} value={clienteDaAggiornare?.email} />
-                                                <InputTell label="Telefono" name="tel" onChange={(e) => onVCClienteDaAggiornare(e, 'tel')} value={clienteDaAggiornare?.tel} />
-                                                <InputText label="Nome" name="nome" onChange={(e) => onVCClienteDaAggiornare(e, 'nome')} value={clienteDaAggiornare?.nome} />
-                                                <InputText label="Cognome" name="cognome" onChange={(e) => onVCClienteDaAggiornare(e, 'cognome')} value={clienteDaAggiornare?.cognome} />
-                                                <InputSelect label="Sesso" name="sesso" options={['M', 'F']} onChange={(e) => onVCClienteDaAggiornare(e, 'sesso')} value={clienteDaAggiornare?.sesso} />
-                                            </div>
-                                            <div className="pb-4">
-                                                <div className="flex flex-row">
-                                                    <InputText label="Indirizzo" name="indirizzo" onChange={(e) => onVCClienteDaAggiornare(e, 'indirizzo')} value={clienteDaAggiornare?.indirizzo} />
-                                                    <InputText label="CAP" name="cap" onChange={(e) => onVCClienteDaAggiornare(e, 'cap')} value={clienteDaAggiornare?.cap} />
-                                                    <InputText label="Città" name="citta" onChange={(e) => onVCClienteDaAggiornare(e, 'citta')} value={clienteDaAggiornare?.citta} />
-                                                    <InputText label="Luogo di nascita" name="luogo_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'luogo_nascita')} value={clienteDaAggiornare?.luogo_nascita} />
-                                                    <InputText label="Provincia di nascita" name="provincia_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'provincia_nascita')} value={clienteDaAggiornare?.provincia_nascita} />
-                                                    <InputText label="Provincia" name="provincia" onChange={(e) => onVCClienteDaAggiornare(e, 'provincia')} value={clienteDaAggiornare?.provincia} />
-                                                    <InputText label="Numero passaporto" name="numero_passaporto" onChange={(e) => onVCClienteDaAggiornare(e, 'numero_passaporto')} value={clienteDaAggiornare?.numero_passaporto} />
-                                                    <InputDate label="Data scadenza passaporto" name="data_scadenza_passaporto" onChange={(e) => onVCClienteDaAggiornare(e, 'data_scadenza_passaporto')} value={clienteDaAggiornare?.data_scadenza_passaporto ? moment(clienteDaAggiornare?.data_scadenza_passaporto).format('YYYY-MM-DD') : ''} />
-                                                    <InputText label="Nazionalità" name="nazionalita" onChange={(e) => onVCClienteDaAggiornare(e, 'nazionalita')} value={clienteDaAggiornare?.nazionalita} />
-                                                </div>
-                                                <div className="flex flex-row">
-                                                    <InputSelect label="Tipo" name="tipo" options={['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA']} onChange={(e) => onVCClienteDaAggiornare(e, 'tipo')} value={clienteDaAggiornare?.tipo} />
-                                                    <InputSelect label="Provenienza" name="provenienza" options={provenienzaOptions} onChange={(e) => onVCClienteDaAggiornare(e, 'provenienza')} value={clienteDaAggiornare?.provenienza} />
-                                                    <InputText label="Collegato" name="collegato" onChange={(e) => onVCClienteDaAggiornare(e, 'collegato')} value={clienteDaAggiornare?.collegato} />
-                                                    <InputText label="CF" name="cf" onChange={(e) => onVCClienteDaAggiornare(e, 'cf')} value={clienteDaAggiornare?.cf} />
-                                                    <InputDate label="Data di nascita" name="data_di_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'data_di_nascita')} value={clienteDaAggiornare?.data_di_nascita ? moment(clienteDaAggiornare?.data_di_nascita).format('YYYY-MM-DD') : ''} />
-                                                </div>
-                                                <InputText textarea label="Note" name="note" onChange={(e) => onVCClienteDaAggiornare(e, 'note')} value={clienteDaAggiornare?.note} />
-                                            </div>
-                                            <button
-                                                className="bg-blue-500 text-white h-8 flex items-center justify-center p-2 rounded-md"
-                                                onClick={() => submitUpdateCliente(clienteDaAggiornare)}
-                                            >
-                                                Aggiorna
-                                            </button>
-                                        </div>
-                                    }
-                                    {/* lista preventivi del cliente */}
-                                    {showPreventiviClienteList && c.id == clienteDaAggiornare.id &&
-                                        <div key={c.id + 'preventiviClienteList'} className="pl-6 flex flex-col pt-4" >
-                                            <p>Lista preventivi del cliente:</p>
-                                            {preventiviClienteList.length > 0 && preventiviClienteList.map((p, i) => (
-                                                <div key={p.id} className="flex flex-row gap-2 pt-4 justify-between">
-                                                    <div > {i + 1}. {formatDate(p.data_partenza)}, {p.riferimento},{p.operatore}</div>
-                                                    <button
-                                                        className="bg-blue-500 text-white h-8 flex items-center justify-center p-2 rounded-md"
-                                                        onClick={() => onClickShowFormAggiornaPreventivo(c, p)}
-                                                    >
-                                                        Vedi
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    }
-                                </div>
-                            ))}
-                                <div>
-                                    <div className="flex flex-row gap-2 pt-4">
-                                        <button
-                                            className="bg-blue-500 text-white h-8 flex items-center justify-center p-2 rounded-md"
-                                            onClick={async () => submitCreateCliente()}
-                                        >
-                                            Crea nuovo cliente
-                                        </button>
-                                    </div>
-                                </div>
+    {/* -----------------------------------------------------------
+         AGGIORNA CLIENTE
+        ----------------------------------------------------------- */}  
+
+                    {showFormAggiornaCliente && clienteDaAggiornare.id == c.id &&
+                        <div>
+                            <div className="flex flex-row space-x-1">
+                                <InputText label="Cognome" name="cognome" onChange={(e) => onVCClienteDaAggiornare(e, 'cognome')} value={clienteDaAggiornare?.cognome} className="w-[200px]" />
+                                <InputText label="Nome" name="nome" onChange={(e) => onVCClienteDaAggiornare(e, 'nome')} value={clienteDaAggiornare?.nome} className="w-[200px]" />
+                                <InputEmail label="Email" name="email" onChange={(e) => onVCClienteDaAggiornare(e, 'email')} value={clienteDaAggiornare?.email} />
+                                <InputTell label="Telefono" name="tel" onChange={(e) => onVCClienteDaAggiornare(e, 'tel')} value={clienteDaAggiornare?.tel} />
+                                <InputSelect label="Sesso" name="sesso" options={['M', 'F']} onChange={(e) => onVCClienteDaAggiornare(e, 'sesso')} value={clienteDaAggiornare?.sesso} className="w-[60px]" />
+                            </div>
+                                            
+                            <div className="flex flex-row space-x-1">
+                                <InputText label="Indirizzo" name="indirizzo" onChange={(e) => onVCClienteDaAggiornare(e, 'indirizzo')} value={clienteDaAggiornare?.indirizzo} className="w-[280px]" />
+                                <InputText label="CAP" name="cap" onChange={(e) => onVCClienteDaAggiornare(e, 'cap')} value={clienteDaAggiornare?.cap} className="w-[90px]" />
+                                <InputText label="Città" name="citta" onChange={(e) => onVCClienteDaAggiornare(e, 'citta')} value={clienteDaAggiornare?.citta} className="w-[200px]" />
+                                <InputText label="Prov R" name="provincia" onChange={(e) => onVCClienteDaAggiornare(e, 'provincia')} value={clienteDaAggiornare?.provincia} className="w-[60px]" />
+                                <InputText label="CF" name="cf" onChange={(e) => onVCClienteDaAggiornare(e, 'cf')} value={clienteDaAggiornare?.cf} className="w-[200px]" />
+                            </div>
+
+                            <div className="flex flex-row space-x-1">
+                                <InputDate label="Data di nascita" name="data_di_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'data_di_nascita')} value={clienteDaAggiornare?.data_di_nascita ? moment(clienteDaAggiornare?.data_di_nascita).format('YYYY-MM-DD') : ''} />
+                                <InputText label="Luogo di nascita" name="luogo_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'luogo_nascita')} value={clienteDaAggiornare?.luogo_nascita} className="w-[200px]" />
+                                <InputText label="Prov N" name="provincia_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'provincia_nascita')} value={clienteDaAggiornare?.provincia_nascita} className="w-[60px]" />
+                                <InputText label="Numero Passaporto" name="numero_passaporto" onChange={(e) => onVCClienteDaAggiornare(e, 'numero_passaporto')} value={clienteDaAggiornare?.numero_passaporto} className="w-[140px]" />
+                                <InputDate label="Scadenza Passaporto" name="data_scadenza_passaporto" onChange={(e) => onVCClienteDaAggiornare(e, 'data_scadenza_passaporto')} value={clienteDaAggiornare?.data_scadenza_passaporto ? moment(clienteDaAggiornare?.data_scadenza_passaporto).format('YYYY-MM-DD') : ''} />
+                                <InputText label="Nazionalità" name="nazionalita" onChange={(e) => onVCClienteDaAggiornare(e, 'nazionalita')} value={clienteDaAggiornare?.nazionalita} className="w-[146px]" />
+                            </div>
+
+                            <div className="flex flex-row space-x-1">
+                                <InputSelect label="Tipo" name="tipo" options={['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA']} onChange={(e) => onVCClienteDaAggiornare(e, 'tipo')} value={clienteDaAggiornare?.tipo} className="w-[160px]" />
+                                <InputSelect label="Provenienza" name="provenienza" options={provenienzaOptions} onChange={(e) => onVCClienteDaAggiornare(e, 'provenienza')} value={clienteDaAggiornare?.provenienza} className="w-[130px]" />
+                                <InputText label="Collegato" name="collegato" onChange={(e) => onVCClienteDaAggiornare(e, 'collegato')} value={clienteDaAggiornare?.collegato} className="w-[190px]" />
+                                <InputText textarea label="Note" name="note" onChange={(e) => onVCClienteDaAggiornare(e, 'note')} value={clienteDaAggiornare?.note} className="w-[354px]" />
+                            </div>
+
+                            <button
+                                className="bg-blue-500 text-white h-8 flex items-center justify-center p-2 rounded-md"
+                                onClick={() => submitUpdateCliente(clienteDaAggiornare)} >
+                                Aggiorna
+                            </button>
                         </div>
                     }
-                </div>
-                {/* CREA/AGGIORNA PREVENTIVO */}
+
+    {/* -----------------------------------------------------------
+         LISTA PREVENTIVI DEL CLIENTE
+        ----------------------------------------------------------- */}                              
+                                    
+                    {showPreventiviClienteList && c.id == clienteDaAggiornare.id &&
+                        <div key={c.id + 'preventiviClienteList'} className="ml-[400px] flex flex-col pt-0" >
+                            {preventiviClienteList.length > 0 && preventiviClienteList.map((p, i) => (
+                                <div key={p.id} className="flex flex-row gap-2 pt-2 justify-between text-sm text-brown-500">
+                                    <div > {i + 1}. {formatDate(p.data_partenza)} - {p.riferimento} - {p.operatore}    
+                                    </div> 
+                                    <Button
+                                        className="bg-white text-brown-500 hover:text-white"
+                                        onClick={() => onClickShowFormAggiornaPreventivo(c, p)}>
+                                        VEDI PREVENTIVO
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    }
+            </div>
+        ))}
+                                
+    </div>
+    }
+</div>
+
+    {/* -----------------------------------------------------------
+         CREA / AGGIORNA PREVENTIVO
+        ----------------------------------------------------------- */} 
                 {showFormPreventivo && <div>
                     {/* preventivo */}
                     <div>
                         {/* Preventivo Cliente */}
                         <div>
-                            <h3 className="text-xl md:text-2xl pt-4 pb-1">Preventivo</h3>
-                            <p>I dati seguenti verranno usati per creare il preventivo</p>
-                            <div className="flex flex-row">
-                                <InputNumber disabled label="N. Preventivo" name="numero_preventivo" onChange={(e) => onVCpreventivo(e, 'numero_preventivo')} value={preventivo?.numero_preventivo?.toString()} />
-                                <InputSelect label="Brand" name="brand" options={brandOptions} onChange={(e) => onVCpreventivo(e, 'brand')} value={preventivo?.brand} />
-                                <div className="flex flex-row items-end justify-center pb-2 px-2">
+                            <div className="flex items-center h-24 gap-3 pl-0 pt-8">
+                                <h3 className="text-xl md:text-2xl pb-1">Preventivo</h3>
+                                <span className="text-xl text-brown-300 font-semibold">
                                     {formatDateToString(preventivo?.data_partenza)} {preventivo?.brand} {preventivo?.numero_preventivo?.toString()}
-                                </div>
-                                <InputSelect label="Operatore" name="operatore" options={operatoreOptions} onChange={(e) => onVCpreventivo(e, 'operatore')} value={preventivo?.operatore} />
-                                <InputDate label="Data" name="data" onChange={(e) => onVCpreventivo(e, 'data')} value={preventivo?.data ? moment(preventivo?.data).format('YYYY-MM-DD') : ''} />
-                                <InputSelect label="Stato" name="stato" options={statoOptions} onChange={(e) => onVCpreventivo(e, 'stato')} value={preventivo?.stato} />
+                                </span>
                             </div>
-                            <div className="flex flex-row">
-                                <InputText label="Riferimento" name="riferimento" onChange={(e) => onVCpreventivo(e, 'riferimento')} value={preventivo?.riferimento} />
-                                <InputText label="Feedback" name="feedback" onChange={(e) => onVCpreventivo(e, 'feedback')} value={preventivo?.feedback} />
-                                <InputText label="Note" name="note" onChange={(e) => onVCpreventivo(e, 'note')} value={preventivo?.note} />
-                                <InputNumber label="Adulti" name="adulti" onChange={(e) => onVCpreventivo(e, 'adulti')} value={preventivo?.adulti?.toString()} />
-                                <InputNumber label="Bambini" name="bambini" onChange={(e) => onVCpreventivo(e, 'bambini')} value={preventivo?.bambini?.toString()} />
-                                <InputDate label="Data di partenza" name="data_partenza" onChange={(e) => onVCpreventivo(e, 'data_partenza')} value={preventivo?.data_partenza ? moment(preventivo?.data_partenza).format('YYYY-MM-DD') : ''} />
+                            
+                            <div className="flex flex-row space-x-1">
+                                <InputNumber disabled label="ID" name="numero_preventivo" onChange={(e) => onVCpreventivo(e, 'numero_preventivo')} value={preventivo?.numero_preventivo?.toString()} className="w-[52px]" />
+                                <InputSelect label="Brand" name="brand" options={brandOptions} onChange={(e) => onVCpreventivo(e, 'brand')} value={preventivo?.brand} className="w-[80px]" />
+                                <InputSelect label="Operatore" name="operatore" options={operatoreOptions} onChange={(e) => onVCpreventivo(e, 'operatore')} value={preventivo?.operatore} className="w-[120px]" />
+                                <InputDate label="Data di Richiesta" name="data" onChange={(e) => onVCpreventivo(e, 'data')} value={preventivo?.data ? moment(preventivo?.data).format('YYYY-MM-DD') : ''} />
+                                <InputSelect label='Destinazione' onChange={(e) => onVCpreventivo(e, 'destinazione')} value={preventivo?.destinazione} name="destinazione" options={destinazioniOptions} className="w-[175px]" />
+                                <InputDate label="Data di Partenza" name="data_partenza" onChange={(e) => onVCpreventivo(e, 'data_partenza')} value={preventivo?.data_partenza ? moment(preventivo?.data_partenza).format('YYYY-MM-DD') : ''} />
+                                <InputNumber label="Adulti" name="adulti" onChange={(e) => onVCpreventivo(e, 'adulti')} value={preventivo?.adulti?.toString()} className="w-[55px]" />
+                                <InputNumber label="Bambini" name="bambini" onChange={(e) => onVCpreventivo(e, 'bambini')} value={preventivo?.bambini?.toString()} className="w-[55px]" />
                             </div>
-                            <div className="flex flex-row">
-                                <InputSelect label='Destinazione' onChange={(e) => onVCpreventivo(e, 'destinazione')} value={preventivo?.destinazione} name="destinazione" options={destinazioniOptions} />
-                                <InputSelect label='Tipo Viaggio' onChange={(e) => onVCpreventivo(e, 'tipo_viaggio')} value={preventivo?.tipo_viaggio} name="tipo_viaggio" options={tipoViaggioOptions} />
-
+                            
+                            <div className="flex flex-row space-x-1">
+                                <InputText label="Riferimento" name="riferimento" onChange={(e) => onVCpreventivo(e, 'riferimento')} value={preventivo?.riferimento} className="w-[110px]" />
+                                <InputSelect label='Tipo Viaggio' onChange={(e) => onVCpreventivo(e, 'tipo_viaggio')} value={preventivo?.tipo_viaggio} name="tipo_viaggio" options={tipoViaggioOptions} className="w-[150px]" />
+                                <InputText label="Note" name="note" onChange={(e) => onVCpreventivo(e, 'note')} value={preventivo?.note} className="w-[215px]" />
+                                <InputText label="Feedback" name="feedback" onChange={(e) => onVCpreventivo(e, 'feedback')} value={preventivo?.feedback} className="w-[215px]" />
+                                <InputSelect label="Stato" name="stato" options={statoOptions} onChange={(e) => onVCpreventivo(e, 'stato')} value={preventivo?.stato} className="w-[140px]" />
                             </div>
+                            
                             <div className="flex flex-row">
                                 <InputNumber label="Percentuale ricarico" name="percentuale_ricarico" value={preventivo?.percentuale_ricarico?.toString()} onChange={(e) => onVCpreventivo(e, 'percentuale_ricarico')} />
                             </div>
                         </div>
 
-
-
-
-                        {/* Servizi a terra */}
+    {/* -----------------------------------------------------------
+         SERVIZI A TERRA
+        ----------------------------------------------------------- */} 
                         <div id="servizi-a-terra">
-                            <div className="flex flex-row items-center justify-start">
+                            <div className="flex flex-row items-center justify-start h-20">
                                 <div>
-                                    <h3 className="text-xl md:text-2xl pt-4 pb-1" > Servizi a terra</h3 >
+                                    <h3 className="text-xl md:text-2xl" > Servizi a Terra</h3 >
                                 </div>
-                                <div className="flex flex-row items-center justify-center pt-4 pl-5">
-                                    <button
-                                        className="bg-blue-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
-                                        onClick={aggiungiServizioATerra}
-                                    >
+                                <div className="ml-auto">
+                                    <Button
+                                        className="w-8 h-8 text-xl"
+                                        onClick={aggiungiServizioATerra} >
                                         +
-                                    </button>
+                                    </Button>
                                 </div >
                             </div>
+
                             <div className="input-group-list">
                                 {
                                     serviziATerra.map((servizio, i) => (
                                         <div key={servizio.groupId}>
                                             <div className="flex flex-row justify-between">
-                                                <div className="flex flex-row">
-                                                    <InputSelect onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} />
-                                                    <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} />
-                                                    <InputText onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" />
-                                                    <InputDate onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'data')} value={servizio?.data ? moment(servizio?.data).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Data' : ''} name="data" />
-                                                    <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" />
-                                                    <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Camere' : ''} name="numero_camere" />
-                                                    <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'totale')} value={servizio?.totale?.toString()} label={i == 0 ? 'Totale' : ''} name="totale" />
-                                                    <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} />
-                                                    <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'cambio')} value={servizio?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" />
+                                                <div className="flex flex-row space-x-1">
+                                                    <InputSelect onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[160px]"/>
+                                                    <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[160px]"/>
+                                                    <InputText onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione Servizio' : ''} name="descrizione" className="w-[160px]"/>
+                                                    <InputDate onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'data')} value={servizio?.data ? moment(servizio?.data).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Data Inizio' : ''} name="data" />
+                                                    <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" className="w-[60px]"/>
+                                                    <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Camere' : ''} name="numero_camere" className="w-[60px]"/>
+                                                    <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'totale')} value={servizio?.totale?.toString()} label={i == 0 ? 'Importo Unitario' : ''} name="totale" className="w-[80px]"/>
+                                                    <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} className="w-[60px]"/>
+                                                    <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'cambio')} value={servizio?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" className="w-[60px]"/>
                                                 </div>
                                                 <div className="flex flex-row items-center pt-7 pl-5">
                                                     <div className={`${i > 0 ? 'pb-3' : ''}`}>

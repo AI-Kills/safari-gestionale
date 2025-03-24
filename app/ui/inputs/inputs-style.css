@@ -1,13 +1,7 @@
 .date {
-    width: 150px !important;
-    min-width: 150px !important;
+    width: 140px !important;
+    min-width: 140px !important;
 }
 
-.select {
-    max-width: 150px !important;
-}
 
-.number {
-    max-width: 80px !important;
-}
 

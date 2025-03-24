@@ -1,5 +1,7 @@
 'use client';
-
+import { InputInterface } from "./input-interface";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import React, { useState, ChangeEvent, MouseEvent } from 'react';
 
 type InputLookupProps = {
@@ -10,7 +12,14 @@ type InputLookupProps = {
   onChange?: (e:any) => void;
 };
 
-export function InputLookup({ label, defaultValue, name, options, onChange }: InputLookupProps) {
+export function InputLookup({ 
+  label, 
+  defaultValue, 
+  name, 
+  options, 
+  onChange,
+  className,
+ }: InputLookupProps) {
   const [inputValue, setInputValue] = useState(defaultValue ?? "");
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -38,19 +47,15 @@ export function InputLookup({ label, defaultValue, name, options, onChange }: In
   };
 
   return (
-    <div className="mb-3 mt-5 w-36">
-      {/* Optional label to match the style in input-text */}
+    <div className="search">
+      
       {label && (
-        <label
-          className="mb-3 block text-xs font-medium text-gray-900"
-          htmlFor={label}
-        >
-          {label}
-        </label>
+        <Label htmlFor={label}>{label}</Label>
       )}
+      
 
       <div className="relative inline-block w-full">
-        <input
+        <Input
           id={label}
           name={name}
           type="text"
@@ -58,8 +63,8 @@ export function InputLookup({ label, defaultValue, name, options, onChange }: In
           onChange={handleInputChange}
           onFocus={() => setShowDropdown(true)}
           onBlur={handleBlur}
-          className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
-          placeholder="Search"
+          className=""
+          placeholder=""
         />
 
         {showDropdown && filteredOptions.length > 0 && (

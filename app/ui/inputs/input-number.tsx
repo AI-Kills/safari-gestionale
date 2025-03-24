@@ -1,7 +1,7 @@
 import { InputInterface } from "./input-interface";
-import './inputs-style.css';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 export default function InputNumber(
     { 
@@ -10,7 +10,8 @@ export default function InputNumber(
         state, 
         value, 
         onChange,
-        disabled
+        disabled,
+        className, 
     }: InputInterface) {
 
     return (
@@ -26,7 +27,7 @@ export default function InputNumber(
                 id={label}
                 name={name}
                 type="number"
-                className="number h-input-height block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+                className={cn(className, "text-right")}
                 value={value ?? 0}
                 placeholder={``}
                 onChange={onChange}
