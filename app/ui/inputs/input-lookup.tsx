@@ -3,23 +3,29 @@ import { InputInterface } from "./input-interface";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import React, { useState, ChangeEvent, MouseEvent } from 'react';
+import { cn } from "@/lib/utils";
 
-type InputLookupProps = {
-  label?: string;
-  name?: string;
+
+interface InputLookupProps {
+  label: string;
+  name: string;
   options: string[];
   defaultValue?: string;
-  onChange?: (e:any) => void;
-};
+  onChange?: (e: any) => void;
+  state?: any;
+  value?: string;
+  disabled?: boolean;
+  className?: string;
+}
 
-export function InputLookup({ 
-  label, 
-  defaultValue, 
-  name, 
-  options, 
+export function InputLookup({
+  label,
+  defaultValue,
+  name,
+  options,
   onChange,
   className,
- }: InputLookupProps) {
+}: InputLookupProps) {
   const [inputValue, setInputValue] = useState(defaultValue ?? "");
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -36,7 +42,7 @@ export function InputLookup({
   const handleOptionClick = (event: MouseEvent<HTMLLIElement>, selected: string) => {
     setInputValue(selected);
     setShowDropdown(false);
-    onChange({target: {value: selected}});
+    onChange({ target: { value: selected } });
   };
 
   const handleBlur = () => {
@@ -48,11 +54,11 @@ export function InputLookup({
 
   return (
     <div className="search">
-      
+
       {label && (
         <Label htmlFor={label}>{label}</Label>
       )}
-      
+
 
       <div className="relative inline-block w-full">
         <Input
@@ -61,9 +67,9 @@ export function InputLookup({
           type="text"
           value={inputValue}
           onChange={handleInputChange}
+          className={cn(className, "text-right")}
           onFocus={() => setShowDropdown(true)}
           onBlur={handleBlur}
-          className=""
           placeholder=""
         />
 

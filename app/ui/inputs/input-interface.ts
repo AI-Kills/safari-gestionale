@@ -1,15 +1,16 @@
 export interface InputInterface {
-    label: string;
-    name: string;
-    state?: any;
-    value?: string;
-    disabled?: boolean;
-    onChange?: (e: any) => void;
+  label: string;
+  name: string;
+  state?: any;
+  value?: string;
+  disabled?: boolean;
+  onChange?: (e: any) => void;
+  className?: string;
 }
 function formatDate(defaultValue: string): string {
-    const date = new Date(defaultValue);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  const date = new Date(defaultValue);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 } 

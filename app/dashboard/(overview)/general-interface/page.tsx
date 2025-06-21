@@ -993,7 +993,7 @@ export default function CreaPreventivoGeneralInterface() {
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Camere' : ''} name="numero_camere" />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'totale')} value={servizio?.totale?.toString()} label={i == 0 ? 'Totale' : ''} name="totale" />
-                          <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} />
+                          <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} className='max-w-[60px]' />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'cambio')} value={servizio?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" />
                         </div>
                         <div className="flex flex-row items-center pt-7 pl-5">
@@ -1064,7 +1064,7 @@ export default function CreaPreventivoGeneralInterface() {
                           <InputNumber onChange={(e) => onVCVolo(e, volo.groupId, 'totale')} value={volo?.totale?.toString()} label={i == 0 ? 'Totale' : ''} name="totale" />
                           <InputNumber onChange={(e) => onVCVolo(e, volo.groupId, 'ricarico')} value={volo?.ricarico?.toString()} label={i == 0 ? 'Ricarico' : ''} name="ricarico" />
                           <InputNumber onChange={(e) => onVCVolo(e, volo.groupId, 'numero')} value={volo?.numero?.toString()} label={i == 0 ? 'Numero' : ''} name="numero" />
-                          <InputLookup onChange={(e) => onVCVolo(e, volo.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={volo?.valuta} options={valuteOptions} />
+                          <InputLookup onChange={(e) => onVCVolo(e, volo.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={volo?.valuta} options={valuteOptions} className='max-w-[60px]' />
                           <InputNumber onChange={(e) => onVCVolo(e, volo.groupId, 'cambio')} value={volo?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" />
                         </div>
                         <div className="flex flex-row items-center pt-7 pl-5">
