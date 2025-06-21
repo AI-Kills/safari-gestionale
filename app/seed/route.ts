@@ -6,7 +6,7 @@ import banche from './banche.json';
 import bcrypt from 'bcrypt';
 
 const pool = new Pool({
-  connectionString: process.env.POSTGRESS_URL,
+  connectionString: process.env.POSTGRES_URL,
   ssl: {
     rejectUnauthorized: false
   }
@@ -45,8 +45,8 @@ const createTableClienti = async () => {
          citta VARCHAR(255),
          CF VARCHAR(16),
          email VARCHAR(255) NOT NULL,
-         tipo VARCHAR(20) CHECK (tipo IN ('PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA')),
-         provenienza VARCHAR(20) CHECK (provenienza IN ('Passaparola', 'Sito IWS', 'Sito INO', 'Telefono', 'Email Diretta', 'Sito ISE')),
+         tipo VARCHAR(20),
+         provenienza VARCHAR(20),
          collegato VARCHAR(255),
          note TEXT,
          data_di_nascita DATE,
@@ -56,7 +56,7 @@ const createTableClienti = async () => {
          data_scadenza_passaporto DATE,
          nazionalita VARCHAR(100),
          provincia VARCHAR(2),
-         sesso CHAR(1) CHECK (sesso IN ('M', 'F')),
+         sesso CHAR(1),
          UNIQUE (email)
       );
     `);
@@ -84,13 +84,13 @@ const createTablePreventivi = async () => {
          adulti INT,
          bambini INT,
          destinazione VARCHAR(255),
-         tipo_viaggio VARCHAR(20) CHECK (tipo_viaggio IN ('viaggio di nozze', 'viaggio di lavoro', 'altro')),
+         tipo_viaggio VARCHAR(20),
          note_operative TEXT,
          riferimento VARCHAR(255),
          data_partenza DATE,
          operatore VARCHAR(255),
          feedback TEXT,
-         stato VARCHAR(20) CHECK (stato IN ('da fare', 'in trattativa', 'confermato', 'inviato')),
+         stato VARCHAR(20),
          data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
          numero_preventivo VARCHAR(255),
          UNIQUE (numero_preventivo)
@@ -211,13 +211,13 @@ const seedClienti = async () => {
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       ON CONFLICT (email) DO NOTHING`, [
-        cliente.nome, cliente.cognome, cliente.tel, cliente.email, cliente.tipo, 
-        cliente.provenienza, cliente.collegato, cliente.citta, cliente.note,
-        cliente.data_di_nascita, cliente.indirizzo, cliente.CAP, cliente.CF,
-        cliente.luogo_nascita, cliente.provincia_nascita, cliente.numero_passaporto,
-        cliente.data_scadenza_passaporto, cliente.nazionalita, cliente.provincia,
-        cliente.sesso
-      ]);
+      cliente.nome, cliente.cognome, cliente.tel, cliente.email, cliente.tipo,
+      cliente.provenienza, cliente.collegato, cliente.citta, cliente.note,
+      cliente.data_di_nascita, cliente.indirizzo, cliente.CAP, cliente.CF,
+      cliente.luogo_nascita, cliente.provincia_nascita, cliente.numero_passaporto,
+      cliente.data_scadenza_passaporto, cliente.nazionalita, cliente.provincia,
+      cliente.sesso
+    ]);
   }
 }
 const seedBanche = async () => {
@@ -228,11 +228,15 @@ const seedBanche = async () => {
 }
 const seedUsers = async () => {
   const hashedPassword = await bcrypt.hash('2NkS$ncXs', 10);
-  await pool.query(`
-    INSERT INTO users (email, password) VALUES ($1, $2) ON CONFLICT (email) DO NOTHING`, ['impronte@esempio.safari', hashedPassword]);
+  for (let i = 0; i < 10; i++) {
+    await pool.query(`
+    INSERT INTO users (email, password) VALUES ($1, $2) ON CONFLICT (email) DO NOTHING`, [`${i}@impronte.safari`, hashedPassword]
+    );
+  }
 }
 /** Delete tables */
 const deleteTables = async () => {
+  await pool.query('DROP TABLE IF EXISTS preventivi_al_cliente_row CASCADE');
   await pool.query('DROP TABLE IF EXISTS preventivi_al_cliente CASCADE');
   await pool.query('DROP TABLE IF EXISTS assicurazioni CASCADE');
   await pool.query('DROP TABLE IF EXISTS voli CASCADE');
@@ -246,28 +250,31 @@ const deleteTables = async () => {
     pool.query('DROP TABLE IF EXISTS destinazioni CASCADE')
   ])
 }
+
 /** Create tables */
 const createTables = async () => {
-  await Promise.all([ createTableUsers(), createTableDestinazioni(), createTableBanche(), createTableClienti(), createTableFornitori()]);
-  await Promise.all([ createTablePreventivi(), createTableServiziATerra(), createTableVoli(), createTableAssicurazioni()]);
+  await Promise.all([createTableUsers(), createTableDestinazioni(), createTableBanche(), createTableClienti(), createTableFornitori()]);
+  await Promise.all([createTablePreventivi(), createTableServiziATerra(), createTableVoli(), createTableAssicurazioni()]);
   await createTablePreventiviAlCliente();
   await createTablePreventiviAlClienteRow();
 }
+
 /** Seed initial data */
 const seedDb = async () => {
   await Promise.all([
-    seedUsers(),
+    //seedUsers(),
     seedDestinazioni(),
-    seedFornitori(),
-    seedBanche(),
-    seedClienti()
+    //seedFornitori(),
+    //seedBanche(),
+    //seedClienti()
   ]);
 }
+
 export async function GET() {
   try {
     await pool.query('BEGIN');
-    await deleteTables();
-    await createTables();
+    //await deleteTables();
+    //await createTables();
     await seedDb();
     await pool.query('COMMIT');
 

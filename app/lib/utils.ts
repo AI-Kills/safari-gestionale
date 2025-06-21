@@ -55,9 +55,10 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
  * convert date object to format YYYY-MM-DD
  * @param date 
  */
-export const formatDate = (date: Date): string => {
-const formattedDate = moment(date).format('YYYY-MM-DD');
-return formattedDate;
+export const formatDate = (date: Date | null | undefined): string | null => {
+  if (!date) return null;
+  const formattedDate = moment(date).format('YYYY-MM-DD');
+  return formattedDate;
 }
 /**
  * check if string has a valid email format

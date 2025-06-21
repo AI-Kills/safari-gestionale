@@ -68,13 +68,13 @@ const multiColumnFilterFn: FilterFn<Cliente> = (row, columnId, filterValue) => {
 };
 
 
-export default function STable<R extends Record<string, any>>({ data, columnsSize }: { data: R[], columnsSize?: number}) {
-console.log("data ricevuti: ",data)
-    const columns: ColumnDef<R>[] = 
-    Object.keys(data[0]).map((key) => ({
-        header: key as string,
-        accessorKey: key as keyof R,
-        size: columnsSize ?? 250,
+export default function STable<R extends Record<string, any>>({ data, columnsSize }: { data: R[], columnsSize?: number }) {
+  console.log("data ricevuti: ", data)
+  const columns: ColumnDef<R>[] =
+    Object.keys(data[0] ?? []).map((key) => ({
+      header: key as string,
+      accessorKey: key as keyof R,
+      size: columnsSize ?? 250,
     }));
 
   const id = useId();
@@ -288,7 +288,7 @@ console.log("data ricevuti: ",data)
                         <div
                           className={cn(
                             header.column.getCanSort() &&
-                              "flex h-full cursor-pointer select-none items-center justify-between gap-2",
+                            "flex h-full cursor-pointer select-none items-center justify-between gap-2",
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                           onKeyDown={(e) => {
@@ -387,7 +387,7 @@ console.log("data ricevuti: ",data)
               {Math.min(
                 Math.max(
                   table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-                    table.getState().pagination.pageSize,
+                  table.getState().pagination.pageSize,
                   0,
                 ),
                 table.getRowCount(),

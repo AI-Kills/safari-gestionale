@@ -19,7 +19,7 @@ import {
 } from "../data";
 import {
   AssicurazioneInputGroup,
-  ClienteInputGroup, 
+  ClienteInputGroup,
   Data,
   ERRORMESSAGE,
   PreventivoInputGroup,
@@ -92,7 +92,7 @@ export const createCliente = async (
     sesso: c.sesso
   });
   console.log("cliente: ", c);
-  
+
   if (!parsedData.success) {
     console.error("Failed to create cliente due to a validation error.");
     return {
@@ -379,7 +379,7 @@ export const createAssicurazione = async (
       values: parsedData.data,
     };
   }
-  
+
   try {
     const result = await pool.query(
       `
@@ -691,7 +691,7 @@ export const updateCliente = async (
   const parsedData = schemas.ClienteSchema.safeParse({
     id: id,
     nome: c.nome,
-    cognome: c.cognome, 
+    cognome: c.cognome,
     note: c.note,
     tipo: c.tipo,
     data_di_nascita: formatDate(c.data_di_nascita),
@@ -791,6 +791,8 @@ export const updatePreventivo = async (
   p: PreventivoInputGroup,
   idCliente: string
 ): Promise<DBResult<PreventivoInputGroup>> => {
+  console.log("📋 updatePreventivo called with:", { p, idCliente });
+  
   const parsedData = schemas.UpdatePreventivoSchema.safeParse({
     id: p.id,
     note: p.note,
@@ -808,8 +810,9 @@ export const updatePreventivo = async (
     tipo_viaggio: p.tipo_viaggio,
     destinazione: p.destinazione
   });
+  
   if (!parsedData.success) {
-    console.error("Failed to Update Preventivo due to a validation error.");
+    console.error("❌ Failed to Update Preventivo due to a validation error:", parsedData.error.flatten().fieldErrors);
     return {
       success: false,
       errorsMessage: "Failed to Update Preventivo due to a validation error.",
@@ -818,6 +821,9 @@ export const updatePreventivo = async (
     };
   }
   try {
+    console.log("✅ Validation successful, parsed data:", parsedData.data);
+    console.log("🔄 Executing UPDATE query for preventivo with ID:", p.id);
+    
     const result = await pool.query(
       `
     UPDATE preventivi SET 
@@ -834,7 +840,7 @@ export const updatePreventivo = async (
     numero_preventivo = $11, 
     stato = $12,
     tipo_viaggio = $13,
-    destinazione = $14,
+    destinazione = $14
     WHERE id = $15
   `,
       [
@@ -855,6 +861,17 @@ export const updatePreventivo = async (
         p.id,
       ]
     );
+    
+    if (result.rowCount === 0) {
+      console.warn("⚠️ UPDATE returned 0 rows - no preventivo found with ID:", p.id);
+      return {
+        success: false,
+        errorsMessage: "No preventivo found with the provided ID",
+        values: parsedData.data,
+      };
+    }
+    
+    console.log("✅ UPDATE successful, rowCount:", result.rowCount, "updated data:", result.rows[0]);
     return { values: result.rows[0], success: true, errorsMessage: "" };
   } catch (error) {
     console.error("Database Error: Failed to Update Preventivo: " + error);
@@ -1203,7 +1220,7 @@ export const searchClienti = async (
   try {
     const allClienti = await Promise.all([
       fetchFilteredClienti(c.nome, "nome", 1),
-      fetchFilteredClienti(c.cognome, "cognome", 1), 
+      fetchFilteredClienti(c.cognome, "cognome", 1),
       fetchFilteredClienti(c.email, "email", 1),
       fetchFilteredClienti(c.tel, "tel", 1),
       fetchFilteredClienti(c.indirizzo, "indirizzo", 1),
@@ -1226,7 +1243,7 @@ export const searchClienti = async (
       (c) =>
         new ClienteInputGroup(
           c.nome,
-          c.cognome, 
+          c.cognome,
           c.note,
           c.citta,
           c.collegato,
@@ -1279,7 +1296,7 @@ export async function _signOut() {
 }
 
 export async function createUser(
-  prevState: State<{email?: string[]; password?: string[] }>,
+  prevState: State<{ email?: string[]; password?: string[] }>,
   formData: FormData
 ) {
   const parsedData = z

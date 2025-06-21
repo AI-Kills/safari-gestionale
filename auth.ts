@@ -24,6 +24,7 @@ async function getUser(email: string): Promise<User | undefined> {
 
 export const authOptions = {
   ...authConfig,
+  secret: process.env.AUTH_SECRET || 'fallback-secret-for-development-only-change-in-production',
   providers: [
     Credentials({
       async authorize(credentials) {

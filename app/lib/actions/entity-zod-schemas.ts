@@ -56,6 +56,7 @@ export const PreventivoSchema = z.object({
   note_operative: z.string().nullable().optional(),
 });
 export const UpdatePreventivoSchema = z.object({
+  id: z.string(),
   note: z.string().nullable().optional(),
   percentuale_ricarico: z.number().nullable().optional(),
   brand: z.enum(brandArray as [string, ...string[]]),
