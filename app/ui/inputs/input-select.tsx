@@ -17,7 +17,7 @@ export default function InputSelect({
     }: InputInterface & { options: string[] | { name: string, value: string }[]; className?: string }) {
         return (
             <div className="select">
-                <Label htmlFor={label}>{label}</Label>
+                <Label className="mt-0" htmlFor={label}>{label}</Label>
                 <div className="relative">
                     <select
                         id={label}

@@ -113,3 +113,12 @@ export const dataErrors = (data: Data): string[] => {
     }
     return errors;
 }
+
+export function errorTranslations(error: string) {
+  switch (true) {
+    case error.includes('Database Error in createCliente: error: duplicate key value violates unique constraint "clienti_email_key"'):
+      return 'L\'email esiste già.';
+    default:
+      return error;
+  }
+}

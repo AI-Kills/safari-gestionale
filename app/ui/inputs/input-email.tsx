@@ -15,7 +15,7 @@ export default function InputEmail(
 
     return (
         <div>
-            <Label htmlFor={label}>{label}</Label>
+            <Label className="mt-0" htmlFor={label}>{label}</Label>
             <Input
                 id={label}
                 name={name}

@@ -1,4 +1,3 @@
-import './style.css';
 
 export default async function ChangelogPage() {
   return (
@@ -6,7 +5,7 @@ export default async function ChangelogPage() {
       <h1 className={`mb-4 text-xl md:text-2xl`}>CHANGELOG</h1>
 
       <p><i>In questa pagina è possibile vedere le modifiche apportate ad ogni versione del progetto, distinte in 'Features' e 'Fix'. </i></p>
-      
+
       <p className='version-paragraph'>v2.6.0</p>
       <ul>
         <li>Fix: optimize cliente research in interface.</li>
@@ -40,34 +39,34 @@ export default async function ChangelogPage() {
         <li>Feat: update layout of input groups for preventivo interface.</li>
         <li>Feat: add spinner to manifest the loading state of the app.</li>
         <li>Feat: add logo.</li>
-        <li>Fix: <i>la percentuale di ricarico che noi inseriamo deve essere memorizzata per ogni preventivo (ho provato a fare una variazione e la percentuale di ricarico ogni volta 
+        <li>Fix: <i>la percentuale di ricarico che noi inseriamo deve essere memorizzata per ogni preventivo (ho provato a fare una variazione e la percentuale di ricarico ogni volta
           che si apre il preventivo torna ad essere uno, invece deve essere quella da noi inserita per quel preventivo specifico).</i></li>
         <li>Fix: <i>in fase di variazione di preventivo cliccando sul tasto aggiorna non succede niente e la variazione non viene memorizzata.</i></li>
       </ul>
       <p className='version-paragraph'>V2.2.0</p>
       <ul>
-          <li>Feat: In 'cliente', add 'IMS' as a possible value for 'provenienza'.</li>
-          <li>Feat: In 'preventivo', add 'number of rooms' field next to 'number of nights'.</li>
-          <li>Feat: For 'voli', add 'numero' field after 'ricarico'.</li>
-          <li>Feat: In 'preventivo', add 'brand' field with possible values: IWS, ISE, INO, IMS, BORN.</li>
-          <li>Feat: Show form validation error lists on 'createPreventivo'.</li>
-          <li>Feat: In 'preventivo' form, 'numero preventivo' should be computed automatically by an incremental algorithm.</li>
-          <li>Feat: In 'preventivo' form, display 'numero preventivo' in the format 000x (e.g., 0001, 0013, 0123).</li>
-          <li>Feat: Change 'note' input field to be a text area.</li>
-          <li>Feat: In 'cliente' form, add new fields: 'indirizzo' (address), 'CAP' (postal code), 'città' (city), 'CF' (tax code).</li>
-          <li>Feat: Show form validation error lists on 'updateCliente'.</li>
-          <li>Feat: Show form validation error lists on 'updatePreventivo'.</li>
-          <li>Feat: Show form validation error lists on 'createCliente'.</li>
-          <li>Feat: In 'preventivo' form, 'operatore' should be a select input with options: Serenella, Carlo, Silvia, Valentina, Elena.</li>
-          <li>Fix: In 'preventivo' form, make 'operatore' a required field.</li>
-          <li>Fix: For 'servizi a terra' and 'servizi aggiuntivi', calculate 'ricarico' as: ricarico = (numero_notti * numero_camere * importo * percentuale_ricarico) / cambio.</li>
-          <li>Fix: For 'servizi a terra' and 'servizi aggiuntivi', calculate 'tot_euro' as: tot_euro = (numero_notti * numero_camere * importo) / cambio + ricarico.</li>
-          <li>Fix: For 'voli', 'ricarico' is entered by the user and not calculated automatically.</li>
-          <li>Fix: For 'voli', calculate 'tot_euro' as: tot_euro = numero * (totale / cambio + ricarico).</li>
-          <li>Fix: Show submission success message only if there are no errors.</li>
-          <li>Fix: In 'preventivo' form, make 'brand' a required field.</li>
-          <li>Fix: In 'cliente' form, make 'email' a required field.</li>
-          <li>Fix: In 'cliente' form, make 'telefono' an optional field.</li>
+        <li>Feat: In 'cliente', add 'IMS' as a possible value for 'provenienza'.</li>
+        <li>Feat: In 'preventivo', add 'number of rooms' field next to 'number of nights'.</li>
+        <li>Feat: For 'voli', add 'numero' field after 'ricarico'.</li>
+        <li>Feat: In 'preventivo', add 'brand' field with possible values: IWS, ISE, INO, IMS, BORN.</li>
+        <li>Feat: Show form validation error lists on 'createPreventivo'.</li>
+        <li>Feat: In 'preventivo' form, 'numero preventivo' should be computed automatically by an incremental algorithm.</li>
+        <li>Feat: In 'preventivo' form, display 'numero preventivo' in the format 000x (e.g., 0001, 0013, 0123).</li>
+        <li>Feat: Change 'note' input field to be a text area.</li>
+        <li>Feat: In 'cliente' form, add new fields: 'indirizzo' (address), 'CAP' (postal code), 'città' (city), 'CF' (tax code).</li>
+        <li>Feat: Show form validation error lists on 'updateCliente'.</li>
+        <li>Feat: Show form validation error lists on 'updatePreventivo'.</li>
+        <li>Feat: Show form validation error lists on 'createCliente'.</li>
+        <li>Feat: In 'preventivo' form, 'operatore' should be a select input with options: Serenella, Carlo, Silvia, Valentina, Elena.</li>
+        <li>Fix: In 'preventivo' form, make 'operatore' a required field.</li>
+        <li>Fix: For 'servizi a terra' and 'servizi aggiuntivi', calculate 'ricarico' as: ricarico = (numero_notti * numero_camere * importo * percentuale_ricarico) / cambio.</li>
+        <li>Fix: For 'servizi a terra' and 'servizi aggiuntivi', calculate 'tot_euro' as: tot_euro = (numero_notti * numero_camere * importo) / cambio + ricarico.</li>
+        <li>Fix: For 'voli', 'ricarico' is entered by the user and not calculated automatically.</li>
+        <li>Fix: For 'voli', calculate 'tot_euro' as: tot_euro = numero * (totale / cambio + ricarico).</li>
+        <li>Fix: Show submission success message only if there are no errors.</li>
+        <li>Fix: In 'preventivo' form, make 'brand' a required field.</li>
+        <li>Fix: In 'cliente' form, make 'email' a required field.</li>
+        <li>Fix: In 'cliente' form, make 'telefono' an optional field.</li>
       </ul>
       <p className='version-paragraph'>V2.1.0</p>
       <ul>

@@ -3,20 +3,20 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 export default function InputText(
-  { 
-    label, 
-    name, 
-    state, 
-    value, 
+  {
+    label,
+    name,
+    state,
+    value,
     onChange,
-    textarea,  
+    textarea,
     className,  // Prop opzionale per classi extra
   }: InputInterface & { textarea?: boolean; className?: string }
 ) {
   return (
     <div>
       {/* Label personalizzata */}
-      <Label htmlFor={label}>{label}</Label>
+      <Label className="mt-0" htmlFor={label}>{label}</Label>
 
       {textarea ? (
         <Input

@@ -12,13 +12,7 @@ export default function InputTell({
 
     return (
         <div>
-            {label && (
-                <Label htmlFor={label}>{label}</Label>
-            )}
-            {!label && (
-                <div className="mt-5"></div>
-            )
-            }
+            <Label className="mt-0" htmlFor={label}>{label}</Label>
             <div className="relative">
                 <Input
                     className="w-[140px]"

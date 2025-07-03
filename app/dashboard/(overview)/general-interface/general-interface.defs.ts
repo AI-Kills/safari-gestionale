@@ -102,7 +102,7 @@ export class PreventivoInputGroup {
     tipo_viaggio?: "viaggio di nozze" | "viaggio di lavoro" | "altro",
     id?: string
   ) {
-    if (preventivoOrNumero instanceof Object ) {
+    if (preventivoOrNumero instanceof Object) {
       // Caso in cui viene passato un oggetto Preventivo
       const preventivo = preventivoOrNumero as Preventivo;
       this.numero_preventivo = preventivo.numero_preventivo ?? "0";
@@ -154,7 +154,8 @@ export class ServizioATerraInputGroup {
     public totale?: number,
     public cambio?: number,
     public servizio_aggiuntivo?: boolean,
-    public id?: string
+    public id?: string,
+    public pagamenti?: Pagamento[]
   ) {
     this.id = id ?? undefined;
     this.destinazione = destinazione ?? undefined;
@@ -167,6 +168,7 @@ export class ServizioATerraInputGroup {
     this.totale = totale ?? 0;
     this.cambio = cambio ?? 1;
     this.servizio_aggiuntivo = servizio_aggiuntivo ?? undefined;
+    this.pagamenti = pagamenti ?? []
   }
 }
 // voli interface for storing input group values
@@ -259,3 +261,21 @@ export interface Data {
 }
 export const SUCCESSMESSAGE = "Operazione effettuata con successo 🥳";
 export const ERRORMESSAGE = "Operazione fallita 😢";
+
+export class Pagamento {
+  constructor(
+    public id: number,
+    public banca?: string,
+    public data_scadenza?: Date,
+    public data_pagamento?: Date,
+    public importo_in_valuta?: number,
+    public importo_in_euro?: number
+  ) {
+    this.id = id;
+    this.banca = banca ?? undefined;
+    this.data_scadenza = data_scadenza ?? undefined;
+    this.data_pagamento = data_pagamento ?? undefined;
+    this.importo_in_valuta = importo_in_valuta ?? undefined;
+    this.importo_in_euro = importo_in_euro ?? undefined;
+  }
+}

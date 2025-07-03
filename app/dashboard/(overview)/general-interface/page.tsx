@@ -1,5 +1,4 @@
 'use client';
-import '../style.css';
 import InputTell from "@/app/ui/inputs/input-tell";
 import InputText from "@/app/ui/inputs/input-text";
 import InputSelect from "@/app/ui/inputs/input-select";
@@ -13,10 +12,10 @@ import destinazioniData from '@/app/lib/fundamental-entities-json/destinazioni.j
 import valuteValues from '@/app/seed/valute.json';
 import brandValues from "@/app/seed/brands.json";
 import operatoriValues from "@/app/seed/operatori.json";
-import { ClienteInputGroup, PreventivoInputGroup, ServizioATerraInputGroup, VoloInputGroup, AssicurazioneInputGroup, Data, PreventivoAlClienteRow, PreventivoAlClienteInputGroup } from "./general-interface.defs";
+import { ClienteInputGroup, PreventivoInputGroup, ServizioATerraInputGroup, VoloInputGroup, AssicurazioneInputGroup, Data, PreventivoAlClienteRow, PreventivoAlClienteInputGroup, Pagamento } from "./general-interface.defs";
 import { formatDate, isValidEmail } from "@/app/lib/utils";
 import { createCliente, DBResult, updateCliente } from "@/app/lib/actions/actions";
-import { getTotServizio, getRicaricoServizio, getTotVolo, getTotAssicurazione, formatDateToString, getSommaTuttiTotEuro, validationErrorsToString, numberToExcelFormat, formatNumberItalian, isValidTel, dataErrors } from "./helpers";
+import { getTotServizio, getRicaricoServizio, getTotVolo, getTotAssicurazione, formatDateToString, getSommaTuttiTotEuro, validationErrorsToString, numberToExcelFormat, formatNumberItalian, isValidTel, dataErrors, errorTranslations } from "./helpers";
 import { useSpinnerContext } from '@/app/context/spinner-context';
 import { useDebouncedCallback } from 'use-debounce';
 import moment from 'moment';
@@ -149,6 +148,14 @@ export default function CreaPreventivoGeneralInterface() {
   const rimuoviServizioATerra = (groupId: number) => {
     setServiziATerra(serviziATerra.filter(servizio => servizio.groupId !== groupId));
   }
+
+  const aggiungiPagamento = (servizioATerraId) => {
+    const s = serviziATerra.find(s => s.id == servizioATerraId);
+    const newId = Math.max(...s?.pagamenti.map(p => p.id)) + 5
+    const p = new Pagamento(newId)
+    s.pagamenti.push(p)
+  }
+
   const onVCServizioATerra = (e: any, id: number, name: string) => {
     console.log('change in a value of a servizioATerra <event, id, name>: ', e, id, name);
     setServiziATerra(serviziATerra.map(servizio => {
@@ -896,33 +903,35 @@ export default function CreaPreventivoGeneralInterface() {
             {/* -----------------------------------------------------------
          SERVIZI A TERRA
         ----------------------------------------------------------- */}
-            <div id="servizi-a-terra">
-              <div className="flex flex-row items-center justify-start h-20">
-                <div>
-                  <h3 className="text-xl md:text-2xl" > Servizi a Terra</h3 >
-                </div>
-                <div className="ml-auto">
-                  <Button
-                    className="w-8 h-8 text-xl"
-                    onClick={aggiungiServizioATerra} >
-                    +
-                  </Button>
-                </div >
+            <div id="servizi-a-terra" className="input-block">
+              <div className="input-group-row">
+                <h3 className="text-xl md:text-2xl" > Servizi a Terra</h3 >
+                <Button
+                  className="add-item-button"
+                  onClick={aggiungiServizioATerra} >
+                  +
+                </Button>
               </div>
 
               <div className="input-group-list">
                 {
                   serviziATerra.map((servizio, i) => (
                     <div key={servizio.groupId}>
+
                       <div className="flex flex-row justify-between">
-                        <div className="flex flex-row space-x-1">
+                        <div className="input-group-row">
+                          <button
+                            className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded"
+                            onClick={() => rimuoviServizioATerra(servizio.groupId)}
+                          >-</button>
+
                           <InputSelect onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[160px]" />
                           <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[160px]" />
                           <InputText onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione Servizio' : ''} name="descrizione" className="w-[160px]" />
                           <InputDate onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'data')} value={servizio?.data ? moment(servizio?.data).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Data Inizio' : ''} name="data" />
                           <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" className="w-[60px]" />
-                          <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Camere' : ''} name="numero_camere" className="w-[60px]" />
-                          <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'totale')} value={servizio?.totale?.toString()} label={i == 0 ? 'Importo Unitario' : ''} name="totale" className="w-[80px]" />
+                          <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Cam.' : ''} name="numero_camere" className="w-[60px]" />
+                          <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'totale')} value={servizio?.totale?.toString()} label={i == 0 ? 'I. Unitario' : ''} name="totale" className="w-[80px]" />
                           <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} className="w-[60px]" />
                           <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'cambio')} value={servizio?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" className="w-[60px]" />
                         </div>
@@ -947,14 +956,6 @@ export default function CreaPreventivoGeneralInterface() {
                               <p>{formatNumberItalian(getTotServizio(servizio.totale, servizio.cambio, preventivo?.percentuale_ricarico, servizio.numero_notti, servizio.numero_camere))}</p>
                             </div>
                           </div>
-                          <div className={`${i > 0 ? 'pb-3' : ''}`}>
-                            <button
-                              className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
-                              onClick={() => rimuoviServizioATerra(servizio.groupId)}
-                            >
-                              -
-                            </button>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -966,14 +967,14 @@ export default function CreaPreventivoGeneralInterface() {
               </div>
             </div>
             {/* Servizi Aggiuntivi */}
-            <div id="servizi-aggiuntivi">
+            <div id="servizi-aggiuntivi" className="input-block">
               <div className="flex flex-row items-center justify-start">
                 <div>
                   <h3 className="text-xl md:text-2xl pt-4 pb-1" > Servizi aggiuntivi</h3 >
                 </div>
                 <div className="flex flex-row items-center justify-center pt-4 pl-5">
                   <button
-                    className="bg-blue-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
+                    className=""
                     onClick={aggiungiServizioAggiuntivo}
                   >
                     +
@@ -985,13 +986,20 @@ export default function CreaPreventivoGeneralInterface() {
                   serviziAggiuntivi.map((servizio, i) => (
                     <div key={servizio.groupId}>
                       <div className="flex flex-row justify-between">
-                        <div className="flex flex-row">
+                        <div className="input-group-row">
+                          <button
+                            className="remove-item-button"
+                            onClick={() => rimuoviServizioAggiuntivo(servizio.groupId)}
+                          >
+                            -
+                          </button>
+
                           <InputSelect onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} />
                           <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} />
                           <InputText onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" />
                           <InputDate onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'data')} value={servizio?.data ? moment(servizio?.data).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Data' : ''} name="data" />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" />
-                          <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Camere' : ''} name="numero_camere" />
+                          <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Cam.' : ''} name="numero_camere" />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'totale')} value={servizio?.totale?.toString()} label={i == 0 ? 'Totale' : ''} name="totale" />
                           <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} className='max-w-[60px]' />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'cambio')} value={servizio?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" />
@@ -1016,14 +1024,6 @@ export default function CreaPreventivoGeneralInterface() {
                             <div className="w-32 mr-3 flex justify-end">
                               <p>{formatNumberItalian(getTotServizio(servizio.totale, servizio.cambio, preventivo?.percentuale_ricarico, servizio.numero_notti, servizio.numero_camere))}</p>
                             </div>
-                          </div>
-                          <div className={`${i > 0 ? 'pb-3' : ''}`}>
-                            <button
-                              className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
-                              onClick={() => rimuoviServizioAggiuntivo(servizio.groupId)}
-                            >
-                              -
-                            </button>
                           </div>
                         </div>
                       </div>
@@ -1304,13 +1304,4 @@ export default function CreaPreventivoGeneralInterface() {
       </div>
     </div>
   );
-}
-
-function errorTranslations(error: string) {
-  switch (true) {
-    case error.includes('Database Error in createCliente: error: duplicate key value violates unique constraint "clienti_email_key"'):
-      return 'L\'email esiste già.';
-    default:
-      return error;
-  }
 }

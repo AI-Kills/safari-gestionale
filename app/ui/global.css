@@ -2,9 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ### Global styles for pages in dashboard/(overview) ### */
+ul {
+  list-style-type: disc;
+  padding-inline-start: 20px;
+}
+
+.version-paragraph {
+  margin-top: 20px;
+  padding-bottom: 10px;
+  font-weight: bold;
+}
+
+.spinner-container,
+.modal-container,
+.lottie-container {
+  position: absolute;
+  z-index: 1000;
+  top: 22vh;
+  left: 30vw;
+}
+
+.logo-container {
+  display: flex;
+  height: 63.28px;
+  position: relative;
+}
+
+.spinner-sibling-content {
+  transition: opacity 0.3s ease;
+}
+
+.spinner-sibling-content.disabled,
+.lottie-container.disabled {
+  pointer-events: none;
+  /* Disabilita l'interazione */
+  opacity: 0.5;
+  /* Riduce l'opacità */
+}
+
+
 /* ### Global styles for components ### */
-
-
 input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
@@ -48,6 +86,7 @@ input[type='number']::-webkit-outer-spin-button {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 20 14.3% 4.1%;
     --foreground: 60 9.1% 97.8%;
@@ -80,7 +119,32 @@ input[type='number']::-webkit-outer-spin-button {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.safari-button {
+  @apply text-xl text-white w-8 h-8 flex items-center justify-center rounded;
+}
+
+
+.remove-item-button {
+
+  @apply text-xl text-white w-8 h-8 flex items-center justify-center rounded;
+  @apply bg-red-500;
+}
+
+.add-item-button {
+  @apply text-xl text-white w-8 h-8 flex items-center justify-center rounded;
+  background: rgb(255 159 5 / var(--tw-bg-opacity))
+}
+
+.input-group-row {
+  @apply flex flex-row items-center space-x-1;
+}
+
+.input-block {
+  margin-block: 1.5rem;
 }

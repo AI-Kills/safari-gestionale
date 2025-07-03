@@ -16,13 +16,7 @@ export default function InputNumber(
 
   return (
     <div className="number">
-      {label && (
-        <Label htmlFor={label}>{label}</Label>
-      )}
-      {!label && (
-        <div className="mt-5"></div>
-      )
-      }
+      <Label className="mt-0" htmlFor={label}>{label}</Label>
       <Input
         id={label}
         name={name}

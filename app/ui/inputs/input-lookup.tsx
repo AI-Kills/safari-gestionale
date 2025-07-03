@@ -54,12 +54,7 @@ export function InputLookup({
 
   return (
     <div className="search">
-
-      {label && (
-        <Label htmlFor={label}>{label}</Label>
-      )}
-
-
+      <Label className="mt-0" htmlFor={label}>{label}</Label>
       <div className="relative inline-block w-full">
         <Input
           id={label}

@@ -1,7 +1,6 @@
 'use client';
 import { createContext, useContext, useState, ReactNode } from "react";
 import Spinner from "../ui/spinner/spinner";
-import '../dashboard/(overview)/style.css';
 
 // Definizione del tipo di contesto
 type SpinnerContextType = {
@@ -33,11 +32,11 @@ export const SpinnerContextProvider = ({ children }: { children: ReactNode }) =>
   return (
     <SpinnerContext.Provider value={{ setIsActiveSpinner, isActiveSpinner: active }}>
       <div className='spinner-container'>
-        <Spinner isActive={active} />   
+        <Spinner isActive={active} />
       </div>
       <div className={`spinner-sibling-content ${active ? 'disabled' : ''}`}>
-          {children}
-        </div>
+        {children}
+      </div>
     </SpinnerContext.Provider>
   );
 };
