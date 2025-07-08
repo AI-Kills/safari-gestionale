@@ -9,7 +9,7 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { User } from './app/lib/definitions';
 
 async function getUser(email: string): Promise<User | undefined> {

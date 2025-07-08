@@ -3,7 +3,7 @@ import destinazioni from './destinazioni.json';
 import fornitori from './fornitori.json';
 import clienti from './clienti.json';
 import banche from './banche.json';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,

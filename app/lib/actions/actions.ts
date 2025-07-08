@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Pool } from "pg";
 import { signIn, signOut } from "../../../auth";
 import { AuthError } from "next-auth";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Cliente } from "../definitions";
 import * as schemas from "./entity-zod-schemas";
 import {
