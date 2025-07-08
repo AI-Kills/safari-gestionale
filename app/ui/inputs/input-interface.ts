@@ -6,6 +6,8 @@ export interface InputInterface {
   disabled?: boolean;
   onChange?: (e: any) => void;
   className?: string;
+  minWidth?: string;
+  maxWidth?: string;
 }
 function formatDate(defaultValue: string): string {
   const date = new Date(defaultValue);

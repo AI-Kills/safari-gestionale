@@ -9,21 +9,20 @@ interface InputProps extends React.ComponentProps<"input"> {
   textarea?: boolean;
 }
 
-const Input = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, textarea, ...props }, ref) => {
     if (textarea) {
       return (
         <textarea
-          ref={ref as React.Ref<HTMLTextAreaElement>}
           className={cn(commonFormControlClasses, className)}
-          {...props}
+          {...(props as unknown as React.ComponentProps<"textarea">)}
         />
       );
     }
     return (
       <input
         type={type}
-        ref={ref as React.Ref<HTMLInputElement>}
+        ref={ref}
         className={cn(commonFormControlClasses, className)}
         {...props}
       />
