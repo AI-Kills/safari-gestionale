@@ -960,15 +960,20 @@ export default function CreaPreventivoGeneralInterface() {
          SERVIZI A TERRA
         ----------------------------------------------------------- */}
             <div id="servizi-a-terra" className="input-block">
-              <div className="input-group-row">
-                <h3 className="text-xl md:text-2xl" > Servizi a Terra</h3 >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={aggiungiServizioATerra} >
-                  <PlusIcon className="w-4 h-4 mr-1" />
-                  Aggiungi Servizio
-                </Button>
+              <div className="flex flex-row items-center justify-start">
+                <div>
+                  <h3 className="text-xl md:text-2xl pt-4 pb-1" > Servizi a Terra</h3 >
+                </div>
+                <div className="flex flex-row items-center justify-center pt-4 pl-5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
+                    onClick={aggiungiServizioATerra} 
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
 
               <div className="input-group-list">
@@ -981,6 +986,7 @@ export default function CreaPreventivoGeneralInterface() {
                           <Button
                             variant="destructive"
                             size="sm"
+                            className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                             onClick={() => rimuoviServizioATerra(servizio.groupId)}
                           >
                             <MinusIcon className="w-4 h-4" />
@@ -1034,12 +1040,14 @@ export default function CreaPreventivoGeneralInterface() {
                   <h3 className="text-xl md:text-2xl pt-4 pb-1" > Servizi aggiuntivi</h3 >
                 </div>
                 <div className="flex flex-row items-center justify-center pt-4 pl-5">
-                  <button
-                    className=""
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                     onClick={aggiungiServizioAggiuntivo}
                   >
-                    +
-                  </button>
+                    <PlusIcon className="w-4 h-4" />
+                  </Button>
                 </div >
               </div>
               <div className="input-group-list">
@@ -1048,12 +1056,14 @@ export default function CreaPreventivoGeneralInterface() {
                     <div key={servizio.groupId}>
                       <div className="flex flex-row justify-between">
                         <div className="input-group-row">
-                          <button
-                            className="remove-item-button"
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                             onClick={() => rimuoviServizioAggiuntivo(servizio.groupId)}
                           >
-                            -
-                          </button>
+                            <MinusIcon className="w-4 h-4" />
+                          </Button>
 
                           <InputSelect onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} />
                           <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} />
@@ -1103,12 +1113,14 @@ export default function CreaPreventivoGeneralInterface() {
                   <h3 className="text-xl md:text-2xl pt-4 pb-1" > Voli</h3 >
                 </div>
                 <div className="flex flex-row items-center justify-center pt-4 pl-5">
-                  <button
-                    className="bg-blue-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                     onClick={aggiungiVolo}
                   >
-                    +
-                  </button>
+                    <PlusIcon className="w-4 h-4" />
+                  </Button>
                 </div >
               </div>
               <div className="input-group-list">
@@ -1140,12 +1152,14 @@ export default function CreaPreventivoGeneralInterface() {
                             </div>
                           </div>
                           <div className={`${i > 0 ? 'pb-3' : ''}`}>
-                            <button
-                              className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                               onClick={() => rimuoviVolo(volo.groupId)}
                             >
-                              -
-                            </button>
+                              <MinusIcon className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -1160,14 +1174,18 @@ export default function CreaPreventivoGeneralInterface() {
             {/* Assicurazioni */}
             <div id="assicurazioni">
               <div className="flex flex-row items-center justify-start">
-                <h3 className="text-xl md:text-2xl pt-4 pb-1" > Assicurazioni</h3 >
+                <div>
+                  <h3 className="text-xl md:text-2xl pt-4 pb-1" > Assicurazioni</h3 >
+                </div>
                 <div className="flex flex-row items-center justify-center pt-4 pl-5">
-                  <button
-                    className="bg-blue-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                     onClick={aggiungiAssicurazione}
                   >
-                    +
-                  </button>
+                    <PlusIcon className="w-4 h-4" />
+                  </Button>
                 </div >
               </div>
               <div className="input-group-list">
@@ -1194,12 +1212,14 @@ export default function CreaPreventivoGeneralInterface() {
                             </div>
                           </div>
                           <div className={`${i > 0 ? 'pb-3' : ''}`}>
-                            <button
-                              className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                               onClick={() => rimuoviAssicurazione(assicurazione.groupId)}
                             >
-                              -
-                            </button>
+                              <MinusIcon className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -1240,14 +1260,18 @@ export default function CreaPreventivoGeneralInterface() {
                       return <div key={i}>
                         {/* gruppo righe tipo t */}
                         <div className="flex flex-row items-center justify-start">
-                          <p className="pt-4">{t == 'righePrimoTipo' ? 'Totale senza assicurazione' : 'Totale con assicurazione'}</p>
+                          <div>
+                            <p className="pt-4">{t == 'righePrimoTipo' ? 'Totale senza assicurazione' : 'Totale con assicurazione'}</p>
+                          </div>
                           <div className="flex flex-row items-center justify-center pt-4 pl-5">
-                            <button
-                              className="bg-blue-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                               onClick={() => aggiungiPreventivoAlClienteRow(t as 'righePrimoTipo' | 'righeSecondoTipo')}
                             >
-                              +
-                            </button>
+                              <PlusIcon className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                         {preventivoAlCliente?.[t]?.map((row, i) => (
@@ -1293,12 +1317,14 @@ export default function CreaPreventivoGeneralInterface() {
                                   </div>
                                 </div>
                                 <div className={`${i > 0 ? 'pb-3' : ''}`}>
-                                  <button
-                                    className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                                     onClick={() => rimuoviPreventivoAlClienteRow(t, row.groupId)}
                                   >
-                                    -
-                                  </button>
+                                    <MinusIcon className="w-4 h-4" />
+                                  </Button>
                                 </div>
                               </div>
                             </div>
@@ -1366,13 +1392,13 @@ export default function CreaPreventivoGeneralInterface() {
                   <li key={index} className="text-red-600 flex items-start gap-2">
                     <span className="text-red-500 mt-1">•</span>
                     <span>{errorTranslations(error)}</span>
-                  </li>
+                      </li>
                 ))}
               </ul>
             </CardContent>
           </Card>
         }
-          </div>
+      </div>
             </div>
   );
 }

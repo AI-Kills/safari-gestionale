@@ -1,9 +1,12 @@
 import SideNav from '@/app/ui/dashboard/sidenav';
+import MainContent from '@/app/ui/dashboard/main-content';
 import { Suspense } from 'react';
 import Loading from './loading';
 import { CogIcon, DocumentDuplicateIcon, MagnifyingGlassIcon, PlusIcon, TableCellsIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { SpinnerContextProvider } from '@/app/context/spinner-context';
+import { SidebarProvider } from '@/app/context/sidebar-context';
 import { SessionProvider } from 'next-auth/react';
+
 export default async function Layout({ children }: { children: React.ReactNode }) {
 
   // Map of links to display in the side navigation.
@@ -20,14 +23,14 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <SpinnerContextProvider>
       <SessionProvider>
-        <div className="flex h-screen flex-col">
-          <div className='flex flex-col md:flex-row md:overflow-hidden'>
+        <SidebarProvider>
+          <div className="flex h-screen">
             <SideNav links={links} />
             <Suspense fallback={<Loading />}>
-              <div className="flex-grow  md:overflow-y-auto p-3 w-full">{children}</div>
+              <MainContent>{children}</MainContent>
             </Suspense>
           </div>
-        </div>
+        </SidebarProvider>
       </SessionProvider>
     </SpinnerContextProvider>
   );
