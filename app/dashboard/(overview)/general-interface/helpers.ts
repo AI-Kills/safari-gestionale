@@ -73,7 +73,37 @@ export const formatDateToString = (date: Date): string => {
 
 export const validationErrorsToString = (errors: any): string => {
     if(!errors) return '';
-    return Object.keys(errors).reduce((acc, key) => acc + `${key}: ` + errors[key].join(', ') + '\n', '');
+    
+    // Se errors è un oggetto con struttura complessa (come quello di Zod)
+    if (typeof errors === 'object' && !Array.isArray(errors)) {
+        return Object.keys(errors).reduce((acc, key) => {
+            const errorValue = errors[key];
+            let errorString = '';
+            
+            if (Array.isArray(errorValue)) {
+                errorString = errorValue.join(', ');
+            } else if (typeof errorValue === 'object' && errorValue !== null) {
+                // Se è un oggetto, prova a estrarre il messaggio
+                if (errorValue.message) {
+                    errorString = errorValue.message;
+                } else {
+                    errorString = JSON.stringify(errorValue);
+                }
+            } else {
+                errorString = String(errorValue);
+            }
+            
+            return acc + `${key}: ${errorString}\n`;
+        }, '');
+    }
+    
+    // Se errors è una stringa, restituiscila direttamente
+    if (typeof errors === 'string') {
+        return errors;
+    }
+    
+    // Fallback per altri tipi
+    return String(errors);
 }
 
 export const numberToExcelFormat = (numero: number): string => {

@@ -702,15 +702,12 @@ export default function CreaPreventivoGeneralInterface() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <DocumentTextIcon className="w-8 h-8 text-green-600" />
-            General Interface Preventivo
+           Gestione Preventivo 
           </h1>
           <p className="text-gray-600 mt-2">
             Sistema completo per la gestione di clienti e preventivi di viaggio
           </p>
         </div>
-        <Badge variant="secondary" className="hidden md:flex">
-          Sistema Integrato
-        </Badge>
       </div>
 
       <div className="general-interface-container max-w-7xl">
@@ -1375,7 +1372,7 @@ export default function CreaPreventivoGeneralInterface() {
             </CardContent>
           </Card>
         }
-      </div>
-    </div>
+          </div>
+            </div>
   );
 }

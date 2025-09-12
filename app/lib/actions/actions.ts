@@ -235,13 +235,19 @@ export async function createCliente(data: any): Promise<ApiResponse> {
   try {
     const validatedData = createClienteSchema.safeParse(data);
     if (!validatedData.success) {
+      // Creo un oggetto con chiavi-valori per gli errori
+      const errorMap: { [key: string]: string[] } = {};
+      validatedData.error.issues.forEach(issue => {
+        const key = issue.path.join('.');
+        if (!errorMap[key]) {
+          errorMap[key] = [];
+        }
+        errorMap[key].push(issue.message);
+      });
+      
       return {
         success: false,
-        errors: validatedData.error.issues.map(issue => ({
-          code: issue.code,
-          message: issue.message,
-          path: issue.path.map(String)
-        }))
+        errors: errorMap
       };
     }
 
@@ -250,7 +256,7 @@ export async function createCliente(data: any): Promise<ApiResponse> {
     });
 
     revalidatePath('/dashboard/clienti-table');
-    return { success: true, data: cliente as any as any };
+    return { success: true, data: cliente as any };
   } catch (error) {
     return handlePrismaError(error);
   }
@@ -287,13 +293,19 @@ export async function updateCliente(data: any): Promise<ApiResponse<ClienteType>
   try {
     const validatedData = updateClienteSchema.safeParse(data);
     if (!validatedData.success) {
+      // Creo un oggetto con chiavi-valori per gli errori
+      const errorMap: { [key: string]: string[] } = {};
+      validatedData.error.issues.forEach(issue => {
+        const key = issue.path.join('.');
+        if (!errorMap[key]) {
+          errorMap[key] = [];
+        }
+        errorMap[key].push(issue.message);
+      });
+      
       return {
         success: false,
-        errors: validatedData.error.issues.map(issue => ({
-          code: issue.code,
-          message: issue.message,
-          path: issue.path.map(String)
-        }))
+        errors: errorMap
       };
     }
 
@@ -993,16 +1005,35 @@ export async function getDestinazioneByNome(nome: string): Promise<DestinazioneT
 // SEARCH AND UTILITY FUNCTIONS
 // ============================================================================
 
-export async function searchClienti(searchTerm: string): Promise<ClienteType[]> {
+export async function searchClienti(clienteData: any): Promise<ClienteType[]> {
   try {
+    // Costruisco le condizioni di ricerca basate sui campi forniti
+    const whereConditions: any[] = [];
+    
+    if (clienteData.nome) {
+      whereConditions.push({ nome: { contains: clienteData.nome, mode: 'insensitive' } });
+    }
+    if (clienteData.cognome) {
+      whereConditions.push({ cognome: { contains: clienteData.cognome, mode: 'insensitive' } });
+    }
+    if (clienteData.email) {
+      whereConditions.push({ email: { contains: clienteData.email, mode: 'insensitive' } });
+    }
+    if (clienteData.tel) {
+      whereConditions.push({ tel: { contains: clienteData.tel, mode: 'insensitive' } });
+    }
+    if (clienteData.cf) {
+      whereConditions.push({ cf: { contains: clienteData.cf, mode: 'insensitive' } });
+    }
+    
+    // Se non ci sono condizioni di ricerca, restituisco array vuoto
+    if (whereConditions.length === 0) {
+      return [];
+    }
+
     const clienti = await prisma.cliente.findMany({
       where: {
-        OR: [
-          { nome: { contains: searchTerm, mode: 'insensitive' } },
-          { cognome: { contains: searchTerm, mode: 'insensitive' } },
-          { email: { contains: searchTerm, mode: 'insensitive' } },
-          { tel: { contains: searchTerm, mode: 'insensitive' } }
-        ]
+        OR: whereConditions
       },
       orderBy: [
         { cognome: 'asc' },
