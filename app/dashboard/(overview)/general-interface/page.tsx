@@ -984,7 +984,7 @@ export default function CreaPreventivoGeneralInterface() {
                       <div className="flex flex-row justify-between">
                         <div className="input-group-row">
                           <Button
-                            variant="destructive"
+                            variant="outline"
                             size="sm"
                             className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                             onClick={() => rimuoviServizioATerra(servizio.groupId)}
@@ -992,9 +992,9 @@ export default function CreaPreventivoGeneralInterface() {
                             <MinusIcon className="w-4 h-4" />
                           </Button>
 
-                          <InputSelect onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[160px]" />
-                          <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[160px]" />
-                          <InputText onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione Servizio' : ''} name="descrizione" className="w-[160px]" />
+                          <InputSelect onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[120px]" />
+                          <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[120px]" />
+                          <InputText onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione Servizio' : ''} name="descrizione" className="w-[120px]" />
                           <InputDate onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'data')} value={servizio?.data ? moment(servizio?.data).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Data Inizio' : ''} name="data" />
                           <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" className="w-[60px]" />
                           <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Cam.' : ''} name="numero_camere" className="w-[60px]" />
@@ -1002,24 +1002,24 @@ export default function CreaPreventivoGeneralInterface() {
                           <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} className="w-[60px]" />
                           <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'cambio')} value={servizio?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" className="w-[60px]" />
                         </div>
-                        <div className="flex flex-row items-center pt-7 pl-5">
+                        <div className="flex flex-row items-center pt-7 pl-2">
                           <div className={`${i > 0 ? 'pb-3' : ''}`}>
                             {i == 0 &&
-                              <div className='flex justify-end mr-3'>
+                              <div className='flex justify-end mr-2'>
                                 <p>ricarico:</p>
                               </div>
                             }
-                            <div className="w-32 mr-3 flex justify-end">
+                            <div className="w-24 mr-2 flex justify-end">
                               <p>{formatNumberItalian(getRicaricoServizio(servizio.totale, servizio.cambio, preventivo?.percentuale_ricarico, servizio.numero_notti, servizio.numero_camere))}</p>
                             </div>
                           </div>
                           <div className={`${i > 0 ? 'pb-3' : ''}`}>
                             {i == 0 &&
-                              <div className='flex justify-end mr-3'>
+                              <div className='flex justify-end mr-2'>
                                 <p>tot euro:</p>
                               </div>
                             }
-                            <div className="w-32 mr-3 flex justify-end">
+                            <div className="w-24 mr-2 flex justify-end">
                               <p>{formatNumberItalian(getTotServizio(servizio.totale, servizio.cambio, preventivo?.percentuale_ricarico, servizio.numero_notti, servizio.numero_camere))}</p>
                             </div>
                           </div>
@@ -1057,7 +1057,7 @@ export default function CreaPreventivoGeneralInterface() {
                       <div className="flex flex-row justify-between">
                         <div className="input-group-row">
                           <Button
-                            variant="destructive"
+                            variant="outline"
                             size="sm"
                             className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                             onClick={() => rimuoviServizioAggiuntivo(servizio.groupId)}
@@ -1065,9 +1065,9 @@ export default function CreaPreventivoGeneralInterface() {
                             <MinusIcon className="w-4 h-4" />
                           </Button>
 
-                          <InputSelect onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} />
-                          <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} />
-                          <InputText onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" />
+                          <InputSelect onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[120px]" />
+                          <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[120px]" />
+                          <InputText onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" className="w-[120px]" />
                           <InputDate onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'data')} value={servizio?.data ? moment(servizio?.data).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Data' : ''} name="data" />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'numero_camere')} value={servizio?.numero_camere?.toString()} label={i == 0 ? 'N. Cam.' : ''} name="numero_camere" />
@@ -1075,24 +1075,24 @@ export default function CreaPreventivoGeneralInterface() {
                           <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} className='max-w-[60px]' />
                           <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'cambio')} value={servizio?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" />
                         </div>
-                        <div className="flex flex-row items-center pt-7 pl-5">
+                        <div className="flex flex-row items-center pt-7 pl-2">
                           <div className={`${i > 0 ? 'pb-3' : ''}`}>
                             {i == 0 &&
-                              <div className='flex justify-end mr-3'>
+                              <div className='flex justify-end mr-2'>
                                 <p>ricarico:</p>
                               </div>
                             }
-                            <div className="w-32 mr-3 flex justify-end">
+                            <div className="w-24 mr-2 flex justify-end">
                               <p>{formatNumberItalian(getRicaricoServizio(servizio.totale, servizio.cambio, preventivo?.percentuale_ricarico, servizio.numero_notti, servizio.numero_camere))}</p>
                             </div>
                           </div>
                           <div className={`${i > 0 ? 'pb-3' : ''}`}>
                             {i == 0 &&
-                              <div className='flex justify-end mr-3'>
+                              <div className='flex justify-end mr-2'>
                                 <p>tot euro:</p>
                               </div>
                             }
-                            <div className="w-32 mr-3 flex justify-end">
+                            <div className="w-24 mr-2 flex justify-end">
                               <p>{formatNumberItalian(getTotServizio(servizio.totale, servizio.cambio, preventivo?.percentuale_ricarico, servizio.numero_notti, servizio.numero_camere))}</p>
                             </div>
                           </div>
@@ -1128,10 +1128,19 @@ export default function CreaPreventivoGeneralInterface() {
                   voli.map((volo, i) => (
                     <div key={volo.groupId}>
                       <div className="flex flex-row justify-between">
-                        <div className="flex flex-row">
-                          <InputLookup onChange={(e) => onVCVolo(e, volo.groupId, 'fornitore')} defaultValue={volo?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} />
-                          <InputText onChange={(e) => onVCVolo(e, volo.groupId, 'compagnia_aerea')} value={volo?.compagnia_aerea} label={i == 0 ? 'Compagnia' : ''} name="compagnia" />
-                          <InputText onChange={(e) => onVCVolo(e, volo.groupId, 'descrizione')} value={volo?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" />
+                        <div className="input-group-row">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
+                            onClick={() => rimuoviVolo(volo.groupId)}
+                          >
+                            <MinusIcon className="w-4 h-4" />
+                          </Button>
+
+                          <InputLookup onChange={(e) => onVCVolo(e, volo.groupId, 'fornitore')} defaultValue={volo?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[120px]" />
+                          <InputText onChange={(e) => onVCVolo(e, volo.groupId, 'compagnia_aerea')} value={volo?.compagnia_aerea} label={i == 0 ? 'Compagnia' : ''} name="compagnia" className="w-[120px]" />
+                          <InputText onChange={(e) => onVCVolo(e, volo.groupId, 'descrizione')} value={volo?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" className="w-[120px]" />
                           <InputDate onChange={(e) => onVCVolo(e, volo.groupId, 'data_partenza')} value={volo?.data_partenza ? moment(volo?.data_partenza).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Partenza' : ''} name="data_partenza" />
                           <InputDate onChange={(e) => onVCVolo(e, volo.groupId, 'data_arrivo')} value={volo?.data_arrivo ? moment(volo?.data_arrivo).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Arrivo' : ''} name="data_arrivo" />
                           <InputNumber onChange={(e) => onVCVolo(e, volo.groupId, 'totale')} value={volo?.totale?.toString()} label={i == 0 ? 'Totale' : ''} name="totale" />
@@ -1140,26 +1149,16 @@ export default function CreaPreventivoGeneralInterface() {
                           <InputLookup onChange={(e) => onVCVolo(e, volo.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={volo?.valuta} options={valuteOptions} className='max-w-[60px]' />
                           <InputNumber onChange={(e) => onVCVolo(e, volo.groupId, 'cambio')} value={volo?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" />
                         </div>
-                        <div className="flex flex-row items-center pt-7 pl-5">
+                        <div className="flex flex-row items-center pt-7 pl-2">
                           <div className={`${i > 0 ? 'pb-3' : ''}`}>
                             {i == 0 &&
-                              <div className='flex justify-end mr-3'>
+                              <div className='flex justify-end mr-2'>
                                 <p>tot euro:</p>
                               </div>
                             }
-                            <div className="w-60 mr-3 flex justify-end">
+                            <div className="w-24 mr-2 flex justify-end">
                               <p>{formatNumberItalian(getTotVolo(volo.totale, volo.cambio, volo.ricarico, volo.numero))}</p>
                             </div>
-                          </div>
-                          <div className={`${i > 0 ? 'pb-3' : ''}`}>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
-                              onClick={() => rimuoviVolo(volo.groupId)}
-                            >
-                              <MinusIcon className="w-4 h-4" />
-                            </Button>
                           </div>
                         </div>
                       </div>
@@ -1193,33 +1192,32 @@ export default function CreaPreventivoGeneralInterface() {
                   assicurazioni.map((assicurazione, i) => (
                     <div key={assicurazione.groupId}>
                       <div className="flex flex-row justify-between">
-                        <div className="flex flex-row">
-                          <InputLookup onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'fornitore')} defaultValue={assicurazione?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} />
-                          <InputText onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'assicurazione')} value={assicurazione?.assicurazione} label={i == 0 ? 'Assicurazione' : ''} name="assicurazione" />
+                        <div className="input-group-row">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
+                            onClick={() => rimuoviAssicurazione(assicurazione.groupId)}
+                          >
+                            <MinusIcon className="w-4 h-4" />
+                          </Button>
+
+                          <InputLookup onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'fornitore')} defaultValue={assicurazione?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[120px]" />
+                          <InputText onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'assicurazione')} value={assicurazione?.assicurazione} label={i == 0 ? 'Assicurazione' : ''} name="assicurazione" className="w-[120px]" />
                           <InputNumber onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'netto')} value={assicurazione?.netto?.toString()} label={i == 0 ? 'Netto' : ''} name="netto" />
                           <InputNumber onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'ricarico')} value={assicurazione?.ricarico?.toString()} label={i == 0 ? 'Ricarico' : ''} name="ricarico" />
                           <InputNumber onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'numero')} value={assicurazione?.numero?.toString()} label={i == 0 ? 'Numero' : ''} name="numero" />
                         </div>
-                        <div className="flex flex-row items-center pt-7 pl-5">
+                        <div className="flex flex-row items-center pt-7 pl-2">
                           <div className={`${i > 0 ? 'pb-3' : ''}`}>
                             {i == 0 &&
-                              <div className='flex justify-end mr-3'>
+                              <div className='flex justify-end mr-2'>
                                 <p>tot euro:</p>
                               </div>
                             }
-                            <div className="w-60 mr-3 flex justify-end">
+                            <div className="w-24 mr-2 flex justify-end">
                               <p>{formatNumberItalian(getTotAssicurazione(assicurazione.netto, assicurazione.ricarico, assicurazione.numero))}</p>
                             </div>
-                          </div>
-                          <div className={`${i > 0 ? 'pb-3' : ''}`}>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
-                              onClick={() => rimuoviAssicurazione(assicurazione.groupId)}
-                            >
-                              <MinusIcon className="w-4 h-4" />
-                            </Button>
                           </div>
                         </div>
                       </div>
@@ -1284,13 +1282,14 @@ export default function CreaPreventivoGeneralInterface() {
                                   options={destinazioniOptions}
                                   onChange={(e) => onVCPreventivoAlClienteRow(e, t, row.groupId, 'destinazione')}
                                   defaultValue={row.destinazione}
-
+                                  className="w-[120px]"
                                 />
                                 <InputText
                                   label={i == 0 ? "Descrizione" : ''}
                                   name={`descrizione-${row.groupId}`}
                                   onChange={(e) => onVCPreventivoAlClienteRow(e, t, row.groupId, 'descrizione')}
                                   value={row.descrizione}
+                                  className="w-[120px]"
                                 />
                                 <InputNumber
                                   label={i == 0 ? "Individuale" : ''}
@@ -1312,13 +1311,13 @@ export default function CreaPreventivoGeneralInterface() {
                                       <p>tot euro:</p>
                                     </div>
                                   }
-                                  <div className="w-60 mr-3 flex justify-end">
+                                  <div className="w-24 mr-2 flex justify-end">
                                     <p>{formatNumberItalian(row.individuale * row.numero)}</p>
                                   </div>
                                 </div>
                                 <div className={`${i > 0 ? 'pb-3' : ''}`}>
                                   <Button
-                                    variant="destructive"
+                                    variant="outline"
                                     size="sm"
                                     className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
                                     onClick={() => rimuoviPreventivoAlClienteRow(t, row.groupId)}
