@@ -34,9 +34,11 @@ const config: Config = {
           '600': '#FF9F05',
         },
         brown: {
+          '100': '#f3f0e8',
           '300':'#FF9F05',
           '400':'#dad0ae',
           '500':'#937057',
+          '600': '#7a5d47',
         },
         isorange: '#be401e',
         isyellow: '#d99b20',

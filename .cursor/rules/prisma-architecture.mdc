@@ -1,0 +1,508 @@
+---
+description: struttura_prisma_db
+alwaysApply: false
+---
+# Prisma Architecture - Complete Setup Structure
+
+Questo documento descrive la struttura completa implementata per Prisma, inclusi dual-schema (produzione/test), testing, seeding e integrazione con le server actions.
+
+## 1. Dual Schema Setup
+
+### Schema di Produzione (`prisma/schema.prisma`)
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model example_entity {
+  id           String  @id @default(cuid())
+  field_name   String  @db.VarChar(255)
+  numeric_field Decimal @db.Decimal(10, 2)
+  date_field   DateTime @db.Timestamp(6)
+  boolean_field Boolean
+  optional_date DateTime? @db.Timestamp(6)
+}
+```
+
+### Schema di Test (`prisma/schema.test.prisma`)
+```prisma
+generator testClient {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma-test"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./test.sqlite"
+}
+
+// Same models but with SQLite-compatible types
+model example_entity {
+  id           String  @id @default(uuid())
+  field_name   String  
+  numeric_field Decimal
+  date_field   DateTime
+  boolean_field Boolean
+  optional_date DateTime?
+}
+```
+
+**Key Points:**
+- Schema di produzione usa PostgreSQL con tipi specifici
+- Schema di test usa SQLite per velocità e semplicità
+- Generated client separato per test in `generated/prisma-test`
+- Stessa struttura, adattata ai tipi dei database
+
+## 2. Test Database Manager
+
+### Setup Manager (`test/test-db-setup.ts`)
+```typescript
+import { PrismaClient } from '../generated/prisma-test';
+import { execSync } from 'child_process';
+
+export class TestDatabaseManager {
+  private static instance: TestDatabaseManager;
+  private client: PrismaClient;
+  private initialized = false;
+
+  private constructor() {
+    this.client = new PrismaClient();
+  }
+
+  static getInstance(): TestDatabaseManager {
+    if (!TestDatabaseManager.instance) {
+      TestDatabaseManager.instance = new TestDatabaseManager();
+    }
+    return TestDatabaseManager.instance;
+  }
+
+  private async syncSchema() {
+    execSync('pnpm prisma db push --schema=prisma/schema.test.prisma --force-reset --accept-data-loss', {
+      stdio: 'pipe'
+    });
+  }
+
+  async initialize() {
+    if (this.initialized) return this.client;
+
+    // Generate test client
+    execSync('pnpm prisma generate --schema=prisma/schema.test.prisma', {
+      stdio: 'pipe'
+    });
+
+    // Initialize SQLite database
+    await this.syncSchema();
+    this.initialized = true;
+    return this.client;
+  }
+
+  getClient(): PrismaClient {
+    if (!this.initialized) {
+      throw new Error('Database not initialized. Call initialize() first.');
+    }
+    return this.client;
+  }
+
+  async cleanup() {
+    await this.client.$transaction(async (tx) => {
+      // Delete in dependency order to respect foreign keys
+      await tx.child_table.deleteMany();
+      await tx.parent_table.deleteMany();
+    });
+  }
+
+  async seedTestData() {
+    // Use upsert to avoid unique constraint violations
+    const testEntity = await this.client.example_entity.upsert({
+      where: { unique_field: 'test_value' },
+      update: { field_name: 'Updated Test' },
+      create: {
+        field_name: 'Test Entity',
+        numeric_field: 100.50,
+        date_field: new Date(),
+        boolean_field: true
+      }
+    });
+    return { testEntity };
+  }
+
+  async reset() {
+    execSync('pnpm prisma db push --schema=prisma/schema.test.prisma --force-reset --accept-data-loss', {
+      stdio: 'pipe'
+    });
+  }
+}
+
+export const testDb = TestDatabaseManager.getInstance();
+```
+
+**Features:**
+- **Singleton Pattern**: Una sola istanza per tutti i test
+- **Schema Sync**: Automatico con `db push`
+- **Cleanup**: Cancellazione dati mantenendo schema
+- **Seeding**: Dati di test con pattern upsert
+- **Reset**: Reset completo per isolamento
+
+## 3. TestActions Architecture
+
+### Test Actions Class (`app/lib/actions/actions.test.ts`)
+```typescript
+import { PrismaClient } from '../../../generated/prisma-test';
+import { 
+  createEntitySchema, 
+  updateEntitySchema,
+  // ... altri schemi
+} from './entity-zod-schemas';
+
+export class TestActions {
+  private prisma: PrismaClient;
+
+  constructor(prismaClient: PrismaClient) {
+    this.prisma = prismaClient;
+  }
+
+  // CRUD Operations for Entity
+  async createEntity(data: any) {
+    const validatedData = createEntitySchema.safeParse(data);
+    if (!validatedData.success) {
+      return { success: false, errors: validatedData.error.issues };
+    }
+
+    const entity = await this.prisma.example_entity.create({
+      data: validatedData.data
+    });
+
+    return { success: true, data: entity };
+  }
+
+  async getAllEntities(): Promise<EntityType[]> {
+    const entities = await this.prisma.example_entity.findMany({
+      orderBy: [{ field_name: 'asc' }]
+    });
+
+    return entities.map((entity) => ({
+      id: entity.id,
+      field_name: entity.field_name,
+      // ... mapping to type definition
+    }));
+  }
+
+  async updateEntity(data: any) {
+    const validatedData = updateEntitySchema.safeParse(data);
+    if (!validatedData.success) {
+      return { success: false, errors: validatedData.error.issues };
+    }
+
+    const entity = await this.prisma.example_entity.update({
+      where: { id: data.id },
+      data: validatedData.data
+    });
+
+    return { success: true, data: entity };
+  }
+
+  async deleteEntity(id: string) {
+    await this.prisma.example_entity.delete({
+      where: { id }
+    });
+    return { success: true };
+  }
+}
+```
+
+**Key Benefits:**
+- **Dependency Injection**: TestActions riceve il client come parametro
+- **Stessa interfaccia**: Identica alle server actions di produzione
+- **Validazione Zod**: Stessa validazione usata in produzione
+- **Type Safety**: Mapping a tipi TypeScript definiti
+
+## 4. Zod Schemas Structure
+
+### Entity Schemas (`app/lib/actions/entity-zod-schemas.ts`)
+```typescript
+import { z } from "zod";
+
+// Base entity schema
+export const entitySchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  field_name: z.string().min(1, { message: "Il campo nome è obbligatorio" }),
+  numeric_field: z.number().positive({ message: "Deve essere positivo" }),
+  date_field: z.date({ message: "Data obbligatoria" }),
+  boolean_field: z.boolean().default(true)
+});
+
+// Create schema (senza ID auto-generato)
+export const createEntitySchema = entitySchema.omit({ id: true }).extend({
+  id: z.string().min(1).optional()
+});
+
+// Update schema (ID obbligatorio)
+export const updateEntitySchema = entitySchema;
+
+// Nested object schemas
+export const nestedObjectSchema = z.object({
+  field1: z.string().min(1, { message: "Campo obbligatorio" }),
+  field2: z.string().length(2, { message: "Deve essere 2 caratteri" }),
+  field3: z.string().length(5, { message: "Deve essere 5 caratteri" })
+});
+```
+
+**Pattern Standards:**
+- **entitySchema**: Schema base completo
+- **createEntitySchema**: Omette ID, lo rende opzionale
+- **updateEntitySchema**: ID obbligatorio per update
+- **Nested objects**: Schemi separati per oggetti complessi
+- **Validation messages**: Messaggi in italiano, specifici
+
+## 5. Seeding Strategy
+
+### Seed Structure (`prisma/seed/`)
+```
+prisma/seed/
+├── seed.ts              # Main seeding script
+├── entities.json        # Entity data
+├── config.json          # Configuration data
+└── reference-data.json  # Reference/lookup data
+```
+
+### Main Seed Script (`prisma/seed/seed.ts`)
+```typescript
+import { PrismaClient } from '@prisma/client';
+import fs from 'node:fs/promises';
+import path from 'path';
+
+const prisma = new PrismaClient();
+
+async function loadJSON<T>(filename: string): Promise<T> {
+  const filePath = path.join(__dirname, filename);
+  const data = await fs.readFile(filePath, 'utf8');
+  return JSON.parse(data) as T;
+}
+
+async function main() {
+  console.log('🌱 Iniziando il seeding...\n');
+
+  // Reference data first (no dependencies)
+  console.log('📊 Caricamento dati di riferimento...');
+  const referenceData = await loadJSON<any[]>('./reference-data.json');
+  for (const item of referenceData) {
+    await prisma.reference_table.create({
+      data: {
+        field1: item.field1,
+        field2: item.field2
+      }
+    });
+  }
+
+  // Main entities (may have foreign keys)
+  console.log('👥 Caricamento entità principali...');
+  const entities = await loadJSON<any[]>('./entities.json');
+  for (const entity of entities) {
+    await prisma.main_entity.create({
+      data: {
+        name: entity.name,
+        // ... map JSON to database fields
+        nested_field: entity.nested_object.field1,
+        date_field: new Date(entity.date_field)
+      }
+    });
+  }
+
+  console.log('🎉 Seed completato con successo!');
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Errore durante il seeding:', e);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());
+```
+
+**Seeding Best Practices:**
+- **JSON Files**: Dati strutturati in file separati
+- **Load Helper**: Funzione riutilizzabile per caricare JSON
+- **Order**: Rispetta dipendenze FK (reference data prima)
+- **Error Handling**: Gestione errori e disconnessione
+- **Logging**: Output informativo per debug
+
+## 6. Test Organization
+
+### Test Structure (`test/actions.test.ts`)
+```typescript
+import { testDb } from './test-db-setup';
+import { TestActions } from '../app/lib/actions/actions.test';
+
+describe('CRUD Operations with Test Database', () => {
+  let testActions: TestActions;
+
+  beforeAll(async () => {
+    await testDb.initialize();
+    testActions = new TestActions(testDb.getClient());
+  });
+
+  afterEach(async () => {
+    await testDb.cleanup();
+  });
+
+  describe('Entity CRUD Operations', () => {
+    it('should create a new entity', async () => {
+      const entityData = {
+        field_name: 'Test Entity',
+        numeric_field: 100.50,
+        date_field: new Date(),
+        boolean_field: true
+      };
+
+      const result = await testActions.createEntity(entityData);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
+
+      const entities = await testActions.getAllEntities();
+      expect(entities).toHaveLength(1);
+      expect(entities[0].field_name).toBe('Test Entity');
+    });
+
+    it('should validate entity creation data', async () => {
+      const invalidData = {
+        field_name: '', // Invalid: empty
+        numeric_field: -10, // Invalid: negative
+      };
+
+      const result = await testActions.createEntity(invalidData);
+
+      expect(result.success).toBe(false);
+      expect(result.errors).toBeDefined();
+    });
+  });
+
+  describe('Business Logic Tests', () => {
+    it('should handle complex business logic', async () => {
+      const { testEntity } = await testDb.seedTestData();
+
+      await testActions.complexBusinessLogic(testEntity.id, 'parameters');
+
+      const entities = await testActions.getAllEntities();
+      expect(entities[0].calculated_field).toBe('expected_result');
+    });
+  });
+});
+```
+
+**Test Organization:**
+- **beforeAll**: Setup unico per suite
+- **afterEach**: Cleanup dopo ogni test
+- **Grouping**: Test raggruppati per entità/funzionalità
+- **Validation Tests**: Test specifici per validazione Zod
+- **Business Logic**: Test separati per logica complessa
+- **Seeding**: Usa metodi testDb per dati di test
+
+## 7. Commands & Scripts
+
+### Package.json Scripts
+```json
+{
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:generate-test": "prisma generate --schema=prisma/schema.test.prisma",
+    "prisma:push": "prisma db push",
+    "prisma:push-test": "prisma db push --schema=prisma/schema.test.prisma",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "tsx prisma/seed/seed.ts",
+    "test": "vitest",
+    "test:actions": "vitest test/actions.test.ts",
+    "test:db": "vitest test/test-db-setup.ts"
+  }
+}
+```
+
+### Development Workflow
+```bash
+# Setup iniziale
+pnpm prisma:generate          # Generate client produzione
+pnpm prisma:generate-test     # Generate client test
+pnpm prisma:push              # Push schema a DB produzione
+pnpm prisma:seed              # Seed dati produzione
+
+# Testing
+pnpm test                     # Tutti i test
+pnpm test:actions             # Solo test actions
+```
+
+## 8. Directory Structure
+
+```
+project/
+├── prisma/
+│   ├── schema.prisma              # Schema produzione (PostgreSQL)
+│   ├── schema.test.prisma         # Schema test (SQLite)
+│   ├── test.sqlite                # File SQLite per test
+│   ├── migrations/                # Migrazioni PostgreSQL
+│   └── seed/
+│       ├── seed.ts               # Script di seeding
+│       ├── entities.json         # Dati entità
+│       └── reference-data.json   # Dati di riferimento
+├── generated/
+│   └── prisma-test/              # Client generato per test
+│       ├── index.js
+│       ├── index.d.ts
+│       └── ...
+├── app/lib/actions/
+│   ├── actions.ts                # Server actions produzione
+│   ├── actions.test.ts           # TestActions per test
+│   └── entity-zod-schemas.ts     # Schemi validazione
+├── test/
+│   ├── test-db-setup.ts          # Database manager test
+│   ├── actions.test.ts           # Test CRUD
+│   └── ...
+└── globals/
+    └── entities.d.ts             # Type definitions globali
+```
+
+## 9. Migration to New Project
+
+### Step 1: Copy Structure
+```bash
+# Copy essential files
+cp -r prisma/ new-project/
+cp -r test/test-db-setup.ts new-project/test/
+cp app/lib/actions/entity-zod-schemas.ts new-project/app/lib/actions/
+```
+
+### Step 2: Update Schemas
+- Modifica `prisma/schema.prisma` con nuove entità
+- Modifica `prisma/schema.test.prisma` con stesse entità (tipi SQLite)
+- Mantieni struttura dual-schema
+
+### Step 3: Update Zod Schemas
+- Crea schemi per nuove entità in `entity-zod-schemas.ts`
+- Segui pattern: `entitySchema`, `createEntitySchema`, `updateEntitySchema`
+
+### Step 4: Update TestActions
+- Crea `TestActions` class in `actions.test.ts`
+- Implementa CRUD per ogni entità
+- Mantieni dependency injection pattern
+
+### Step 5: Update Tests
+- Copia struttura test da `actions.test.ts`
+- Adatta test per nuove entità
+- Mantieni organizzazione per entità
+
+### Step 6: Update Seeding
+- Modifica `seed.ts` per nuove entità
+- Crea file JSON con dati di test
+- Rispetta ordine dipendenze FK
+
+Questa architettura garantisce:
+- **Separation of Concerns**: Schema produzione vs test
+- **Fast Testing**: SQLite in memoria
+- **Type Safety**: TypeScript + Prisma + Zod
+- **Maintainability**: Struttura chiara e replicabile
+- **Isolation**: Test indipendenti con cleanup
+- **Validation**: Stessa validazione prod/test

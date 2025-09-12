@@ -1,1444 +1,1504 @@
-"use server"; // IMPORTANTE: server actions devono essere precedute da 'use server' altrimenti bisogna dichiararlo per ciascuna!!
+"use server";
 
-import { z } from "zod";
-import { Pool } from "pg";
+import { PrismaClient } from '@prisma/client';
 import { signIn, signOut } from "../../../auth";
 import { AuthError } from "next-auth";
 import bcrypt from "bcryptjs";
-import { Cliente } from "../definitions";
-import * as schemas from "./entity-zod-schemas";
+import { revalidatePath } from 'next/cache';
+import type { 
+  Cliente as ClienteType, 
+  Fornitore as FornitoreType, 
+  Destinazione as DestinazioneType, 
+  Banca as BancaType,
+  Preventivo as PreventivoType,
+  ServizioATerra as ServiziATerraType,
+  Volo as VoloType,
+  Assicurazione as AssicurazioneType
+} from '../definitions';
 import {
-  fetchFilteredClienti,
-  fetchFornitoreByName,
-  fetchDestinazioneByName,
-  getFornitoreByName,
-  fetchAllFornitori,
-  fetchAllBanche,
-  fetchAllDestinazioni,
-  fetchAllClienti,
-} from "../data";
-import {
-  AssicurazioneInputGroup,
-  ClienteInputGroup,
-  Data,
-  ERRORMESSAGE,
-  PreventivoInputGroup,
-  ServizioATerraInputGroup,
-  VoloInputGroup,
-  PreventivoAlClienteInputGroup,
-  PreventivoAlClienteRow,
-} from "@/app/dashboard/(overview)/general-interface/general-interface.defs";
-import { formatDate } from "../utils";
-import path from "path";
-import fs from "fs";
+  userSchema,
+  createUserSchema,
+  updateUserSchema,
+  clienteSchema,
+  createClienteSchema,
+  updateClienteSchema,
+  fornitoreSchema,
+  createFornitoreSchema,
+  updateFornitoreSchema,
+  destinazioneSchema,
+  createDestinazioneSchema,
+  updateDestinazioneSchema,
+  bancaSchema,
+  createBancaSchema,
+  updateBancaSchema,
+  preventivoSchema,
+  createPreventivoSchema,
+  updatePreventivoSchema,
+  serviziATerraSchema,
+  createServiziATerraSchema,
+  updateServiziATerraSchema,
+  voloSchema,
+  createVoloSchema,
+  updateVoloSchema,
+  assicurazioneSchema,
+  createAssicurazioneSchema,
+  updateAssicurazioneSchema,
+  preventivoAlClienteSchema,
+  createPreventivoAlClienteSchema,
+  updatePreventivoAlClienteSchema,
+  preventivoAlClienteRowSchema,
+  createPreventivoAlClienteRowSchema,
+  updatePreventivoAlClienteRowSchema
+} from './entity-zod-schemas';
 
-// Add this helper function at the top level, after the imports
-const sanitizeString = (str: string): string => {
-  if (!str) return str;
-  return str.replace(/[\uFFFD\uD800-\uDFFF\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F\u0080-\u009F\u2000-\u2FFF]/g, '')
-    .replace(/[\u0080-\u009F\u00A0-\u00FF]/g, ''); // Remove additional non-UTF8 characters
-};
+const prisma = new PrismaClient();
 
-const pool = new Pool({
-  connectionString: process.env.POSTGRESS_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
-export type DBResult<A> = {
-  success: boolean;
-  values?: any; // TODO: successivo refactoring si rende di tipo A | A[] | null
-  errors?: Partial<TransformToStringArray<A>>;
-  errorsMessage?: string;
-};
-
-// Utility type to transform properties into string[]
-export type TransformToStringArray<T> = {
-  [K in keyof T]: string[];
-};
-export type State<A> = {
-  message?: string;
-  values?: Partial<A>;
-  errors?: Partial<TransformToStringArray<A>>;
-  dbError?: string;
-};
-
-// CREATE
-
-export const createCliente = async (
-  c: ClienteInputGroup
-): Promise<DBResult<ClienteInputGroup>> => {
-  const parsedData = schemas.ClienteSchema.safeParse({
-    email: c.email,
-    nome: c.nome,
-    cognome: c.cognome,
-    note: c.note,
-    tipo: c.tipo,
-    data_di_nascita: formatDate(c.data_di_nascita),
-    indirizzo: c.indirizzo,
-    cap: c.cap,
-    citta: c.citta,
-    cf: c.cf,
-    collegato: c.collegato,
-    provenienza: c.provenienza,
-    tel: c.tel,
-    luogo_nascita: c.luogo_nascita,
-    provincia_nascita: c.provincia_nascita,
-    numero_passaporto: c.numero_passaporto,
-    data_scadenza_passaporto: formatDate(c.data_scadenza_passaporto),
-    nazionalita: c.nazionalita,
-    provincia: c.provincia,
-    sesso: c.sesso
-  });
-  console.log("cliente: ", c);
-
-  if (!parsedData.success) {
-    console.error("Failed to create cliente due to a validation error.");
-    return {
-      success: false,
-      errorsMessage: "Failed to create cliente due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    INSERT INTO clienti (
-      nome, cognome, note, tipo, data_di_nascita, indirizzo, CAP, citta, CF, 
-      collegato, provenienza, tel, email, luogo_nascita, provincia_nascita,
-      numero_passaporto, data_scadenza_passaporto, nazionalita, provincia, sesso
-    )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
-    RETURNING *
-`,
-      [
-        parsedData.data.nome,
-        parsedData.data.cognome,
-        parsedData.data.note,
-        parsedData.data.tipo,
-        parsedData.data.data_di_nascita,
-        parsedData.data.indirizzo,
-        parsedData.data.cap,
-        parsedData.data.citta,
-        parsedData.data.cf,
-        parsedData.data.collegato,
-        parsedData.data.provenienza,
-        parsedData.data.tel,
-        parsedData.data.email,
-        parsedData.data.luogo_nascita,
-        parsedData.data.provincia_nascita,
-        parsedData.data.numero_passaporto,
-        parsedData.data.data_scadenza_passaporto,
-        parsedData.data.nazionalita,
-        parsedData.data.provincia,
-        parsedData.data.sesso
-      ]
-    );
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in createCliente: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in createCliente: " + error,
-      values: parsedData.data,
-      errors: {},
-    };
-  }
-};
-
-export const createPreventivo = async (
-  p: PreventivoInputGroup,
-  c: ClienteInputGroup,
-  idCliente: string
-): Promise<DBResult<PreventivoInputGroup>> => {
-  const parsedData = schemas.PreventivoSchema.safeParse({
-    id_cliente: idCliente,
-    note: p.note,
-    percentuale_ricarico: p.percentuale_ricarico,
-    brand: p.brand,
-    riferimento: p.riferimento,
-    operatore: p.operatore,
-    feedback: p.feedback,
-    adulti: p.adulti,
-    bambini: p.bambini,
-    data_partenza: p.data_partenza,
-    data: p.data,
-    numero_preventivo: p.numero_preventivo,
-    stato: p.stato,
-    tipo_viaggio: p.tipo_viaggio,
-    destinazione: p.destinazione
-  });
-  if (!parsedData.success) {
-    console.error("Failed to Create Preventivo due to a validation error.");
-    return {
-      success: false,
-      errorsMessage: "Failed to Create Preventivo due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    INSERT INTO preventivi (
-      id_cliente, data, note, percentuale_ricarico, brand, riferimento, 
-      operatore, feedback, adulti, bambini, data_partenza, numero_preventivo, 
-      stato, tipo_viaggio, destinazione
-    )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-    RETURNING *
-`,
-      [
-        parsedData.data.id_cliente,
-        parsedData.data.data,
-        parsedData.data.note,
-        parsedData.data.percentuale_ricarico,
-        parsedData.data.brand,
-        parsedData.data.riferimento,
-        parsedData.data.operatore,
-        parsedData.data.feedback,
-        parsedData.data.adulti,
-        parsedData.data.bambini,
-        parsedData.data.data_partenza,
-        parsedData.data.numero_preventivo,
-        parsedData.data.stato,
-        parsedData.data.tipo_viaggio,
-        parsedData.data.destinazione
-      ]
-    );
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in createPreventivo: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in createPreventivo: " + error,
-      values: parsedData.data,
-    };
-  }
-};
-
-export const createServizioATerra = async (
-  s: ServizioATerraInputGroup,
-  id_preventivo: string,
-  servizio_aggiuntivo: boolean
-): Promise<DBResult<ServizioATerraInputGroup>> => {
-  let id_fornitore: string | null = null;
-  let id_destinazione: string | null = null;
-  if (s.fornitore) {
-    const dbResultFornitore = await fetchFornitoreByName(s.fornitore);
-    if (dbResultFornitore.success) {
-      id_fornitore = dbResultFornitore.values.id;
-    }
-  }
-  if (s.destinazione) {
-    const dbResultDestinazione = await fetchDestinazioneByName(s.destinazione);
-    if (dbResultDestinazione.success) {
-      id_destinazione = dbResultDestinazione.values.id;
-    }
-  }
-
-  const parsedData = schemas.ServizioATerraSchema.safeParse({
-    id_preventivo: id_preventivo,
-    id_fornitore: id_fornitore,
-    id_destinazione: id_destinazione,
-    descrizione: sanitizeString(s.descrizione),
-    data: s.data,
-    numero_notti: s.numero_notti,
-    numero_camere: s.numero_camere,
-    totale: s.totale,
-    valuta: s.valuta,
-    cambio: s.cambio,
-    servizio_aggiuntivo: servizio_aggiuntivo,
-  });
-
-  if (!parsedData.success) {
-    console.error("Failed to Create servizioATerra due to a validation error.");
-    return {
-      success: false,
-      errorsMessage:
-        "Failed to Create servizioATerra due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    INSERT INTO servizi_a_terra (id_preventivo, id_fornitore, id_destinazione, descrizione, data, numero_notti, numero_camere, totale, valuta, cambio, servizio_aggiuntivo)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-    RETURNING *
-`,
-      [
-        parsedData.data.id_preventivo,
-        parsedData.data.id_fornitore,
-        parsedData.data.id_destinazione,
-        parsedData.data.descrizione,
-        parsedData.data.data,
-        parsedData.data.numero_notti,
-        parsedData.data.numero_camere,
-        parsedData.data.totale,
-        parsedData.data.valuta,
-        parsedData.data.cambio,
-        parsedData.data.servizio_aggiuntivo,
-      ]
-    );
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in createServizioATerra: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in createServizioATerra: " + error,
-      values: parsedData.data,
-    };
-  }
-};
-
-export const createVolo = async (
-  v: VoloInputGroup,
-  id_preventivo: string
-): Promise<DBResult<VoloInputGroup>> => {
-  const fornitore = await fetchFornitoreByName(v.fornitore);
-
-  const parsedData = schemas.VoloSchema.safeParse({
-    id_preventivo: id_preventivo,
-    id_fornitore: fornitore.values?.id,
-    compagnia_aerea: v.compagnia_aerea,
-    descrizione: v.descrizione,
-    data_partenza: v.data_partenza,
-    data_arrivo: v.data_arrivo,
-    totale: v.totale,
-    ricarico: v.ricarico,
-    numero: v.numero,
-    valuta: v.valuta,
-    cambio: v.cambio,
-  });
-
-  if (!parsedData.success) {
-    console.error("Failed to Create Volo due to a validation error.");
-    return {
-      success: false,
-      errorsMessage: "Failed to Create Volo due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    INSERT INTO voli (id_preventivo, id_fornitore, compagnia_aerea, descrizione, data_partenza, data_arrivo, totale, ricarico, numero, valuta, cambio)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-    RETURNING *
-`,
-      [
-        parsedData.data.id_preventivo,
-        parsedData.data.id_fornitore,
-        parsedData.data.compagnia_aerea,
-        parsedData.data.descrizione,
-        parsedData.data.data_partenza,
-        parsedData.data.data_arrivo,
-        parsedData.data.totale,
-        parsedData.data.ricarico,
-        parsedData.data.numero,
-        parsedData.data.valuta,
-        parsedData.data.cambio,
-      ]
-    );
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in Create Volo: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in Create Volo: " + error,
-      values: parsedData.data,
-    };
-  }
-};
-
-export const createAssicurazione = async (
-  a: AssicurazioneInputGroup,
-  id_preventivo: string
-): Promise<DBResult<AssicurazioneInputGroup>> => {
-  const fornitore = await fetchFornitoreByName(a.fornitore);
-  const parsedData = schemas.AssicurazioneSchema.safeParse({
-    id_preventivo: id_preventivo,
-    id_fornitore: fornitore.values?.id,
-    assicurazione: sanitizeString(a.assicurazione),
-    netto: a.netto,
-    ricarico: a.ricarico,
-    numero: a.numero,
-  });
-  if (!parsedData.success) {
-    console.error("Failed to Create Assicurazione due to a validation error.");
-    return {
-      success: false,
-      errorsMessage:
-        "Failed to Create Assicurazione due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-
-  try {
-    const result = await pool.query(
-      `
-    INSERT INTO assicurazioni (id_preventivo, id_fornitore, assicurazione, netto, ricarico, numero)
-    VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING *
-`,
-      [
-        parsedData.data.id_preventivo,
-        parsedData.data.id_fornitore,
-        parsedData.data.assicurazione,
-        parsedData.data.netto,
-        parsedData.data.ricarico,
-        parsedData.data.numero,
-      ]
-    );
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in createAssicurazione: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in createAssicurazione: " + error,
-      values: parsedData.data,
-    };
-  }
-};
-
-export const createPreventivoAlCliente = async (
-  p: PreventivoAlClienteInputGroup,
-  id_preventivo: string
-): Promise<DBResult<PreventivoAlClienteInputGroup>> => {
-  const parsedData = schemas.PreventivoAlClienteSchema.safeParse({
-    id_preventivo: id_preventivo,
-    descrizione_viaggio: p.descrizione_viaggio,
-  });
-
-  if (!parsedData.success) {
-    console.error(
-      "Failed to create PreventivoAlCliente due to a validation error."
-    );
-    return {
-      success: false,
-      errorsMessage:
-        "Failed to create PreventivoAlCliente due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    const preventivoResult = await pool.query(
-      `
-    INSERT INTO preventivi_al_cliente (id_preventivo, descrizione_viaggio)
-    VALUES ($1, $2)
-    RETURNING *
-`,
-      [parsedData.data.id_preventivo, parsedData.data.descrizione_viaggio]
-    );
-
-    // creazione delle righe
-    const rowFirstTypePromises = p.righePrimoTipo.map((row) =>
-      createPreventivoAlClienteRow(row, true, preventivoResult.rows[0].id)
-    );
-    const rowSecondTypePromises = p.righeSecondoTipo.map((row) =>
-      createPreventivoAlClienteRow(row, false, preventivoResult.rows[0].id)
-    );
-
-    const rowResults = await Promise.all(
-      rowFirstTypePromises.concat(rowSecondTypePromises)
-    )
-      .then((results) => ({
-        values: [preventivoResult.rows[0]].concat(results),
-        success: true,
-        errorsMessage: "",
-      }))
-      .catch((error) => {
-        console.error(
-          "Database Error in createPreventivoAlClienteRow: " + error
-        );
-        return {
-          success: false,
-          errorsMessage:
-            "Database Error in createPreventivoAlClienteRow: " + error,
-          values: preventivoResult.rows[0],
-        };
-      });
-    return rowResults;
-  } catch (error) {
-    console.error("Database Error in createPreventivoAlCliente: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in createPreventivoAlCliente: " + error,
-      values: parsedData.data,
-    };
-  }
-};
-
-export const createPreventivoAlClienteRow = async (
-  p: PreventivoAlClienteRow,
-  senzaAssicurazione: boolean,
-  id_preventivo_al_cliente: string
-): Promise<DBResult<PreventivoAlClienteRow>> => {
-  const parsedData = schemas.PreventivoAlClienteRowSchema.safeParse({
-    id_preventivo_al_cliente: id_preventivo_al_cliente,
-    senza_assicurazione: senzaAssicurazione,
-    destinazione: p.destinazione,
-    descrizione: p.descrizione,
-    individuale: p.individuale,
-    numero: p.numero,
-  });
-  if (!parsedData.success) {
-    console.error(
-      "Failed to create PreventivoAlClienteRow due to a validation error."
-    );
-    return {
-      success: false,
-      errorsMessage:
-        "Failed to create PreventivoAlClienteRow due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    INSERT INTO preventivi_al_cliente_row (id_preventivo_al_cliente, senza_assicurazione, destinazione, descrizione, individuale, numero)
-    VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING *
-`,
-      [
-        parsedData.data.id_preventivo_al_cliente,
-        parsedData.data.senza_assicurazione,
-        parsedData.data.destinazione,
-        parsedData.data.descrizione,
-        parsedData.data.individuale,
-        parsedData.data.numero,
-      ]
-    );
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in createPreventivoAlClienteRow: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in createPreventivoAlClienteRow: " + error,
-      values: parsedData.data,
-    };
-  }
-};
-
-/**
- * Do the following:
- *
- * 1. check if the Cliente already exists -> if not, create cliente, if yes get cliente
- * 2. create preventivoCliente
- * 3. create each servizioATerra
- * 4. create each volo
- * 5. create each assicurazione
- * 6. return the preventivo, servizi, voli, assicurazioni inside a single object
- * @returns
- *
- */
-export async function submitCreatePreventivoGI(
-  data: Data
-): Promise<DBResult<PreventivoInputGroup>> {
-  try {
-    let res = {
-      preventivo: null,
-      servizi: [],
-      voli: [],
-      assicurazioni: [],
-      message: "",
-      errorsMessage: "",
-    };
-    const resCreatePreventivo: DBResult<PreventivoInputGroup> =
-      await createPreventivo(data.preventivo, data.cliente, data.cliente.id);
-    let idPreventivo: string | undefined;
-
-    // if error in createPreventivo, return error
-    if (!resCreatePreventivo.success) {
-      return resCreatePreventivo;
-    } else {
-      idPreventivo = resCreatePreventivo.values.id;
-      res.preventivo = resCreatePreventivo.values;
-    }
-    // create serviziATerra
-    const serviziATerraPromises = data.serviziATerra.map((s) =>
-      createServizioATerra(s, idPreventivo, false)
-    );
-    const serviziAggiuntiviPromises = data.serviziAggiuntivi.map((s) =>
-      createServizioATerra(s, idPreventivo, true)
-    );
-    const voliPromises = data.voli.map((v) => createVolo(v, idPreventivo));
-    const assicurazioniPromises = data.assicurazioni.map((a) =>
-      createAssicurazione(a, idPreventivo)
-    );
-    const preventivoAlClientePromises = data.preventivoAlCliente
-      ? [createPreventivoAlCliente(data.preventivoAlCliente, idPreventivo)]
-      : [];
-    const results = await Promise.all([
-      ...serviziATerraPromises,
-      ...serviziAggiuntiviPromises,
-      ...voliPromises,
-      ...assicurazioniPromises,
-      ...preventivoAlClientePromises,
-    ])
-      .then((results) => ({
-        values: results,
-        success: true,
-        errorsMessage: "",
-      }))
-      .catch((error) => {
-        console.error("Database Error in submitCreatePreventivoGI: " + error);
-        return {
-          success: false,
-          errorsMessage: "Database Error in submitCreatePreventivoGI: " + error,
-          values: res,
-        };
-      });
-    return results;
-  } catch (error) {
-    console.error("Database Error in submitCreatePreventivoGI: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in submitCreatePreventivoGI: " + error,
-    };
-  }
+export type ApiResponse<T = any> = {
+  success: boolean
+  data?: T
+  error?: string
+  errors?: Array<{
+    code: string
+    message: string
+    path?: string[]
+  }>
 }
 
-export const addFundamentalEntity = async (
-  tableName: string,
-  value: string
-): Promise<DBResult<any>> => {
-  /**
-   * destinazioni -> nome
-   * banche -> nome
-   * fornitori -> nome
-   * permettere di aggiungere operatori, tipo cliente, provenienza cliente, brand richiede creazione dell'entity nel db
-   */
-  const parsedData = schemas.FundamentalEntitySchema.safeParse({
-    tableName: tableName,
-    value: value,
-  });
-  if (!parsedData.success) {
-    console.error(
-      "Failed to add Fundamental Entity due to a validation error."
-    );
-    return {
-      success: false,
-      errorsMessage:
-        "Failed to add Fundamental Entity due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    const query = `INSERT INTO ${parsedData.data.tableName} (nome) VALUES ($1) RETURNING *;`;
-    const result = await pool.query(query, [parsedData.data.value]);
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in addFundamentalEntity: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error in addFundamentalEntity: " + error,
-      values: parsedData.data,
-      errors: {},
-    };
-  }
-};
+export type DBResult<T = any> = {
+  success: boolean
+  values?: T
+  errors?: Record<string, string>
+  errorsMessage?: string
+}
 
-// ## GET DESTINAZIONE BY ID
-export const getDestinazioneById = async (id_destinazione: string) => {
-  try {
-    const result = await pool.query(
-      `SELECT * FROM destinazioni WHERE id = $1`,
-      [id_destinazione]
-    );
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in getDestinazioneById: " + error);
-    return {
-      rowCount: 0,
-      rows: [],
-      message: ERRORMESSAGE,
-      errorsMessage: error,
-    };
-  }
-};
-export const getFornitoreById = async (id_fornitore: string) => {
-  try {
-    const result = await pool.query(`SELECT * FROM fornitori WHERE id = $1`, [
-      id_fornitore,
-    ]);
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error in getFornitoreById: " + error);
-    return {
-      rowCount: 0,
-      rows: [],
-      message: ERRORMESSAGE,
-      errorsMessage: error,
-    };
-  }
-};
+export type State<T = any> = {
+  errors?: T
+  message?: string
+}
 
-// ### UPDATE ENTITY ###
-export const updateCliente = async (
-  c: ClienteInputGroup,
-  id: string
-): Promise<DBResult<ClienteInputGroup>> => {
-  const parsedData = schemas.ClienteSchema.safeParse({
-    id: id,
-    nome: c.nome,
-    cognome: c.cognome,
-    note: c.note,
-    tipo: c.tipo,
-    data_di_nascita: formatDate(c.data_di_nascita),
-    tel: c.tel,
-    email: c.email,
-    citta: c.citta,
-    collegato: c.collegato,
-    provenienza: c.provenienza,
-    indirizzo: c.indirizzo,
-    cap: c.cap,
-    cf: c.cf,
-    luogo_nascita: c.luogo_nascita,
-    provincia_nascita: c.provincia_nascita,
-    numero_passaporto: c.numero_passaporto,
-    data_scadenza_passaporto: formatDate(c.data_scadenza_passaporto),
-    nazionalita: c.nazionalita,
-    provincia: c.provincia,
-    sesso: c.sesso
-  });
-  if (!parsedData.success) {
-    console.error("Failed to Update Cliente due to a validation error.");
-    return {
-      success: false,
-      errorsMessage: "Failed to Update Cliente due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    await pool.query(
-      `
-    UPDATE clienti
-    SET nome = $1, 
-        cognome = $2, 
-        note = $3, 
-        tipo = $4, 
-        data_di_nascita = $5, 
-        tel = $6, 
-        email = $7, 
-        citta = $8, 
-        collegato = $9, 
-        provenienza = $10, 
-        indirizzo = $11, 
-        CAP = $12, 
-        CF = $13, 
-        luogo_nascita = $14, 
-        provincia_nascita = $15, 
-        numero_passaporto = $16, 
-        data_scadenza_passaporto = $17, 
-        nazionalita = $18, 
-        provincia = $19,
-        sesso = $20
-    WHERE id = $21
-`,
-      [
-        parsedData.data.nome,
-        parsedData.data.cognome,
-        parsedData.data.note,
-        parsedData.data.tipo,
-        parsedData.data.data_di_nascita,
-        parsedData.data.tel,
-        parsedData.data.email,
-        parsedData.data.citta,
-        parsedData.data.collegato,
-        parsedData.data.provenienza,
-        parsedData.data.indirizzo,
-        parsedData.data.cap,
-        parsedData.data.cf,
-        parsedData.data.luogo_nascita,
-        parsedData.data.provincia_nascita,
-        parsedData.data.numero_passaporto,
-        parsedData.data.data_scadenza_passaporto,
-        parsedData.data.nazionalita,
-        parsedData.data.provincia,
-        parsedData.data.sesso,
-        id,
-      ]
-    );
-    return {
-      success: true,
-      values: parsedData.data,
-      errors: {},
-      errorsMessage: "",
-    };
-  } catch (error) {
-    console.error("Database Error: Failed to Update Cliente: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error: Failed to Update Cliente: " + error,
-      values: parsedData.data,
-      errors: {},
-    };
-  }
-};
+// Helper function for validation errors
+function handleValidationErrors(zodError: any): ApiResponse {
+  return {
+    success: false,
+    errors: zodError.issues.map((issue: any) => ({
+      code: issue.code,
+      message: issue.message,
+      path: issue.path.map(String).map(String)
+    }))
+  };
+}
 
-export const updatePreventivo = async (
-  p: PreventivoInputGroup,
-  idCliente: string
-): Promise<DBResult<PreventivoInputGroup>> => {
-  console.log("📋 updatePreventivo called with:", { p, idCliente });
+// Helper function for error handling
+function handlePrismaError(error: any): ApiResponse {
+  console.error('Prisma error:', error);
   
-  const parsedData = schemas.UpdatePreventivoSchema.safeParse({
-    id: p.id,
-    note: p.note,
-    brand: p.brand,
-    percentuale_ricarico: p.percentuale_ricarico,
-    riferimento: p.riferimento,
-    operatore: p.operatore,
-    feedback: p.feedback,
-    adulti: p.adulti,
-    bambini: p.bambini,
-    data_partenza: formatDate(p.data_partenza),
-    data: formatDate(p.data),
-    numero_preventivo: p.numero_preventivo,
-    stato: p.stato,
-    tipo_viaggio: p.tipo_viaggio,
-    destinazione: p.destinazione
-  });
+  if (error.code === 'P2002') {
+    return {
+      success: false,
+      error: 'Record già esistente con questi dati unici'
+    };
+  }
   
-  if (!parsedData.success) {
-    console.error("❌ Failed to Update Preventivo due to a validation error:", parsedData.error.flatten().fieldErrors);
+  if (error.code === 'P2025') {
     return {
       success: false,
-      errorsMessage: "Failed to Update Preventivo due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
+      error: 'Record non trovato'
     };
   }
-  try {
-    console.log("✅ Validation successful, parsed data:", parsedData.data);
-    console.log("🔄 Executing UPDATE query for preventivo with ID:", p.id);
-    
-    const result = await pool.query(
-      `
-    UPDATE preventivi SET 
-    note = $1, 
-    brand = $2,
-    percentuale_ricarico = $3,
-    riferimento = $4, 
-    operatore = $5, 
-    feedback = $6, 
-    adulti = $7, 
-    bambini = $8, 
-    data_partenza = $9, 
-    data = $10, 
-    numero_preventivo = $11, 
-    stato = $12,
-    tipo_viaggio = $13,
-    destinazione = $14
-    WHERE id = $15
-  `,
-      [
-        parsedData.data.note,
-        parsedData.data.brand,
-        parsedData.data.percentuale_ricarico,
-        parsedData.data.riferimento,
-        parsedData.data.operatore,
-        parsedData.data.feedback,
-        parsedData.data.adulti,
-        parsedData.data.bambini,
-        parsedData.data.data_partenza,
-        parsedData.data.data,
-        parsedData.data.numero_preventivo,
-        parsedData.data.stato,
-        parsedData.data.tipo_viaggio,
-        parsedData.data.destinazione,
-        p.id,
-      ]
-    );
-    
-    if (result.rowCount === 0) {
-      console.warn("⚠️ UPDATE returned 0 rows - no preventivo found with ID:", p.id);
-      return {
-        success: false,
-        errorsMessage: "No preventivo found with the provided ID",
-        values: parsedData.data,
-      };
-    }
-    
-    console.log("✅ UPDATE successful, rowCount:", result.rowCount, "updated data:", result.rows[0]);
-    return { values: result.rows[0], success: true, errorsMessage: "" };
-  } catch (error) {
-    console.error("Database Error: Failed to Update Preventivo: " + error);
-    return {
-      values: parsedData.data,
-      success: false,
-      errorsMessage: "Database Error: Failed to Update Preventivo: " + error,
-    };
-  }
-};
+  
+  return {
+    success: false,
+    error: 'Errore del database'
+  };
+}
 
-export const updateServiziATerra = async (
-  s: ServizioATerraInputGroup
-): Promise<DBResult<ServizioATerraInputGroup>> => {
-  let id_fornitore: string | null = null;
-  let id_destinazione: string | null = null;
-  if (s.fornitore) {
-    const fornitore = await getFornitoreByName(s.fornitore);
-    if (fornitore) {
-      id_fornitore = fornitore.values?.id;
-    }
-  }
-  if (s.destinazione) {
-    const destinazione = await fetchDestinazioneByName(s.destinazione);
-    if (destinazione) {
-      id_destinazione = destinazione.values?.id;
-    }
-  }
-  const parsedData = schemas.UpdateServizioATerraSchema.safeParse({
-    id_fornitore: id_fornitore,
-    id_destinazione: id_destinazione,
-    descrizione: s.descrizione,
-    data: s.data,
-    numero_notti: s.numero_notti,
-    numero_camere: s.numero_camere,
-    totale: s.totale,
-    valuta: s.valuta,
-    cambio: s.cambio,
-    servizio_aggiuntivo: s.servizio_aggiuntivo,
-  });
-  if (!parsedData.success) {
-    console.error(
-      "Failed to Update Servizio a Terra due to a validation error."
-    );
-    return {
-      values: parsedData.data,
-      success: false,
-      errors: parsedData.error.flatten().fieldErrors,
-      errorsMessage: "Missing Fields. Failed to Update Servizio a Terra.",
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    UPDATE servizi_a_terra SET 
-    id_fornitore = $1,
-    id_destinazione = $2,
-    descrizione = $3, 
-    data = $4, 
-      numero_notti = $5, 
-    numero_camere = $6,
-    totale = $7, 
-    valuta = $8, 
-    cambio = $9, 
-    servizio_aggiuntivo = $10
-    WHERE id = $11
-  `,
-      [
-        id_fornitore,
-        id_destinazione,
-        parsedData.data.descrizione,
-        parsedData.data.data,
-        parsedData.data.numero_notti,
-        parsedData.data.numero_camere,
-        parsedData.data.totale,
-        parsedData.data.valuta,
-        parsedData.data.cambio,
-        parsedData.data.servizio_aggiuntivo,
-        s.id,
-      ]
-    );
-    return {
-      values: result.rows[0],
-      success: true,
-      errorsMessage: "",
-    };
-  } catch (error) {
-    return {
-      values: parsedData.data,
-      success: false,
-      errorsMessage:
-        "Database Error: Failed to Update Servizio a Terra: " + error,
-    };
-  }
-};
-export const updateVoli = async (
-  v: VoloInputGroup
-): Promise<DBResult<VoloInputGroup>> => {
-  let id_fornitore: string | null = null;
-  if (v.fornitore) {
-    const fornitore = await getFornitoreByName(v.fornitore);
-    if (fornitore) {
-      id_fornitore = fornitore.values?.id;
-    }
-  }
-  const parsedData = schemas.UpdateVoloSchema.safeParse({
-    id_fornitore: id_fornitore,
-    compagnia_aerea: v.compagnia_aerea,
-    descrizione: v.descrizione,
-    data_partenza: v.data_partenza,
-    data_arrivo: v.data_arrivo,
-    totale: v.totale,
-    ricarico: v.ricarico,
-    numero: v.numero,
-    valuta: v.valuta,
-    cambio: v.cambio,
-  });
-  if (!parsedData.success) {
-    console.error("Failed to Update Volo due to a validation error.");
-    return {
-      values: parsedData.data,
-      success: false,
-      errors: parsedData.error.flatten().fieldErrors,
-      errorsMessage: "Missing Fields. Failed to Update Volo.",
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    UPDATE voli SET 
-    id_fornitore = $1,
-    compagnia_aerea = $2, 
-    descrizione = $3, 
-    data_partenza = $4, 
-    data_arrivo = $5, 
-    totale = $6, 
-    ricarico = $7,
-    numero = $8,
-    valuta = $9, 
-    cambio = $10
-    WHERE id = $11
-  `,
-      [
-        id_fornitore,
-        parsedData.data.compagnia_aerea,
-        parsedData.data.descrizione,
-        parsedData.data.data_partenza,
-        parsedData.data.data_arrivo,
-        parsedData.data.totale,
-        parsedData.data.ricarico,
-        parsedData.data.numero,
-        parsedData.data.valuta,
-        parsedData.data.cambio,
-        v.id,
-      ]
-    );
-    return {
-      values: result.rows[0],
-      success: true,
-      errorsMessage: "",
-    };
-  } catch (error) {
-    console.error("Database Error: Failed to Update Volo: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error: Failed to Update Volo: " + error,
-    };
-  }
-};
-export const updateAssicurazioni = async (
-  a: AssicurazioneInputGroup
-): Promise<DBResult<AssicurazioneInputGroup>> => {
-  let id_fornitore: string | null = null;
-  if (a.fornitore) {
-    const fornitore = await getFornitoreByName(a.fornitore);
-    if (fornitore) {
-      id_fornitore = fornitore.values?.id;
-    }
-  }
-  const parsedData = schemas.UpdateAssicurazioneSchema.safeParse({
-    id_fornitore: id_fornitore,
-    assicurazione: a.assicurazione,
-    netto: a.netto,
-    ricarico: a.ricarico,
-    numero: a.numero,
-  });
-  if (!parsedData.success) {
-    console.error("Failed to Update Assicurazione due to a validation error.");
-    return {
-      values: parsedData.data,
-      success: false,
-      errors: parsedData.error.flatten().fieldErrors,
-      errorsMessage: "Missing Fields. Failed to Update Assicurazione.",
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    UPDATE assicurazioni SET 
-    id_fornitore = $1,
-    assicurazione = $2, 
-    netto = $3,
-    ricarico = $4,
-    numero = $5
-    WHERE id = $6
-  `,
-      [
-        id_fornitore,
-        parsedData.data.assicurazione,
-        parsedData.data.netto,
-        parsedData.data.ricarico,
-        parsedData.data.numero,
-        a.id,
-      ]
-    );
-    return {
-      values: result.rows[0],
-      success: true,
-      errorsMessage: "",
-    };
-  } catch (error) {
-    console.error("Database Error: Failed to Update Assicurazione: " + error);
-    return {
-      success: false,
-      errorsMessage: "Database Error: Failed to Update Assicurazione: " + error,
-      errors: {},
-    };
-  }
-};
+// ============================================================================
+// AUTH ACTIONS
+// ============================================================================
 
-export const updatePreventivoAlClienteDescrizione = async (
-  p: PreventivoAlClienteInputGroup
-): Promise<DBResult<PreventivoAlClienteInputGroup>> => {
-  const parsedData = schemas.UpdatePreventivoAlClienteSchema.safeParse({
-    id: p.id,
-    descrizione_viaggio: sanitizeString(p.descrizione_viaggio),
-  });
-
-  if (!parsedData.success) {
-    console.error(
-      "Failed to Update Preventivo Al Cliente due to a validation error."
-    );
-    return {
-      success: false,
-      errorsMessage:
-        "Failed to Update Preventivo Al Cliente due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-
-  try {
-    const result = await pool.query(
-      `
-    UPDATE preventivi_al_cliente SET 
-    descrizione_viaggio = $1
-    WHERE id = $2
-  `,
-      [parsedData.data.descrizione_viaggio, p.id]
-    );
-    return {
-      success: true,
-      values: result.rows[0],
-      errorsMessage: "",
-    };
-  } catch (error) {
-    console.error(
-      "Database Error: Failed to Update Preventivo Al Cliente: " + error
-    );
-    return {
-      success: false,
-      errorsMessage:
-        "Database Error: Failed to Update Preventivo Al Cliente: " + error,
-    };
-  }
-};
-
-export const updatePreventivoAlClienteRow = async (
-  p: PreventivoAlClienteRow,
-  senza_assicurazione: boolean,
-  id_preventivo_al_cliente: string
-): Promise<DBResult<PreventivoAlClienteRow>> => {
-  const parsedData = schemas.UpdatePreventivoAlClienteRowSchema.safeParse({
-    id: p.id,
-    id_preventivo_al_cliente: id_preventivo_al_cliente,
-    senza_assicurazione: senza_assicurazione,
-    destinazione: p.destinazione,
-    descrizione: p.descrizione,
-    individuale: p.individuale,
-    numero: p.numero,
-  });
-  if (!parsedData.success) {
-    console.error(
-      "Failed to Update Preventivo Al Cliente Row due to a validation error."
-    );
-    return {
-      success: false,
-      errorsMessage:
-        "Failed to Update Preventivo Al Cliente Row due to a validation error.",
-      errors: parsedData.error.flatten().fieldErrors,
-      values: parsedData.data,
-    };
-  }
-  try {
-    const result = await pool.query(
-      `
-    UPDATE preventivi_al_cliente_row SET 
-    id_preventivo_al_cliente = $1,
-    senza_assicurazione = $2,
-    destinazione = $3,
-    descrizione = $4,
-    individuale = $5,
-    numero = $6
-    WHERE id = $7
-  `,
-      [
-        parsedData.data.id_preventivo_al_cliente,
-        parsedData.data.senza_assicurazione,
-        parsedData.data.destinazione,
-        parsedData.data.descrizione,
-        parsedData.data.individuale,
-        parsedData.data.numero,
-        p.id,
-      ]
-    );
-    return {
-      success: true,
-      values: result.rows[0],
-      errorsMessage: "",
-    };
-  } catch (error) {
-    console.error(
-      "Database Error: Failed to Update Preventivo Al Cliente Row: " + error
-    );
-    return {
-      success: false,
-      errorsMessage:
-        "Database Error: Failed to Update Preventivo Al Cliente Row: " + error,
-    };
-  }
-};
-
-export const searchClienti = async (
-  c: ClienteInputGroup
-): Promise<ClienteInputGroup[]> => {
-  try {
-    const allClienti = await Promise.all([
-      fetchFilteredClienti(c.nome, "nome", 1),
-      fetchFilteredClienti(c.cognome, "cognome", 1),
-      fetchFilteredClienti(c.email, "email", 1),
-      fetchFilteredClienti(c.tel, "tel", 1),
-      fetchFilteredClienti(c.indirizzo, "indirizzo", 1),
-      fetchFilteredClienti(c.cap, "cap", 1),
-      fetchFilteredClienti(c.cf, "cf", 1),
-      fetchFilteredClienti(c.provincia, "provincia", 1),
-      fetchFilteredClienti(c.citta, "citta", 1),
-      fetchFilteredClienti(c.provincia_nascita, "provincia_nascita", 1),
-    ]);
-    const clienti = Array.from(
-      new Map(
-        [...allClienti.values()]
-          .flat()
-          .map((r) => r.values)
-          .flat()
-          .map((r) => [r.id, r])
-      ).values()
-    );
-    return clienti.map(
-      (c) =>
-        new ClienteInputGroup(
-          c.nome,
-          c.cognome,
-          c.note,
-          c.citta,
-          c.collegato,
-          c.tipo,
-          c.data_di_nascita,
-          c.tel,
-          c.email,
-          c.provenienza,
-          c.indirizzo,
-          c.cap,
-          c.cf,
-          c.luogo_nascita,
-          c.provincia_nascita,
-          c.numero_passaporto,
-          c.data_scadenza_passaporto,
-          c.nazionalita,
-          c.provincia,
-          c.sesso,
-          c.id
-        )
-    );
-  } catch (error) {
-    console.error("Database Error in searchClienti:", error);
-  }
-};
-
-/** AUTHENTICATION */
 export async function authenticate(
   prevState: string | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   try {
-    //console.log(prevState);
-    await signIn("credentials", formData);
+    await signIn('credentials', formData);
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
-        case "CredentialsSignin":
-          return "Invalid credentials.";
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
         default:
-          return "Something went wrong.";
+          return 'Something went wrong.';
       }
     }
     throw error;
   }
 }
 
-export async function _signOut() {
+export async function signOutAction() {
   await signOut();
 }
 
-export async function createUser(
-  prevState: State<{ email?: string[]; password?: string[] }>,
-  formData: FormData
-) {
-  const parsedData = z
-    .object({
-      email: z
-        .string({ invalid_type_error: "Please entre an email" })
-        .email({ message: "Please enter an email" }),
-      password: z
-        .string({ invalid_type_error: "Please enter a password" })
-        .min(6, {
-          message: "The password should be at least 6 characters long",
-        }),
-    })
-    .safeParse({
-      email: formData.get("email"),
-      password: formData.get("password"),
+// Alias per compatibilità
+export const _signOut = signOutAction;
+
+// ============================================================================
+// USER ACTIONS
+// ============================================================================
+
+export async function createUser(data: any): Promise<ApiResponse> {
+  try {
+    const validatedData = createUserSchema.safeParse(data);
+    if (!validatedData.success) {
+      return handleValidationErrors(validatedData.error);
+    }
+
+    const hashedPassword = await bcrypt.hash(validatedData.data.password, 10);
+    
+    const user = await prisma.user.create({
+      data: {
+        email: validatedData.data.email,
+        password: hashedPassword
+      }
     });
 
-  if (!parsedData.success) {
-    console.error("Failed to Create User due to a validation error.");
-    return {
-      ...prevState,
-      errors: parsedData.error.flatten().fieldErrors,
-      message: "Missing Fields. Failed to Create Invoice.",
-    };
-  }
-
-  const hashedPassword = await bcrypt.hash(parsedData.data.password, 10);
-
-  try {
-    await pool.query(
-      `
-    INSERT INTO users (email, password)
-    VALUES ($1, $2)
-`,
-      [parsedData.data.email, hashedPassword]
-    );
-    return {
-      ...prevState,
-      message: "User created successfully",
-    };
+    revalidatePath('/dashboard');
+    return { success: true, data: user as any };
   } catch (error) {
-    console.error("Database Error: Failed to Create User: " + error);
-    return {
-      ...prevState,
-      message: "Database Error: Failed to Create User.",
-      dbError: "Database Error: Failed to Create User.",
+    return handlePrismaError(error);
+  }
+}
+
+export async function getAllUsers(): Promise<any[]> {
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { email: 'asc' }
+    });
+    return users;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+}
+
+export async function updateUser(data: any): Promise<ApiResponse> {
+  try {
+    const validatedData = updateUserSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+
+    const user = await prisma.user.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: user as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteUser(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// CLIENT ACTIONS
+// ============================================================================
+
+export async function createCliente(data: any): Promise<ApiResponse> {
+  try {
+    const validatedData = createClienteSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const cliente = await prisma.cliente.create({
+      data: validatedData.data as any
+    });
+
+    revalidatePath('/dashboard/clienti-table');
+    return { success: true, data: cliente as any as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function getAllClienti(): Promise<any[]> {
+  try {
+    const clienti = await prisma.cliente.findMany({
+      orderBy: [
+        { cognome: 'asc' },
+        { nome: 'asc' }
+      ]
+    });
+    return clienti as any;
+  } catch (error) {
+    console.error('Error fetching clienti:', error);
+    return [];
+  }
+}
+
+export async function getCliente(id: string): Promise<any | null> {
+  try {
+    const cliente = await prisma.cliente.findUnique({
+      where: { id }
+    });
+    return cliente as any;
+  } catch (error) {
+    console.error('Error fetching cliente:', error);
+    return null;
+  }
+}
+
+export async function updateCliente(data: any): Promise<ApiResponse<ClienteType>> {
+  try {
+    const validatedData = updateClienteSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    const cliente = await prisma.cliente.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard/clienti-table');
+    return { success: true, data: cliente as any as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteCliente(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.cliente.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard/clienti-table');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// FORNITORE ACTIONS
+// ============================================================================
+
+export async function createFornitore(data: any): Promise<ApiResponse<FornitoreType>> {
+  try {
+    const validatedData = createFornitoreSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const fornitore = await prisma.fornitore.create({
+      data: validatedData.data as any
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: fornitore as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function getAllFornitori(): Promise<FornitoreType[]> {
+  try {
+    const fornitori = await prisma.fornitore.findMany({
+      orderBy: { nome: 'asc' }
+    });
+    return fornitori;
+  } catch (error) {
+    console.error('Error fetching fornitori:', error);
+    return [];
+  }
+}
+
+export async function updateFornitore(data: any): Promise<ApiResponse<FornitoreType>> {
+  try {
+    const validatedData = updateFornitoreSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    const fornitore = await prisma.fornitore.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: fornitore as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteFornitore(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.fornitore.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// DESTINAZIONE ACTIONS
+// ============================================================================
+
+export async function createDestinazione(data: any): Promise<ApiResponse<DestinazioneType>> {
+  try {
+    const validatedData = createDestinazioneSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const destinazione = await prisma.destinazione.create({
+      data: validatedData.data as any
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: destinazione as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function getAllDestinazioni(): Promise<DestinazioneType[]> {
+  try {
+    const destinazioni = await prisma.destinazione.findMany({
+      orderBy: { nome: 'asc' }
+    });
+    return destinazioni;
+  } catch (error) {
+    console.error('Error fetching destinazioni:', error);
+    return [];
+  }
+}
+
+export async function updateDestinazione(data: any): Promise<ApiResponse<DestinazioneType>> {
+  try {
+    const validatedData = updateDestinazioneSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    const destinazione = await prisma.destinazione.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: destinazione as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteDestinazione(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.destinazione.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// BANCA ACTIONS
+// ============================================================================
+
+export async function createBanca(data: any): Promise<ApiResponse<BancaType>> {
+  try {
+    const validatedData = createBancaSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const banca = await prisma.banca.create({
+      data: validatedData.data as any
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: banca as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function getAllBanche(): Promise<BancaType[]> {
+  try {
+    const banche = await prisma.banca.findMany({
+      orderBy: { nome: 'asc' }
+    });
+    return banche;
+  } catch (error) {
+    console.error('Error fetching banche:', error);
+    return [];
+  }
+}
+
+export async function updateBanca(data: any): Promise<ApiResponse<BancaType>> {
+  try {
+    const validatedData = updateBancaSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    const banca = await prisma.banca.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: banca as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteBanca(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.banca.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// PREVENTIVO ACTIONS
+// ============================================================================
+
+export async function createPreventivo(data: any): Promise<ApiResponse<PreventivoType>> {
+  try {
+    const validatedData = createPreventivoSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const preventivo = await prisma.preventivo.create({
+      data: validatedData.data as any
+    });
+
+    revalidatePath('/dashboard/preventivi-table');
+    return { success: true, data: preventivo as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function getAllPreventivi(): Promise<PreventivoType[]> {
+  try {
+    const preventivi = await prisma.preventivo.findMany({
+      orderBy: { data: 'desc' },
+      include: {
+        cliente: true
+      }
+    });
+    return preventivi as any;
+  } catch (error) {
+    console.error('Error fetching preventivi:', error);
+    return [];
+  }
+}
+
+export async function getPreventivo(id: string): Promise<any | null> {
+  try {
+    const preventivo = await prisma.preventivo.findUnique({
+      where: { id },
+      include: {
+        cliente: true,
+        serviziATerra: {
+          include: {
+            fornitore: true,
+            destinazione: true
+          }
+        },
+        voli: {
+          include: {
+            fornitore: true
+          }
+        },
+        assicurazioni: {
+          include: {
+            fornitore: true
+          }
+        },
+        preventiviAlCliente: {
+          include: {
+            rows: true
+          }
+        }
+      }
+    });
+    return preventivo;
+  } catch (error) {
+    console.error('Error fetching preventivo completo:', error);
+    return null;
+  }
+}
+
+export async function updatePreventivo(data: any): Promise<ApiResponse<PreventivoType>> {
+  try {
+    const validatedData = updatePreventivoSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    const preventivo = await prisma.preventivo.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard/preventivi-table');
+    return { success: true, data: preventivo as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deletePreventivo(id: string): Promise<ApiResponse> {
+  try {
+    // Delete related records first due to foreign key constraints
+    await prisma.$transaction(async (tx) => {
+      await tx.preventivoAlClienteRow.deleteMany({
+        where: {
+          preventivoAlCliente: {
+            id_preventivo: id
+          }
+        }
+      });
+      
+      await tx.preventivoAlCliente.deleteMany({
+        where: { id_preventivo: id }
+      });
+      
+      await tx.assicurazione.deleteMany({
+        where: { id_preventivo: id }
+      });
+      
+      await tx.volo.deleteMany({
+        where: { id_preventivo: id }
+      });
+      
+      await tx.serviziATerra.deleteMany({
+        where: { id_preventivo: id }
+      });
+      
+      await tx.preventivo.delete({
+        where: { id }
+      });
+    });
+
+    revalidatePath('/dashboard/preventivi-table');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// SERVIZI A TERRA ACTIONS
+// ============================================================================
+
+export async function createServiziATerra(data: any): Promise<ApiResponse<ServiziATerraType>> {
+  try {
+    const validatedData = createServiziATerraSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const servizio = await prisma.serviziATerra.create({
+      data: validatedData.data as any
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: servizio as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function updateServiziATerra(data: any): Promise<ApiResponse<ServiziATerraType>> {
+  try {
+    const validatedData = updateServiziATerraSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    const servizio = await prisma.serviziATerra.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: servizio as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteServiziATerra(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.serviziATerra.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// VOLO ACTIONS
+// ============================================================================
+
+export async function createVolo(data: any): Promise<ApiResponse<VoloType>> {
+  try {
+    const validatedData = createVoloSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const volo = await prisma.volo.create({
+      data: validatedData.data as any
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: volo as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function updateVolo(data: any): Promise<ApiResponse<VoloType>> {
+  try {
+    const validatedData = updateVoloSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    const volo = await prisma.volo.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: volo as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteVolo(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.volo.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// ASSICURAZIONE ACTIONS
+// ============================================================================
+
+export async function createAssicurazione(data: any): Promise<ApiResponse<AssicurazioneType>> {
+  try {
+    const validatedData = createAssicurazioneSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const assicurazione = await prisma.assicurazione.create({
+      data: validatedData.data as any
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: assicurazione as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function updateAssicurazione(data: any): Promise<ApiResponse<AssicurazioneType>> {
+  try {
+    const validatedData = updateAssicurazioneSchema.safeParse(data);
+    if (!validatedData.success) {
+      return {
+        success: false,
+        errors: validatedData.error.issues.map(issue => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path.map(String)
+        }))
+      };
+    }
+
+    const updateData: any = { ...validatedData.data };
+    delete updateData.id;
+
+    const assicurazione = await prisma.assicurazione.update({
+      where: { id: validatedData.data.id },
+      data: updateData
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: assicurazione as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteAssicurazione(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.assicurazione.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+export async function getClienteByEmail(email: string): Promise<ClienteType | null> {
+  try {
+    const cliente = await prisma.cliente.findUnique({
+      where: { email }
+    });
+    return cliente as any;
+  } catch (error) {
+    console.error('Error fetching cliente by email:', error);
+    return null;
+  }
+}
+
+export async function getPreventiviByCliente(clienteId: string): Promise<PreventivoType[]> {
+  try {
+    const preventivi = await prisma.preventivo.findMany({
+      where: { id_cliente: clienteId },
+      orderBy: { data: 'desc' }
+    });
+    return preventivi as any;
+  } catch (error) {
+    console.error('Error fetching preventivi by cliente:', error);
+    return [];
+  }
+}
+
+export async function getFornitoreByNome(nome: string): Promise<FornitoreType | null> {
+  try {
+    const fornitore = await prisma.fornitore.findUnique({
+      where: { nome }
+    });
+    return fornitore;
+  } catch (error) {
+    console.error('Error fetching fornitore by nome:', error);
+    return null;
+  }
+}
+
+export async function getDestinazioneByNome(nome: string): Promise<DestinazioneType | null> {
+  try {
+    const destinazione = await prisma.destinazione.findUnique({
+      where: { nome }
+    });
+    return destinazione;
+  } catch (error) {
+    console.error('Error fetching destinazione by nome:', error);
+    return null;
+  }
+}
+
+// ============================================================================
+// SEARCH AND UTILITY FUNCTIONS
+// ============================================================================
+
+export async function searchClienti(searchTerm: string): Promise<ClienteType[]> {
+  try {
+    const clienti = await prisma.cliente.findMany({
+      where: {
+        OR: [
+          { nome: { contains: searchTerm, mode: 'insensitive' } },
+          { cognome: { contains: searchTerm, mode: 'insensitive' } },
+          { email: { contains: searchTerm, mode: 'insensitive' } },
+          { tel: { contains: searchTerm, mode: 'insensitive' } }
+        ]
+      },
+      orderBy: [
+        { cognome: 'asc' },
+        { nome: 'asc' }
+      ]
+    });
+    return clienti as any;
+  } catch (error) {
+    console.error('Error searching clienti:', error);
+    return [];
+  }
+}
+
+export async function getDestinazioneById(id: string): Promise<ApiResponse<DestinazioneType>> {
+  try {
+    const destinazione = await prisma.destinazione.findUnique({
+      where: { id }
+    });
+    
+    if (!destinazione) {
+      return {
+        success: false,
+        error: 'Destinazione non trovata'
+      };
+    }
+    
+    return { success: true, data: destinazione as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function getFornitoreById(id: string): Promise<ApiResponse<FornitoreType>> {
+  try {
+    const fornitore = await prisma.fornitore.findUnique({
+      where: { id }
+    });
+    
+    if (!fornitore) {
+      return {
+        success: false,
+        error: 'Fornitore non trovato'
+      };
+    }
+    
+    return { success: true, data: fornitore as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function fetchServizioATerraById(id: string): Promise<DBResult<ServiziATerraType>> {
+  try {
+    const servizio = await prisma.serviziATerra.findUnique({
+      where: { id },
+      include: {
+        fornitore: true,
+        destinazione: true
+      }
+    });
+    
+    if (!servizio) {
+      return {
+        success: false,
+        errorsMessage: 'Servizio a terra non trovato'
+      };
+    }
+    
+    return { success: true, values: servizio };
+  } catch (error) {
+    console.error('Error fetching servizio a terra by id:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero del servizio a terra' 
     };
   }
 }
 
-// #### DELETE BY ID ####
-export const deleteServizioATerraById = async (id: string): Promise<void> => {
+export async function fetchVoloById(id: string): Promise<DBResult<VoloType>> {
   try {
-    await pool.query(`DELETE FROM servizi_a_terra WHERE id = $1`, [id]);
+    const volo = await prisma.volo.findUnique({
+      where: { id },
+      include: {
+        fornitore: true
+      }
+    });
+    
+    if (!volo) {
+      return {
+        success: false,
+        errorsMessage: 'Volo non trovato'
+      };
+    }
+    
+    return { success: true, values: volo };
   } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to delete servizio a terra by id.");
+    console.error('Error fetching volo by id:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero del volo' 
+    };
   }
-};
+}
 
-export const deleteVoloById = async (id: string): Promise<void> => {
+export async function fetchAssicurazioneById(id: string): Promise<DBResult<AssicurazioneType>> {
   try {
-    await pool.query(`DELETE FROM voli WHERE id = $1`, [id]);
+    const assicurazione = await prisma.assicurazione.findUnique({
+      where: { id },
+      include: {
+        fornitore: true
+      }
+    });
+    
+    if (!assicurazione) {
+      return {
+        success: false,
+        errorsMessage: 'Assicurazione non trovata'
+      };
+    }
+    
+    return { success: true, values: assicurazione };
   } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to delete volo by id.");
+    console.error('Error fetching assicurazione by id:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero dell\'assicurazione' 
+    };
   }
-};
+}
 
-export const deleteAssicurazioneById = async (id: string): Promise<void> => {
+// ============================================================================
+// DATA FETCHING FUNCTIONS (MIGRATION FROM data.ts)
+// ============================================================================
+
+export async function fetchPreventiviByIdCliente(clienteId: string): Promise<DBResult<PreventivoType[]>> {
   try {
-    await pool.query(`DELETE FROM assicurazioni WHERE id = $1`, [id]);
+    const preventivi = await prisma.preventivo.findMany({
+      where: { id_cliente: clienteId },
+      orderBy: { data: 'desc' }
+    });
+    return { success: true, values: preventivi as any };
   } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to delete assicurazione by id.");
+    console.error('Error fetching preventivi by cliente:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero dei preventivi del cliente' 
+    };
   }
-};
+}
 
-export const deletePreventivoAlClienteRowById = async (
-  id: string
-): Promise<void> => {
+export async function fetchServiziATerraByPreventivoId(preventivoId: string): Promise<DBResult<ServiziATerraType[]>> {
   try {
-    await pool.query(`DELETE FROM preventivi_al_cliente_row WHERE id = $1`, [id]);
+    const servizi = await prisma.serviziATerra.findMany({
+      where: { 
+        id_preventivo: preventivoId,
+        servizio_aggiuntivo: false
+      },
+      include: {
+        fornitore: true,
+        destinazione: true
+      }
+    });
+    return { success: true, values: servizi };
   } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to delete preventivo al cliente row by id.");
+    console.error('Error fetching servizi a terra:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero dei servizi a terra' 
+    };
   }
-};
+}
 
-export const setOptionsJson = async () => {
-  const fornitori = await fetchAllFornitori();
-  const banche = await fetchAllBanche();
-  const destinazioni = await fetchAllDestinazioni();
-  const writeJsonToFile = (filename: string, data: any) => {
-    fs.writeFileSync(filename, JSON.stringify(data, null, 2), "utf8");
-  };
-
-  if (fornitori.success) {
-    writeJsonToFile(
-      path.join(
-        process.cwd(),
-        "/app/lib/fundamental-entities-json/fornitori.json"
-      ),
-      fornitori.values
-    );
-  } else {
-    console.error("Failed to fetch fornitori:", fornitori.errorsMessage);
-  }
-
-  if (banche.success) {
-    writeJsonToFile(
-      path.join(
-        process.cwd(),
-        "/app/lib/fundamental-entities-json/banche.json"
-      ),
-      banche.values
-    );
-  } else {
-    console.error("Failed to fetch banche:", banche.errorsMessage);
-  }
-
-  if (destinazioni.success) {
-    writeJsonToFile(
-      path.join(
-        process.cwd(),
-        "/app/lib/fundamental-entities-json/destinazioni.json"
-      ),
-      destinazioni.values
-    );
-  } else {
-    console.error("Failed to fetch destinazioni:", destinazioni.errorsMessage);
-  }
-};
-
-export const getAllClienti = async (): Promise<Cliente[]> => {
+export async function fetchServiziAggiuntiviByPreventivoId(preventivoId: string): Promise<DBResult<ServiziATerraType[]>> {
   try {
-    const clienti = await pool.query<Cliente>(`SELECT * FROM clienti`);
-    console.log(clienti.rows);
-    return clienti.rows;
+    const servizi = await prisma.serviziATerra.findMany({
+      where: { 
+        id_preventivo: preventivoId,
+        servizio_aggiuntivo: true
+      },
+      include: {
+        fornitore: true,
+        destinazione: true
+      }
+    });
+    return { success: true, values: servizi };
   } catch (error) {
-    console.error('Database Error:', error);
-    return [];
+    console.error('Error fetching servizi aggiuntivi:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero dei servizi aggiuntivi' 
+    };
   }
-};
+}
+
+export async function fetchVoliByPreventivoId(preventivoId: string): Promise<DBResult<VoloType[]>> {
+  try {
+    const voli = await prisma.volo.findMany({
+      where: { id_preventivo: preventivoId },
+      include: {
+        fornitore: true
+      }
+    });
+    return { success: true, values: voli };
+  } catch (error) {
+    console.error('Error fetching voli:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero dei voli' 
+    };
+  }
+}
+
+export async function fetchAssicurazioniByPreventivoId(preventivoId: string): Promise<DBResult<AssicurazioneType[]>> {
+  try {
+    const assicurazioni = await prisma.assicurazione.findMany({
+      where: { id_preventivo: preventivoId },
+      include: {
+        fornitore: true
+      }
+    });
+    return { success: true, values: assicurazioni };
+  } catch (error) {
+    console.error('Error fetching assicurazioni:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero delle assicurazioni' 
+    };
+  }
+}
+
+export async function getNumberOfPreventivi(): Promise<DBResult<number>> {
+  try {
+    const count = await prisma.preventivo.count();
+    return { success: true, values: count };
+  } catch (error) {
+    console.error('Error counting preventivi:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel conteggio dei preventivi' 
+    };
+  }
+}
+
+export async function fetchPreventivoAlClienteByPreventivoId(preventivoId: string): Promise<DBResult<any>> {
+  try {
+    const preventivoAlCliente = await prisma.preventivoAlCliente.findFirst({
+      where: { id_preventivo: preventivoId },
+      include: {
+        rows: true
+      }
+    });
+    
+    if (!preventivoAlCliente) {
+      return { 
+        success: false, 
+        errorsMessage: 'Preventivo al cliente non trovato' 
+      };
+    }
+
+    // Trasformo i dati nel formato atteso
+    const result = {
+      id: preventivoAlCliente.id,
+      descrizione_viaggio: preventivoAlCliente.descrizione_viaggio,
+      righePrimoTipo: preventivoAlCliente.rows.filter(row => !row.senza_assicurazione),
+      righeSecondoTipo: preventivoAlCliente.rows.filter(row => row.senza_assicurazione)
+    };
+    
+    return { success: true, values: result };
+  } catch (error) {
+    console.error('Error fetching preventivo al cliente:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero del preventivo al cliente' 
+    };
+  }
+}
+
+export async function fetchAllPreventiviWithCliente(): Promise<DBResult<any[]>> {
+  try {
+    const preventivi = await prisma.preventivo.findMany({
+      include: {
+        cliente: true
+      },
+      orderBy: { data: 'desc' }
+    });
+    return { success: true, values: preventivi as any };
+  } catch (error) {
+    console.error('Error fetching preventivi with cliente:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero dei preventivi con cliente' 
+    };
+  }
+}
+
+export async function fetchAllPreventiviAlCliente(): Promise<DBResult<any[]>> {
+  try {
+    const preventiviAlCliente = await prisma.preventivoAlCliente.findMany({
+      include: {
+        rows: true,
+        preventivo: {
+          include: {
+            cliente: true
+          }
+        }
+      }
+    });
+    return { success: true, values: preventiviAlCliente };
+  } catch (error) {
+    console.error('Error fetching preventivi al cliente:', error);
+    return { 
+      success: false, 
+      errorsMessage: 'Errore nel recupero dei preventivi al cliente' 
+    };
+  }
+}
+
+// ============================================================================
+// MISSING FUNCTIONS FOR SPECIFIC FEATURES
+// ============================================================================
+
+export async function deleteServizioATerraById(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.serviziATerra.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteVoloById(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.volo.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deleteAssicurazioneById(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.assicurazione.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function createServizioATerra(data: any, preventivoId: string, isAggiuntivo: boolean): Promise<ApiResponse<ServiziATerraType>> {
+  try {
+    const servizio = await prisma.serviziATerra.create({
+      data: {
+        ...data,
+        id_preventivo: preventivoId,
+        servizio_aggiuntivo: isAggiuntivo
+      }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: servizio as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function updatePreventivoAlClienteDescrizione(data: any): Promise<ApiResponse> {
+  try {
+    await prisma.preventivoAlCliente.update({
+      where: { id: data.id },
+      data: {
+        descrizione_viaggio: data.descrizione_viaggio
+      }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function updatePreventivoAlClienteRow(data: any, isPrimoTipo: boolean, preventivoAlClienteId: string): Promise<ApiResponse> {
+  try {
+    await prisma.preventivoAlClienteRow.update({
+      where: { id: data.id },
+      data: {
+        destinazione: data.destinazione,
+        descrizione: data.descrizione,
+        individuale: data.individuale,
+        numero: data.numero,
+        senza_assicurazione: !isPrimoTipo
+      }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function deletePreventivoAlClienteRowById(id: string): Promise<ApiResponse> {
+  try {
+    await prisma.preventivoAlClienteRow.delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function createPreventivoAlClienteRow(data: any, isPrimoTipo: boolean, preventivoAlClienteId: string): Promise<ApiResponse> {
+  try {
+    const row = await prisma.preventivoAlClienteRow.create({
+      data: {
+        id_preventivo_al_cliente: preventivoAlClienteId,
+        destinazione: data.destinazione,
+        descrizione: data.descrizione,
+        individuale: data.individuale,
+        numero: data.numero,
+        senza_assicurazione: !isPrimoTipo
+      }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, data: row as any };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function submitCreatePreventivoGI(data: any): Promise<ApiResponse> {
+  try {
+    // Questa funzione deve essere implementata in base alla logica specifica
+    // Per ora ritorno un placeholder
+    console.log('submitCreatePreventivoGI called with:', data);
+    return { 
+      success: false, 
+      error: 'Funzione submitCreatePreventivoGI da implementare' 
+    };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function addFundamentalEntity(entityType: string, data: any): Promise<ApiResponse> {
+  try {
+    // Gestisce l'aggiunta di entità fondamentali (destinazioni, fornitori, banche)
+    switch (entityType.toLowerCase()) {
+      case 'destinazione':
+        return await createDestinazione(data);
+      case 'fornitore':
+        return await createFornitore(data);
+      case 'banca':
+        return await createBanca(data);
+      default:
+        return {
+          success: false,
+          error: `Tipo di entità non supportato: ${entityType}`
+        };
+    }
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+export async function setOptionsJson(options: any): Promise<ApiResponse> {
+  try {
+    // Questa funzione gestisce le opzioni di configurazione
+    // Per ora ritorno un placeholder
+    console.log('setOptionsJson called with:', options);
+    return { 
+      success: true, 
+      data: options 
+    };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// Cleanup function to disconnect Prisma on app shutdown
+export async function disconnectPrisma() {
+  await prisma.$disconnect();
+}

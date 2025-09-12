@@ -1,4 +1,4 @@
-import { fetchAllPreventiviWithCliente } from "@/app/lib/data";
+import { fetchAllPreventiviWithCliente } from "@/app/lib/actions/actions";
 import { Preventivo } from "@/app/lib/definitions";
 import { Cliente } from "@/app/lib/definitions";
 import { STable } from "@/app/ui/table/table";
@@ -7,7 +7,7 @@ type R = Preventivo & { cliente: Cliente }
 export default async function Page() {
 
     const preventivi = await fetchAllPreventiviWithCliente();
-    const rows = preventivi.values.map((p) => {
+    const rows = preventivi.values?.map((p) => {
         const { cliente, ...preventivo } = p;
         const flattenedObject = {
             ...cliente,
@@ -42,13 +42,13 @@ export default async function Page() {
                     }
                 )
         );
-    });
+    }) as any[] || [];
     return (
         <div>
             <h1 className="mb-4 text-xl md:text-2xl">TABELLA PREVENTIVI</h1>
             {
                 preventivi.success &&
-                <STable<R> data={rows} columnsSize={200} />
+                <STable<any> data={rows} columnsSize={200} />
             }
             {!preventivi.success && <div>Error fetching data</div>}
         </div>

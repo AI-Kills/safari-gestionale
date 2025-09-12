@@ -1,0 +1,268 @@
+---
+description: Complete project scaffolding structure and setup for creating a new gestionale project from scratch
+globs: 
+alwaysApply: false
+---
+
+# Complete Project Scaffolding Rule
+
+Quando l'utente dice "scaffolding completo", crea la seguente struttura di progetto completa:
+
+## 1. Directory Structure
+
+```
+PROJECT_ROOT/
+├── app/                     # Next.js App Router
+│   ├── api/                # API routes
+│   ├── dashboard/          # Dashboard pages
+│   │   ├── settings/      # Settings page
+│   │   ├── soci-table/    # Soci management page
+│   │   └── test/          # Test pages
+│   ├── lib/               # Server-side utilities
+│   │   └── actions/       # Server actions e zod schemas
+│   ├── login/             # Authentication pages
+│   ├── signup/            # Registration pages
+│   └── test-form/         # Form testing pages
+├── components/            # React components
+│   ├── ui/               # shadcn/ui components
+│   └── custom-ui/        # Custom app components
+├── lib/                  # Client-side utilities
+├── prisma/               # Database management
+│   ├── migrations/       # Database migrations
+│   └── seed/            # Database seeding
+├── test/                 # Test files
+├── globals/              # Global type declarations
+├── scripts/              # Utility scripts
+├── public/               # Static assets
+└── .cursor/rules/        # Cursor AI rules
+```
+
+## 2. Core Files Setup
+
+### 2.1 Package Configuration
+- `package.json` - Dependencies e scripts
+- `pnpm-lock.yaml` - Lock file per pnpm
+- `next.config.mjs` - Next.js configuration
+- `tsconfig.json` - TypeScript configuration
+- `vitest.config.mjs` - Test configuration
+
+### 2.2 Styling & UI
+- `tailwind.config.ts` - Tailwind CSS configuration
+- `postcss.config.js` - PostCSS configuration
+- `components.json` - shadcn/ui configuration
+- `app/globals.css` - Global styles
+
+### 2.3 Authentication
+- `auth.config.ts` - Auth configuration
+- `auth.ts` - NextAuth setup
+- `middleware.ts` - Authentication middleware
+
+## 3. Database Setup (Prisma)
+
+### 3.1 Schema Files
+- `prisma/schema.prisma` - Production database schema
+- `prisma/schema.test.prisma` - Test database schema
+
+### 3.2 Seed Data
+- `prisma/seed/soci.json` - Sample users data
+- `prisma/seed/coefficientiContribuzione.json` - Contribution coefficients
+- `prisma/seed/coeffQuoteAnnuali.json` - Annual quota coefficients
+- `prisma/seed/integrazione.json` - Integration data
+- `prisma/seed/seed.ts` - Seeding script
+
+### 3.3 Database Commands
+```bash
+pnpm prisma migrate dev --name init
+pnpm prisma generate
+pnpm prisma db seed
+```
+
+## 4. Global Declarations
+
+### 4.1 Type Files in globals/
+- `entities.d.ts` - Database entity types
+- `components.d.ts` - Component types
+- `utils.d.ts` - Utility function types
+- `custom_configs.d.ts` - Configuration types
+- `react-globals.d.ts` - React global types
+- `runtime.d.ts` - Runtime types
+- `lucide-react.d.ts` - Icon types
+
+## 5. App Structure (Next.js)
+
+### 5.1 Core App Files
+- `app/layout.tsx` - Root layout
+- `app/page.tsx` - Home page
+- `app/appConfig.tsx` - App configuration
+
+### 5.2 Authentication Pages
+- `app/login/page.tsx` - Login page
+- `app/signup/page.tsx` - Registration page
+
+### 5.3 Dashboard Structure
+- `app/dashboard/layout.tsx` - Dashboard layout
+- `app/dashboard/page.tsx` - Dashboard home
+- `app/dashboard/soci-table/page.tsx` - Users management
+- `app/dashboard/settings/page.tsx` - App settings
+- `app/dashboard/test/page.tsx` - Testing features
+
+### 5.4 Server Actions & Schemas
+- `app/lib/actions/actions.ts` - All server actions (CRUD operations)
+- `app/lib/actions/entity-zod-schemas.ts` - Zod validation schemas
+
+## 6. Components Structure
+
+### 6.1 UI Components (shadcn/ui)
+- `components/ui/button.tsx`
+- `components/ui/input.tsx`
+- `components/ui/form.tsx`
+- `components/ui/table.tsx`
+- `components/ui/card.tsx`
+- `components/ui/dialog.tsx`
+- Tutti gli altri componenti shadcn/ui necessari
+
+### 6.2 Custom Components
+- `components/custom-ui/dashboard/` - Dashboard navigation
+- `components/custom-ui/table/` - Custom table components
+- `components/custom-ui/forms/` - Custom form components
+- `components/custom-ui/modals/` - Modal components
+
+## 7. Utilities (lib/)
+
+### 7.1 Client Utils
+- `lib/utils.ts` - Utility functions (cn, formatters, validators)
+
+### 7.2 CRUD Utils
+- `components/crud_ui/utils.ts` - CRUD operation utilities
+
+## 8. Testing Structure
+
+### 8.1 Test Files
+- `test/actions.test.ts` - Server actions tests
+- `test/utils.test.ts` - Utility functions tests
+- `test/validation.test.ts` - Validation schema tests
+- `test/auth.test.ts` - Authentication tests
+
+### 8.2 Test Configuration
+- `test/setup.ts` - Test environment setup
+- `test/test-db-setup.ts` - Test database setup
+- `vitest.d.ts` - Vitest type declarations
+
+## 9. Scripts Directory
+
+### 9.1 Utility Scripts
+- `scripts/create_chat.mjs` - Chat creation script
+- `scripts/test.js` - Testing utilities
+- `scripts/wcp.mjs` - Workspace copy script
+
+## 10. Setup Dependencies & Scripts
+
+### 10.1 Package.json Scripts
+Assicurarsi che il `package.json` includa TUTTI questi script essenziali:
+
+```json
+{
+  "scripts": {
+    "build": "prisma generate && next build",
+    "dev": "next dev",
+    "start": "next start",
+    "postinstall": "prisma generate",
+    "add": "npx shadcn@latest add",
+    "t": "vitest run --config /dev/null $*",
+    "test": " vitest",
+    "test-actions": "pnpm vitest test/actions.test.ts --run",
+    "test-validation": "pnpm vitest test/validation.test.ts --run",
+    "test-utilities": "pnpm vitest test/utils.test.ts --run",
+    "test-auth": "pnpm vitest test/auth.test.ts --run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "seed": "pnpm prisma migrate reset --force && pnpm tsx prisma/seed/seed.ts",
+    "clean-cache": "rm -rf .next && pnpm next build --no-lint"
+  }
+}
+```
+
+### 10.2 Main Dependencies
+```json
+{
+  "next": "latest",
+  "react": "latest", 
+  "react-dom": "latest",
+  "next-auth": "^5.0.0-beta.4",
+  "prisma": "latest",
+  "@prisma/client": "latest",
+  "zod": "latest",
+  "tailwindcss": "latest",
+  "@radix-ui/react-*": "latest"
+}
+```
+
+### 10.3 Dev Dependencies
+```json
+{
+  "typescript": "latest",
+  "vitest": "latest",
+  "@testing-library/react": "latest",
+  "eslint": "latest",
+  "postcss": "latest",
+  "autoprefixer": "latest"
+}
+```
+
+## 11. Configuration Files
+
+### 11.1 Environment
+- `.env.local` - Local environment variables
+- `.env.example` - Environment template
+
+### 11.2 Git
+- `.gitignore` - Git ignore patterns
+- `README.md` - Project documentation
+
+## 12. Post-Setup Commands
+
+```bash
+# Install dependencies
+pnpm install
+
+# Setup database
+pnpm prisma migrate dev --name init
+pnpm prisma generate
+pnpm prisma db seed
+
+# Run tests
+pnpm test
+
+# Start development
+pnpm dev
+```
+
+## 13. Cursor Rules Setup
+
+Crea anche le regole base in `.cursor/rules/`:
+- `prisma-architecture.mdc` - Database architecture rules
+- `auth.mdc` - Authentication rules  
+- `complete-scaffolding.mdc` - This scaffolding rule
+
+**Nota**: Questo scaffolding crea un progetto Next.js completo per gestione soci e pagamenti di un'associazione, con autenticazione, database Prisma, testing completo e UI moderna con shadcn/ui.
+
+
+
+assicurati che nel package.json abbiamo gli script associati al progetto: 
+"scripts": {
+    "build": "prisma generate && next build",
+    "dev": "next dev",
+    "start": "next start",
+    "postinstall": "prisma generate",
+    "add": "npx shadcn@latest add",
+    "t": "vitest run --config /dev/null $*",
+    "test": " vitest",
+    "test-actions": "pnpm vitest test/actions.test.ts --run",
+    "test-validation": "pnpm vitest test/validation.test.ts --run",
+    "test-utilities": "pnpm vitest test/utils.test.ts --run",
+    "test-auth": "pnpm vitest test/auth.test.ts --run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "seed": "pnpm prisma migrate reset --force && pnpm tsx prisma/seed/seed.ts",
+    "clean-cache": "rm -rf .next && pnpm next build --no-lint"
+  }

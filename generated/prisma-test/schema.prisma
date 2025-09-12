@@ -1,0 +1,182 @@
+generator testClient {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma-test"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./test.sqlite"
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+
+  @@map("users")
+}
+
+model Destinazione {
+  id   String @id @default(uuid())
+  nome String @unique
+
+  serviziATerra ServiziATerra[]
+
+  @@map("destinazioni")
+}
+
+model Banca {
+  id   String @id @default(uuid())
+  nome String @unique
+
+  @@map("banche")
+}
+
+model Cliente {
+  id                       String    @id @default(uuid())
+  nome                     String?
+  cognome                  String?
+  tel                      String?
+  indirizzo                String?
+  CAP                      String?
+  citta                    String?
+  CF                       String?
+  email                    String    @unique
+  tipo                     String?
+  provenienza              String?
+  collegato                String?
+  note                     String?
+  data_di_nascita          DateTime?
+  luogo_nascita            String?
+  provincia_nascita        String?
+  numero_passaporto        String?
+  data_scadenza_passaporto DateTime?
+  nazionalita              String?
+  provincia                String?
+  sesso                    String?
+
+  preventivi Preventivo[]
+
+  @@map("clienti")
+}
+
+model Fornitore {
+  id     String  @id @default(uuid())
+  nome   String  @unique
+  valuta String?
+
+  serviziATerra ServiziATerra[]
+  voli          Volo[]
+  assicurazioni Assicurazione[]
+
+  @@map("fornitori")
+}
+
+model Preventivo {
+  id                   String    @id @default(uuid())
+  id_cliente           String
+  percentuale_ricarico Float?
+  note                 String?
+  brand                String?
+  adulti               Int?
+  bambini              Int?
+  destinazione         String?
+  tipo_viaggio         String?
+  note_operative       String?
+  riferimento          String?
+  data_partenza        DateTime?
+  operatore            String?
+  feedback             String?
+  stato                String?
+  data                 DateTime  @default(now())
+  numero_preventivo    String?   @unique
+
+  cliente             Cliente               @relation(fields: [id_cliente], references: [id])
+  serviziATerra       ServiziATerra[]
+  voli                Volo[]
+  assicurazioni       Assicurazione[]
+  preventiviAlCliente PreventivoAlCliente[]
+
+  @@map("preventivi")
+}
+
+model ServiziATerra {
+  id                  String    @id @default(uuid())
+  id_preventivo       String
+  id_fornitore        String?
+  id_destinazione     String?
+  descrizione         String?
+  data                DateTime?
+  numero_notti        Int?
+  numero_camere       Int?
+  totale              Float?
+  valuta              String?
+  cambio              Float?
+  servizio_aggiuntivo Boolean?
+
+  preventivo   Preventivo    @relation(fields: [id_preventivo], references: [id])
+  fornitore    Fornitore?    @relation(fields: [id_fornitore], references: [id])
+  destinazione Destinazione? @relation(fields: [id_destinazione], references: [id])
+
+  @@map("servizi_a_terra")
+}
+
+model Volo {
+  id              String    @id @default(uuid())
+  id_preventivo   String
+  id_fornitore    String?
+  compagnia_aerea String?
+  descrizione     String?
+  data_partenza   DateTime?
+  data_arrivo     DateTime?
+  totale          Float?
+  ricarico        Float?
+  numero          Int?
+  valuta          String?
+  cambio          Float?
+
+  preventivo Preventivo @relation(fields: [id_preventivo], references: [id])
+  fornitore  Fornitore? @relation(fields: [id_fornitore], references: [id])
+
+  @@map("voli")
+}
+
+model Assicurazione {
+  id            String  @id @default(uuid())
+  id_preventivo String
+  id_fornitore  String?
+  assicurazione String?
+  netto         Float?
+  ricarico      Float?
+  numero        Int?
+
+  preventivo Preventivo @relation(fields: [id_preventivo], references: [id])
+  fornitore  Fornitore? @relation(fields: [id_fornitore], references: [id])
+
+  @@map("assicurazioni")
+}
+
+model PreventivoAlCliente {
+  id                  String  @id @default(uuid())
+  id_preventivo       String?
+  descrizione_viaggio String?
+
+  preventivo Preventivo?              @relation(fields: [id_preventivo], references: [id])
+  rows       PreventivoAlClienteRow[]
+
+  @@map("preventivi_al_cliente")
+}
+
+model PreventivoAlClienteRow {
+  id                       String   @id @default(uuid())
+  id_preventivo_al_cliente String
+  senza_assicurazione      Boolean?
+  destinazione             String?
+  descrizione              String?
+  individuale              Float?
+  numero                   Int?
+
+  preventivoAlCliente PreventivoAlCliente @relation(fields: [id_preventivo_al_cliente], references: [id])
+
+  @@map("preventivi_al_cliente_row")
+}

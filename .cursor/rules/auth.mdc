@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+when you need to authenticate to github for managing e.g. pull requests, and other devops tasks, 
+you will use the auth token: 
+
+
+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

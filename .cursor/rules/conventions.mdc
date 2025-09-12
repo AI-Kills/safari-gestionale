@@ -7,12 +7,20 @@ the following is a list of conventions that map specific prompt forms to specifi
 they are in the form: alias -> corresponding task
 
 
+attenzione: non usare mai npm; al posto di npm usa pnpm
+
+
 you should always respond in a very concise style. 
 we don't have time to loose, if i have a question, i will ask. 
 always keep a motivating propositive attitude.
 
+- vf -> se ti scrivo vf, rispondi solo con "vero" se la risposta é positiva, a
+  altrimenti rispondi con "falso" e spiega come mai;
+- td  -> sostituisci nel codice, dovunque trovi un commento che inizia con td, l'implementazione
+  richiesta dal commento
+
 - d or doc -> document the code, the documentation should be aimed at a senior software engineer, so no obvious redundancies, only 
-        clear direct concise explanations
+        clear direct concise explanations. if not specified, each comment/description must be of at most 50 words
 - c or complete -> add the missing details according to the comments given
 - s or style -> give style following the styling conventions of this project
 - t or test -> write the tests for the code

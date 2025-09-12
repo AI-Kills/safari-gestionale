@@ -9,8 +9,7 @@ import {
   ServizioATerraInputGroup,
   VoloInputGroup,
 } from "@/app/dashboard/(overview)/general-interface/general-interface.defs";
-import { DBResult, getDestinazioneById, getFornitoreById } from "@/app/lib/actions/actions";
-import { fetchServiziATerraByPreventivoId, fetchServiziAggiuntiviByPreventivoId, fetchVoliByPreventivoId, fetchAssicurazioniByPreventivoId, fetchPreventivoAlClienteByPreventivoId } from "@/app/lib/data";
+import { DBResult, getDestinazioneById, getFornitoreById, fetchServiziATerraByPreventivoId, fetchServiziAggiuntiviByPreventivoId, fetchVoliByPreventivoId, fetchAssicurazioniByPreventivoId, fetchPreventivoAlClienteByPreventivoId } from "@/app/lib/actions/actions";
 import { PreventivoAlCliente } from "@/app/lib/definitions";
 
 export async function POST(request: NextRequest) {
@@ -80,7 +79,7 @@ const getServiziATerraInputGroup = async (serviziATerra: any[]): Promise<Servizi
     if (id_destinazione) {
       const _destinazione = await getDestinazioneById(id_destinazione);
       if (_destinazione.success) {
-        destinazione = _destinazione.values?.nome;
+        destinazione = _destinazione.data?.nome;
       }
     }
     // se c'e il fornitore, ottienilo
@@ -89,7 +88,7 @@ const getServiziATerraInputGroup = async (serviziATerra: any[]): Promise<Servizi
     if (id_fornitore) {
       const _fornitore = await getFornitoreById(id_fornitore);
       if (_fornitore.success) {
-        fornitore = _fornitore?.values.nome;
+        fornitore = _fornitore?.data?.nome;
       }
     }
     // create inputGroup
@@ -120,7 +119,7 @@ const getVoliInputGroup = async (voli: any[]): Promise<VoloInputGroup[]> => {
       if (id_fornitore) {
         const _fornitore = await getFornitoreById(id_fornitore);
         if (_fornitore.success) {
-          fornitore = _fornitore.values?.nome;
+          fornitore = _fornitore.data?.nome;
         }
       }
       const iG = new VoloInputGroup(
@@ -151,7 +150,7 @@ const getAssicurazioniInputGroup = async (assicurazioni: any[]): Promise<Assicur
     if (id_fornitore) {
       const _fornitore = await getFornitoreById(id_fornitore);
       if (_fornitore.success) {
-        fornitore = _fornitore.values.nome;
+        fornitore = _fornitore.data?.nome;
       }
     }
     const iG = new AssicurazioneInputGroup(

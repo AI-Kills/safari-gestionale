@@ -1,7 +1,13 @@
 .sidenav {
     width: 150px !important;
+    height: 100vh !important;
+    position: relative;
 }
 
 .sidenav__logo {
-    position:absolute;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
 }

@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   updatePreventivo,
   updateServiziATerra,
-  updateAssicurazioni as updateAssicurazione,
-  updateVoli as updateVolo,
+  updateAssicurazione,
+  updateVolo,
   createServizioATerra,
   createVolo,
   createAssicurazione,
@@ -14,9 +14,6 @@ import {
   updatePreventivoAlClienteRow,
   deletePreventivoAlClienteRowById,
   createPreventivoAlClienteRow,
-} from "@/app/lib/actions/actions";
-import { Data } from "@/app/dashboard/(overview)/general-interface/general-interface.defs";
-import {
   fetchAssicurazioneById,
   fetchAssicurazioniByPreventivoId,
   fetchPreventivoAlClienteByPreventivoId,
@@ -25,7 +22,8 @@ import {
   fetchServizioATerraById,
   fetchVoliByPreventivoId,
   fetchVoloById,
-} from "@/app/lib/data";
+} from "@/app/lib/actions/actions";
+import { Data } from "@/app/dashboard/(overview)/general-interface/general-interface.defs";
 import { PreventivoAlCliente } from "@/app/lib/definitions";
 
 export async function POST(request: NextRequest) {
@@ -36,7 +34,7 @@ export async function POST(request: NextRequest) {
     d
     );
     await Promise.all([
-      updatePreventivo(d.preventivo, d.cliente.id),
+      updatePreventivo(d.preventivo),
       updateServiziATerraPreventivo(d),
       updateServiziAggiuntiviPreventivo(d),
       updateVoliPreventivo(d),
@@ -202,7 +200,10 @@ const updateVoliPreventivo = async (d: Data) => {
         return false;
       }
     } else {
-      const feedbackVoloDBResult = await createVolo(d.voli[i], d.preventivo.id);
+      const feedbackVoloDBResult = await createVolo({
+        ...d.voli[i],
+        id_preventivo: d.preventivo.id
+      });
       if (!feedbackVoloDBResult.success) {
         return false;
       }
@@ -254,10 +255,10 @@ const updateAssicurazioniPreventivo = async (d: Data) => {
     } else {
       console.log("assicurazioni[i]: ", d.assicurazioni[i]);
       
-      const feedbackAssicurazione = await createAssicurazione(
-        d.assicurazioni[i],
-        d.preventivo.id
-      );
+      const feedbackAssicurazione = await createAssicurazione({
+        ...d.assicurazioni[i],
+        id_preventivo: d.preventivo.id
+      });
       if (!feedbackAssicurazione.success) {
         return false;
       }

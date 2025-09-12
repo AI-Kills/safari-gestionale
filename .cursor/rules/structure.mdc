@@ -1,0 +1,114 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+{
+  "projectName": "Gestionale",
+  "description": "app per gestire soci e pagamenti di una associazione",
+  "structure": {
+    "root": {
+      "app": {
+        "description": "Main application directory (Next.js App Router)",
+        "files": [
+          "auth.config.ts",
+          "auth.ts",
+          "favicon.ico",
+          "form.tsx",
+          "globals.css",
+          "layout.tsx",
+          "page.tsx"
+        ],
+        "subdirectories": {
+          "lib": {
+            "description": "Utility functions and services, server actions and entity definitions",
+            "subdirectories": {
+              "actions": {
+                "description": "Server actions and definitions of entities used in the app",
+                "files": ["actions.ts", "definitions.ts"]
+              }
+            }
+          },
+          "login": {
+            "description": "Login page"
+          },
+          "dashboard": {
+            "description": "Dashboard page, contains the main page of the app",
+            "files": ["page.tsx"],
+            "subdirectories": {
+              "soci-table": {
+                "description": "Soci table page"
+              },
+              "settings": {
+                "description": "Settings page, set the parameters of the app"
+              },
+              "functional-analysis": {
+                "description": "Functional analysis page, explain the app and the features to the user"
+              }
+            }
+          },
+          "register": {
+            "description": "Registration page"
+          },
+          "seed": {
+            "description": "Seed route, used to delete the database table,  create the database tables and to seed the db with initial data"
+          }
+        }
+      },
+      "components": {
+        "description": "Components directory, where you find the components that you will use to create the app: do not create new components",
+        "subdirectories": {
+          "custom-ui": {
+            "description": "Custom UI components"
+          },
+          "ui": {
+            "description": "UI components from shadcn/ui, always use them or shadcn/ui components instead of creating your own unless explicitlyspecified"
+          }
+        }
+      }
+    },
+    "config": {
+      "files": [
+        ".eslintrc.json",
+        "postcss.config.js",
+        "tailwind.config.ts",
+        "tsconfig.json",
+        "next-env.d.ts"
+      ]
+    }
+  },
+  "dependencies": {
+    "main": [
+      "next",
+      "next-auth",
+      "react",
+      "react-dom",
+      "@vercel/postgres",
+      "drizzle-orm",
+      "postgres",
+      "bcrypt",
+      "zod",
+      "geist"
+    ],
+    "dev": ["typescript", "eslint", "tailwindcss", "postcss", "autoprefixer"]
+  },
+  "authentication": {
+    "type": "NextAuth.js",
+    "version": "5.0.0-beta.4",
+    "strategy": "email + password",
+    "storage": "Postgres database"
+  },
+  "styling": {
+    "framework": "Tailwind CSS",
+    "fonts": ["Geist Sans"]
+  },
+  "entryPoints": {
+    "main": "app/page.tsx",
+    "layout": "app/layout.tsx",
+    "auth": "app/auth.ts"
+  },
+  "dataFlow": {
+    "authentication": "NextAuth.js handles authentication flow with Postgres database",
+    "serverActions": "Server actions in app/lib/actions/actions.ts handle form submissions and data mutations"
+  }
+}

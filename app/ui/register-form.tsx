@@ -7,12 +7,12 @@ import {
 } from '@heroicons/react/24/outline';
 import { Button } from './button';
 import { createUser, State } from '../lib/actions/actions';
-import { useActionState } from 'react';
+import { useFormState } from 'react-dom';
 import { lusitana } from './fonts';
 
 export default function RegisterForm() {
     const initialState: State<{email?: string[], password?: string[]}> = {};
-    const [state, formAction] = useActionState(createUser, initialState)
+    const [state, formAction] = useFormState(createUser, initialState)
 
   return (
   <form action={formAction} className="space-y-3">

@@ -22,6 +22,9 @@ import moment from 'moment';
 import Feedback from '@/app/ui/feedback/feedback';
 import { Preventivo } from '@/app/lib/definitions';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { UserIcon, DocumentTextIcon, PlusIcon, MinusIcon, CurrencyEuroIcon, CalendarIcon, BuildingOfficeIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
 
 
 export default function CreaPreventivoGeneralInterface() {
@@ -365,7 +368,7 @@ export default function CreaPreventivoGeneralInterface() {
       if (data.success) {
         return data.values;
       } else {
-        setErrorsList(['Errore nella chiamata: ', data.errorsMessage + '\n', validationErrorsToString(data.errors)]);
+        setErrorsList(['Errore nella chiamata: ', (data.errorsMessage || '') + '\n', validationErrorsToString(data.errors)]);
       }
     } else {
       setErrorsList(['Errore nella chiamata: ', response.statusText]);
@@ -398,7 +401,7 @@ export default function CreaPreventivoGeneralInterface() {
           setIsActiveSpinner(false);
           showOperationSuccessfull();
         } else { // TODO: mostrare errori in modo più esplicito -> mostrare errori validazione, mostrare tipo di errore (db o altro)
-          setErrorsList(['Errore nella creazione del cliente: ', res.errorsMessage + '\n', validationErrorsToString(res.errors)]);
+          setErrorsList(['Errore nella creazione del cliente: ', (res.error || '') + '\n', validationErrorsToString(res.errors)]);
         }
       } catch (error) {
         setErrorsList(['Errore nella chiamata: ' + error.toString()]);
@@ -425,13 +428,13 @@ export default function CreaPreventivoGeneralInterface() {
       }
       setIsActiveSpinner(true);
       try {
-        const res = await updateCliente(c, c.id);
+        const res = await updateCliente({ ...c, id: c.id });
         if (res.success) {
           setCliente(c);
           setShowClientiTrovati(false);
           showOperationSuccessfull();
         } else {
-          setErrorsList(['Errore nell\'aggiornamento del cliente: ', res.errorsMessage + '\n', validationErrorsToString(res.errors)]);
+          setErrorsList(['Errore nell\'aggiornamento del cliente: ', (res.error || '') + '\n', validationErrorsToString(res.errors)]);
         }
       } catch (error) {
         setErrorsList(['Errore nella chiamata: ' + error.toString()]);
@@ -467,7 +470,7 @@ export default function CreaPreventivoGeneralInterface() {
         setErrorsList(['Il cliente non ha preventivi...']);
       }
     } else {
-      setErrorsList(['Errore nella ricerca dei preventivi del cliente: ', preventiviByClienteDBResult.errorsMessage + '\n', validationErrorsToString(preventiviByClienteDBResult.errors)]);
+      setErrorsList(['Errore nella ricerca dei preventivi del cliente: ', (preventiviByClienteDBResult.errorsMessage || '') + '\n', validationErrorsToString(preventiviByClienteDBResult.errors)]);
     }
     setIsActiveSpinner(false);
   }
@@ -488,7 +491,7 @@ export default function CreaPreventivoGeneralInterface() {
     if (response.ok) {
       const numeroPreventiviDBResult: DBResult<number> = await response.json();
       if (numeroPreventiviDBResult.success) {
-        const numeroPreventivo = numberToExcelFormat(parseInt(numeroPreventiviDBResult.values) + 1);
+        const numeroPreventivo = numberToExcelFormat((numeroPreventiviDBResult.values || 0) + 1);
         setPreventivo(() => new PreventivoInputGroup(numeroPreventivo));
         setServiziATerra(() => []);
         setServiziAggiuntivi(() => []);
@@ -499,7 +502,7 @@ export default function CreaPreventivoGeneralInterface() {
       } else {
         setErrorsList([
           'Errore nella chiamata per ottenere numero di preventivi: ' +
-          numeroPreventiviDBResult.errorsMessage + '\n'
+          (numeroPreventiviDBResult.errorsMessage || '') + '\n'
         ]);
       }
     } else {
@@ -691,34 +694,61 @@ export default function CreaPreventivoGeneralInterface() {
   }, [preventivoAlCliente]);
 
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col space-y-6'>
       {feedback && <Feedback<any> result={feedback} />}
-      <div className="general-interface-container max-w-[850px]">
-        <h1 className={`mb-4 text-xl md:text-2xl`}>GENERAL INTERFACE PREVENTIVO</h1>
-
-        {/* -----------------------------------------------------------
-         CLIENTE 
-        ----------------------------------------------------------- */}
+      
+      {/* Header Section */}
+      <div className="flex items-center justify-between">
         <div>
-          <div className="flex flex-row items-center gap-2">
-            <h3 className="text-xl md:text-2xl pt-4 pb-1">Cliente</h3>
-            <div className="ml-auto flex gap-2">
-              <Button
-                className=""
-                onClick={async () => submitCreateCliente()} >
-                Crea Cliente
-              </Button>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <DocumentTextIcon className="w-8 h-8 text-green-600" />
+            General Interface Preventivo
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Sistema completo per la gestione di clienti e preventivi di viaggio
+          </p>
+        </div>
+        <Badge variant="secondary" className="hidden md:flex">
+          Sistema Integrato
+        </Badge>
+      </div>
 
-              <Button
-                className=""
-                onClick={() => clearAll()} >
-                CLEAR
-              </Button>
+      <div className="general-interface-container max-w-7xl">
+
+        {/* Cliente Section */}
+        <Card className="shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-lg">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <UserIcon className="w-6 h-6 text-blue-600" />
+                Gestione Cliente
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={async () => submitCreateCliente()} >
+                  <PlusIcon className="w-4 h-4 mr-2" />
+                  Crea Cliente
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => clearAll()} >
+                  Pulisci Tutto
+                </Button>
+              </div>
             </div>
-          </div>
+            <CardDescription>
+              Inserisci i dati del cliente per cercare clienti esistenti o crearne di nuovi
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="p-6">
 
           <div className="flex flex-col">
-            <div className="flex flex-row space-x-1">
+            <div className="flex flex-row space-x-2">
               <InputText label="Cognome" name="cognome" onChange={(e) => onVCCliente(e, 'cognome')} value={cliente?.cognome} className="w-[200px]" />
               <InputText label="Nome" name="nome" onChange={(e) => onVCCliente(e, 'nome')} value={cliente?.nome} className="w-[200px]" />
               <InputEmail label="Email" name="email" onChange={(e) => onVCCliente(e, 'email')} value={cliente?.email} />
@@ -726,7 +756,7 @@ export default function CreaPreventivoGeneralInterface() {
               <InputSelect label="Sesso" name="sesso" options={['M', 'F']} onChange={(e) => onVCCliente(e, 'sesso')} value={cliente?.sesso} className="w-[60px]" />
             </div>
 
-            <div className="flex flex-row space-x-1">
+            <div className="flex flex-row space-x-2 mt-3">
               <InputText label="Indirizzo" name="indirizzo" onChange={(e) => onVCCliente(e, 'indirizzo')} value={cliente?.indirizzo} className="w-[310px]" />
               <InputText label="CAP" name="cap" onChange={(e) => onVCCliente(e, 'cap')} value={cliente?.cap} className="w-[90px]" />
               <InputText label="Città" name="citta" onChange={(e) => onVCCliente(e, 'citta')} value={cliente?.citta} className="w-[200px]" />
@@ -734,7 +764,7 @@ export default function CreaPreventivoGeneralInterface() {
               <InputText label="Codice Fiscale" name="codice fiscale" onChange={(e) => onVCCliente(e, 'cf')} value={cliente?.cf} className="w-[170px]" />
             </div>
 
-            <div className="flex flex-row space-x-1">
+            <div className="flex flex-row space-x-2 mt-3">
               <InputDate label="Data di Nascita" name="data_di_nascita" onChange={(e) => onVCCliente(e, 'data_di_nascita')} value={cliente?.data_di_nascita ? moment(cliente?.data_di_nascita).format('YYYY-MM-DD') : ''} />
               <InputText label="Luogo di Nascita" name="luogo_nascita" onChange={(e) => onVCCliente(e, 'luogo_nascita')} value={cliente?.luogo_nascita} className="w-[200px]" />
               <InputText label="Prov N" name="provincia_nascita" onChange={(e) => onVCCliente(e, 'provincia_nascita')} value={cliente?.provincia_nascita} className="w-[60px]" />
@@ -743,7 +773,7 @@ export default function CreaPreventivoGeneralInterface() {
               <InputText label="Nazionalità" name="nazionalita" onChange={(e) => onVCCliente(e, 'nazionalita')} value={cliente?.nazionalita} className="w-[146px]" />
             </div>
 
-            <div className="flex flex-row space-x-1">
+            <div className="flex flex-row space-x-2 mt-3">
               <InputSelect label="Tipo" name="tipo" options={['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA']} onChange={(e) => onVCCliente(e, 'tipo')} value={cliente?.tipo} className="w-[160px]" />
               <InputSelect label="Provenienza" name="provenienza" options={provenienzaOptions} onChange={(e) => onVCCliente(e, 'provenienza')} value={cliente?.provenienza} className="w-[130px]" />
               <InputText label="Collegato" name="collegato" onChange={(e) => onVCCliente(e, 'collegato')} value={cliente?.collegato} className="w-[190px]" />
@@ -762,32 +792,46 @@ export default function CreaPreventivoGeneralInterface() {
           }
 
           {showClientiTrovati &&
-            <div className="flex flex-col pt-4">
-              <p>LISTA CLIENTI CORRISPONDENTI:</p>
-              {clientiTrovati?.length > 0 && clientiTrovati.map((c, i) => (
-                <div key={c.id} className="flex flex-col gap-2">
-                  <div className="flex flex-row gap-1 pt-2 justify-between text-sm text-grey-500">
-                    <p>{c.cognome} {c.nome}  -  {c.email}</p>
-                    <div className="flex flex-row justify-end gap-2">
-                      <Button
-                        className=""
-                        onClick={() => { onClickMostraListaPreventivi(c); }} >
-                        {showPreventiviClienteList && c.id == clienteDaAggiornare.id ? 'Nascondi lista preventivi' : 'Lista Prev'}
-                      </Button>
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle className="text-lg">Clienti Trovati</CardTitle>
+                <CardDescription>Seleziona un cliente dalla lista per gestire i suoi preventivi</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {clientiTrovati?.length > 0 && clientiTrovati.map((c, i) => (
+                  <Card key={c.id} className="mb-4 border-l-4 border-l-blue-500">
+                    <CardContent className="p-4">
+                      <div className="flex flex-row justify-between items-center">
+                        <div className="flex flex-col">
+                          <p className="font-semibold text-gray-900">{c.cognome} {c.nome}</p>
+                          <p className="text-sm text-gray-600">{c.email}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => { onClickMostraListaPreventivi(c); }} >
+                            <DocumentTextIcon className="w-4 h-4 mr-1" />
+                            {showPreventiviClienteList && c.id == clienteDaAggiornare.id ? 'Nascondi Lista' : 'Lista Prev'}
+                          </Button>
 
-                      <Button
-                        className=""
-                        onClick={() => onClickNuovoPreventivo(c)} >
-                        Nuovo Prev
-                      </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => onClickNuovoPreventivo(c)} >
+                            <PlusIcon className="w-4 h-4 mr-1" />
+                            Nuovo Prev
+                          </Button>
 
-                      <Button
-                        className=""
-                        onClick={() => onClickShowFormAggiornaCliente(c)} >
-                        {showFormAggiornaCliente && clienteDaAggiornare.id == c.id ? 'Annulla' : 'Aggiorna Cliente'}
-                      </Button>
-                    </div>
-                  </div>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => onClickShowFormAggiornaCliente(c)} >
+                            <UserIcon className="w-4 h-4 mr-1" />
+                            {showFormAggiornaCliente && clienteDaAggiornare.id == c.id ? 'Annulla' : 'Aggiorna'}
+                          </Button>
+                        </div>
+                      </div>
 
                   {/* -----------------------------------------------------------
          AGGIORNA CLIENTE
@@ -795,7 +839,7 @@ export default function CreaPreventivoGeneralInterface() {
 
                   {showFormAggiornaCliente && clienteDaAggiornare.id == c.id &&
                     <div>
-                      <div className="flex flex-row space-x-1">
+                      <div className="flex flex-row space-x-2 mt-3">
                         <InputText label="Cognome" name="cognome" onChange={(e) => onVCClienteDaAggiornare(e, 'cognome')} value={clienteDaAggiornare?.cognome} className="w-[200px]" />
                         <InputText label="Nome" name="nome" onChange={(e) => onVCClienteDaAggiornare(e, 'nome')} value={clienteDaAggiornare?.nome} className="w-[200px]" />
                         <InputEmail label="Email" name="email" onChange={(e) => onVCClienteDaAggiornare(e, 'email')} value={clienteDaAggiornare?.email} />
@@ -803,7 +847,7 @@ export default function CreaPreventivoGeneralInterface() {
                         <InputSelect label="Sesso" name="sesso" options={['M', 'F']} onChange={(e) => onVCClienteDaAggiornare(e, 'sesso')} value={clienteDaAggiornare?.sesso} className="w-[60px]" />
                       </div>
 
-                      <div className="flex flex-row space-x-1">
+                      <div className="flex flex-row space-x-2 mt-3">
                         <InputText label="Indirizzo" name="indirizzo" onChange={(e) => onVCClienteDaAggiornare(e, 'indirizzo')} value={clienteDaAggiornare?.indirizzo} className="w-[280px]" />
                         <InputText label="CAP" name="cap" onChange={(e) => onVCClienteDaAggiornare(e, 'cap')} value={clienteDaAggiornare?.cap} className="w-[90px]" />
                         <InputText label="Città" name="citta" onChange={(e) => onVCClienteDaAggiornare(e, 'citta')} value={clienteDaAggiornare?.citta} className="w-[200px]" />
@@ -811,7 +855,7 @@ export default function CreaPreventivoGeneralInterface() {
                         <InputText label="CF" name="cf" onChange={(e) => onVCClienteDaAggiornare(e, 'cf')} value={clienteDaAggiornare?.cf} className="w-[200px]" />
                       </div>
 
-                      <div className="flex flex-row space-x-1">
+                      <div className="flex flex-row space-x-2 mt-3">
                         <InputDate label="Data di nascita" name="data_di_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'data_di_nascita')} value={clienteDaAggiornare?.data_di_nascita ? moment(clienteDaAggiornare?.data_di_nascita).format('YYYY-MM-DD') : ''} />
                         <InputText label="Luogo di nascita" name="luogo_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'luogo_nascita')} value={clienteDaAggiornare?.luogo_nascita} className="w-[200px]" />
                         <InputText label="Prov N" name="provincia_nascita" onChange={(e) => onVCClienteDaAggiornare(e, 'provincia_nascita')} value={clienteDaAggiornare?.provincia_nascita} className="w-[60px]" />
@@ -820,18 +864,18 @@ export default function CreaPreventivoGeneralInterface() {
                         <InputText label="Nazionalità" name="nazionalita" onChange={(e) => onVCClienteDaAggiornare(e, 'nazionalita')} value={clienteDaAggiornare?.nazionalita} className="w-[146px]" />
                       </div>
 
-                      <div className="flex flex-row space-x-1">
+                      <div className="flex flex-row space-x-2 mt-3">
                         <InputSelect label="Tipo" name="tipo" options={['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA']} onChange={(e) => onVCClienteDaAggiornare(e, 'tipo')} value={clienteDaAggiornare?.tipo} className="w-[160px]" />
                         <InputSelect label="Provenienza" name="provenienza" options={provenienzaOptions} onChange={(e) => onVCClienteDaAggiornare(e, 'provenienza')} value={clienteDaAggiornare?.provenienza} className="w-[130px]" />
                         <InputText label="Collegato" name="collegato" onChange={(e) => onVCClienteDaAggiornare(e, 'collegato')} value={clienteDaAggiornare?.collegato} className="w-[190px]" />
                         <InputText textarea label="Note" name="note" onChange={(e) => onVCClienteDaAggiornare(e, 'note')} value={clienteDaAggiornare?.note} className="w-[354px]" />
                       </div>
 
-                      <button
-                        className="bg-blue-500 text-white h-8 flex items-center justify-center p-2 rounded-md"
+                      <Button
+                        className="mt-3"
                         onClick={() => submitUpdateCliente(clienteDaAggiornare)} >
-                        Aggiorna
-                      </button>
+                        Aggiorna Cliente
+                      </Button>
                     </div>
                   }
 
@@ -854,17 +898,32 @@ export default function CreaPreventivoGeneralInterface() {
                       ))}
                     </div>
                   }
-                </div>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+                </CardContent>
+              </Card>
+            }
+          </CardContent>
+        </Card>
 
-            </div>
-          }
-        </div>
-
-        {/* -----------------------------------------------------------
-         CREA / AGGIORNA PREVENTIVO
-        ----------------------------------------------------------- */}
-        {showFormPreventivo && <div>
+        {/* Preventivo Section */}
+        {showFormPreventivo && 
+        <Card className="shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-brown-50 rounded-t-lg">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <DocumentTextIcon className="w-6 h-6 text-green-600" />
+              Gestione Preventivo
+              <Badge variant="outline" className="ml-2">
+                {formatDateToString(preventivo?.data_partenza)} {preventivo?.brand} {preventivo?.numero_preventivo?.toString()}
+              </Badge>
+            </CardTitle>
+            <CardDescription>
+              Crea o modifica un preventivo di viaggio con tutti i servizi inclusi
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div>
           {/* preventivo */}
           <div>
             {/* Preventivo Cliente */}
@@ -907,9 +966,11 @@ export default function CreaPreventivoGeneralInterface() {
               <div className="input-group-row">
                 <h3 className="text-xl md:text-2xl" > Servizi a Terra</h3 >
                 <Button
-                  className="add-item-button"
+                  variant="outline"
+                  size="sm"
                   onClick={aggiungiServizioATerra} >
-                  +
+                  <PlusIcon className="w-4 h-4 mr-1" />
+                  Aggiungi Servizio
                 </Button>
               </div>
 
@@ -920,10 +981,13 @@ export default function CreaPreventivoGeneralInterface() {
 
                       <div className="flex flex-row justify-between">
                         <div className="input-group-row">
-                          <button
-                            className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded"
+                          <Button
+                            variant="destructive"
+                            size="sm"
                             onClick={() => rimuoviServizioATerra(servizio.groupId)}
-                          >-</button>
+                          >
+                            <MinusIcon className="w-4 h-4" />
+                          </Button>
 
                           <InputSelect onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[160px]" />
                           <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[160px]" />
@@ -1269,37 +1333,47 @@ export default function CreaPreventivoGeneralInterface() {
               </div>
             </div>
           </div>
-          <div className="flex flex-row items-center justify-center pt-10 pl-5 gap-5">
-            <button
-              className="bg-blue-500 text-white h-8 flex items-center justify-center rounded-md px-4"
-              type="button"
+          <div className="flex flex-row items-center justify-center pt-10 gap-4">
+            <Button
+              size="lg"
               onClick={submitCreatePreventivo}
             >
-              Crea preventivo
-            </button>
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Crea Preventivo
+            </Button>
             {preventivo?.id &&
-              <button
-                className="bg-blue-500 text-white h-8 flex items-center justify-center rounded-md px-4"
-                type="button"
+              <Button
+                variant="secondary"
+                size="lg"
                 onClick={submitUpdatePreventivo}
               >
-                Aggiorna preventivo
-              </button >
+                <DocumentTextIcon className="w-4 h-4 mr-2" />
+                Aggiorna Preventivo
+              </Button>
             }
-          </div >
-
-        </div>
+          </div>
+            </div>
+          </CardContent>
+        </Card>
         }
-        {/* ERRORS */}
-        {
-          errorsList.length > 0 &&
-          <ol>
-            {
-              errorsList.map((error, index) => (
-                <li key={index} className={`flex flex-row items-center justify-center py-4 pl-5 text-red-500`}>{errorTranslations(error)}</li>
-              ))
-            }
-          </ol>
+        {/* Errors Section */}
+        {errorsList.length > 0 &&
+          <Card className="border-l-4 border-l-red-500 bg-red-50">
+            <CardHeader>
+              <CardTitle className="text-red-700 text-lg">Errori Rilevati</CardTitle>
+              <CardDescription>Correggi i seguenti errori per continuare</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {errorsList.map((error, index) => (
+                  <li key={index} className="text-red-600 flex items-start gap-2">
+                    <span className="text-red-500 mt-1">•</span>
+                    <span>{errorTranslations(error)}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         }
       </div>
     </div>

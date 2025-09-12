@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { submitCreatePreventivoGI } from '@/app/lib/actions/actions';
+import { getNumberOfPreventivi } from '@/app/lib/actions/actions';
 import { Data } from '@/app/dashboard/(overview)/general-interface/general-interface.defs';
-import { getNumberOfPreventivi } from '@/app/lib/data';
 
 // get preventivi by cliente
 export async function GET(request: NextRequest) {

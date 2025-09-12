@@ -1,7 +1,6 @@
 import SideNav from '@/app/ui/dashboard/sidenav';
 import { Suspense } from 'react';
 import Loading from './loading';
-import Image from 'next/image';
 import { CogIcon, DocumentDuplicateIcon, MagnifyingGlassIcon, PlusIcon, TableCellsIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { SpinnerContextProvider } from '@/app/context/spinner-context';
 import { SessionProvider } from 'next-auth/react';
@@ -12,10 +11,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
     { name: 'Preventivo', href: '/dashboard/general-interface' },
     { name: 'Preventivi', href: '/dashboard/preventivi-table', icon: <TableCellsIcon className="w-6" /> },
     { name: 'Clienti', href: '/dashboard/clienti-table', icon: <TableCellsIcon className="w-6" /> },
-    { name: 'Other', href: '/dashboard/test', icon: <TableCellsIcon className="w-6" /> },
     { name: 'Contratto', href: '/dashboard/contratto', icon: <DocumentDuplicateIcon className="w-6" /> },
     { name: 'Aggiungi', href: '/dashboard/aggiungi', icon: <PlusIcon className="w-6" /> },
-    { name: 'Analisi funzionale', href: '/dashboard/functional-analysis', icon: <MagnifyingGlassIcon className="w-6" /> },
     { name: 'Settings', href: '/dashboard/settings', icon: <CogIcon className="w-6" /> },
     { name: 'Changelog', href: '/dashboard', icon: <DocumentDuplicateIcon className="w-6" /> },
   ];
@@ -24,9 +21,6 @@ export default async function Layout({ children }: { children: React.ReactNode }
     <SpinnerContextProvider>
       <SessionProvider>
         <div className="flex h-screen flex-col">
-          <div className='m-2 pb-8 logo-container'>
-            <Image className='sidenav__logo' src="/logoTondo.png" alt="logo" width={130} height={130} />
-          </div>
           <div className='flex flex-col md:flex-row md:overflow-hidden'>
             <SideNav links={links} />
             <Suspense fallback={<Loading />}>

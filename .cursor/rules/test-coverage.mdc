@@ -1,0 +1,232 @@
+---
+alwaysApply: true
+---
+
+# Test Coverage Rule
+
+Per ogni nuova implementazione nel progetto, è **obbligatorio** creare i test corrispondenti:
+
+## 1. Nuove Entità (Database)
+Quando aggiungi una nuova tabella/entità in `prisma/schema.prisma`:
+
+### Obbligatorio creare:
+- **Schemi Zod** in `app/lib/actions/entity-zod-schemas.ts`
+  - `[nomeEntità]Schema`
+  - `create[NomeEntità]Schema`
+  - `update[NomeEntità]Schema`
+
+- **Server Actions** in `app/lib/actions/actions.ts`
+  - `create[NomeEntità]`
+  - `update[NomeEntità]`
+  - `delete[NomeEntità]`
+  - `get[NomeEntità]`
+  - `getAll[NomeEntità]`
+
+- **Test** in `test/actions.test.ts`
+  - Test per ogni operazione CRUD
+  - Test di validazione con schemi Zod
+  - Test di business logic specifici
+
+## 2. Nuove Funzioni Utils
+Quando aggiungi una funzione in `lib/utils.ts`:
+
+### Obbligatorio creare:
+- **Test** in `test/utils.test.ts`
+  - Test per input validi
+  - Test per edge cases
+  - Test per gestione errori
+  - Test per valori limite
+
+### Esempio:
+```typescript
+// lib/utils.ts
+export function calculateTax(amount: number): number { ... }
+
+// test/utils.test.ts
+describe('calculateTax', () => {
+  test('should calculate tax correctly', () => { ... });
+  test('should handle zero amount', () => { ... });
+  test('should throw error for negative amount', () => { ... });
+});
+```
+
+## 3. Nuove Server Actions
+Quando aggiungi una server action in `app/lib/actions/actions.ts`:
+
+### Obbligatorio creare:
+- **Test** in `test/actions.test.ts`
+  - Test per successo con dati validi
+  - Test per fallimento con dati invalidi
+  - Test per validazione Zod
+  - Test per business logic
+  - Test per gestione errori
+
+### Esempio:
+```typescript
+// app/lib/actions/actions.ts
+export async function createUser(data: CreateUserData) { ... }
+
+// test/actions.test.ts
+describe('createUser', () => {
+  test('should create user successfully', () => { ... });
+  test('should reject invalid email', () => { ... });
+  test('should handle duplicate email', () => { ... });
+});
+```
+
+## 4. Standard di Qualità
+
+### Coverage minimo richiesto:
+- **Entità**: 100% delle operazioni CRUD
+- **Utils**: 100% delle funzioni pubbliche
+- **Actions**: 100% delle server actions
+
+### Tipi di test obbligatori:
+- **Happy path**: Funzionamento normale
+- **Edge cases**: Valori limite, casi speciali
+- **Error handling**: Gestione errori
+- **Validation**: Test di validazione input
+
+### Struttura test:
+```typescript
+describe('[Nome Funzione/Entità]', () => {
+  test('should [comportamento atteso]', () => {
+    // Arrange
+    // Act  
+    // Assert
+  });
+});
+```
+
+## 5. Comando per Eseguire Test
+```bash
+# Test specifici
+pnpm run test-actions    # Test delle actions
+pnpm run test-utils      # Test delle utilities
+pnpm run test-validation # Test di validazione
+
+# Tutti i test
+pnpm test
+```
+
+## 6. Eccezioni
+Le uniche eccezioni a questa rule sono:
+- Codice di setup/configurazione
+- Componenti UI (hanno regole separate)
+
+**Ricorda**: I test devono essere scritti **prima** di considerare completa l'implementazione di una nuova feature.
+---
+# Test Coverage Rule
+
+Per ogni nuova implementazione nel progetto, è **obbligatorio** creare i test corrispondenti:
+
+## 1. Nuove Entità (Database)
+Quando aggiungi una nuova tabella/entità in `prisma/schema.prisma`:
+
+### Obbligatorio creare:
+- **Schemi Zod** in `app/lib/actions/entity-zod-schemas.ts`
+  - `[nomeEntità]Schema`
+  - `create[NomeEntità]Schema`
+  - `update[NomeEntità]Schema`
+
+- **Server Actions** in `app/lib/actions/actions.ts`
+  - `create[NomeEntità]`
+  - `update[NomeEntità]`
+  - `delete[NomeEntità]`
+  - `get[NomeEntità]`
+  - `getAll[NomeEntità]`
+
+- **Test** in `test/actions.test.ts`
+  - Test per ogni operazione CRUD
+  - Test di validazione con schemi Zod
+  - Test di business logic specifici
+
+## 2. Nuove Funzioni Utils
+Quando aggiungi una funzione in `lib/utils.ts`:
+
+### Obbligatorio creare:
+- **Test** in `test/utils.test.ts`
+  - Test per input validi
+  - Test per edge cases
+  - Test per gestione errori
+  - Test per valori limite
+
+### Esempio:
+```typescript
+// lib/utils.ts
+export function calculateTax(amount: number): number { ... }
+
+// test/utils.test.ts
+describe('calculateTax', () => {
+  test('should calculate tax correctly', () => { ... });
+  test('should handle zero amount', () => { ... });
+  test('should throw error for negative amount', () => { ... });
+});
+```
+
+## 3. Nuove Server Actions
+Quando aggiungi una server action in `app/lib/actions/actions.ts`:
+
+### Obbligatorio creare:
+- **Test** in `test/actions.test.ts`
+  - Test per successo con dati validi
+  - Test per fallimento con dati invalidi
+  - Test per validazione Zod
+  - Test per business logic
+  - Test per gestione errori
+
+### Esempio:
+```typescript
+// app/lib/actions/actions.ts
+export async function createUser(data: CreateUserData) { ... }
+
+// test/actions.test.ts
+describe('createUser', () => {
+  test('should create user successfully', () => { ... });
+  test('should reject invalid email', () => { ... });
+  test('should handle duplicate email', () => { ... });
+});
+```
+
+## 4. Standard di Qualità
+
+### Coverage minimo richiesto:
+- **Entità**: 100% delle operazioni CRUD
+- **Utils**: 100% delle funzioni pubbliche
+- **Actions**: 100% delle server actions
+
+### Tipi di test obbligatori:
+- **Happy path**: Funzionamento normale
+- **Edge cases**: Valori limite, casi speciali
+- **Error handling**: Gestione errori
+- **Validation**: Test di validazione input
+
+### Struttura test:
+```typescript
+describe('[Nome Funzione/Entità]', () => {
+  test('should [comportamento atteso]', () => {
+    // Arrange
+    // Act  
+    // Assert
+  });
+});
+```
+
+## 5. Comando per Eseguire Test
+```bash
+# Test specifici
+pnpm run test-actions    # Test delle actions
+pnpm run test-utils      # Test delle utilities
+pnpm run test-validation # Test di validazione
+
+# Tutti i test
+pnpm test
+```
+
+## 6. Eccezioni
+Le uniche eccezioni a questa rule sono:
+- Codice di setup/configurazione
+- Componenti UI (hanno regole separate)
+
+**Ricorda**: I test devono essere scritti **prima** di considerare completa l'implementazione di una nuova feature.
+---

@@ -4,7 +4,7 @@
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 export type User = {
   id: string;
-  name: string;
+  name?: string;
   email: string;
   password: string;
 };
@@ -25,9 +25,9 @@ export interface Cliente extends Entity {
   cognome?: string;
   tel?: string;
   indirizzo?: string;
-  CAP?: string;
+  cap?: string;
   citta?: string;
-  CF?: string;
+  cf?: string;
   email: string;
   tipo?: 'PRIVATO' | 'AGENZIA VIAGGI' | 'AZIENDA';
   provenienza?: 'Passaparola' | 'Sito IWS' | 'Sito INO' | 'Telefono' | 'Email Diretta' | 'Sito ISE';

@@ -1,7 +1,6 @@
 // pages/api/check-client.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { DBResult} from '@/app/lib/actions/actions';
-import { fetchPreventiviByIdCliente } from '@/app/lib/data';
+import { DBResult, fetchPreventiviByIdCliente } from '@/app/lib/actions/actions';
 import { Preventivo } from '@/app/lib/definitions';
 
 // get preventivi by cliente

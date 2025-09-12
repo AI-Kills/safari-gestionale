@@ -1,222 +1,201 @@
 import { z } from "zod";
-import valuteValues from "@/app/seed/valute.json";
-import brandValues from "@/app/seed/brands.json";
-import typesValues from "@/app/seed/fondamental-entities-types.json";
 
-const valuteArray = valuteValues.valute;
-const brandArray = brandValues.brand;
-const typesArray = typesValues.types.map(type => type.tableName);
-
-export const FundamentalEntitySchema = z.object({
-  tableName: z.enum(typesArray as [string, ...string[]]),
-  value: z.string().min(1, { message: "Value is required" })
+// User schemas
+export const userSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  name: z.string().max(255, { message: "Nome troppo lungo" }).optional().nullable(),
+  email: z.string().email({ message: "Email non valida" }).max(255, { message: "Email troppo lunga" }),
+  password: z.string().min(6, { message: "Password deve essere di almeno 6 caratteri" }).max(255, { message: "Password troppo lunga" })
 });
 
-export const ClienteSchema = z.object({
-  email: z.string().email(),
-  nome: z.string().optional(),
-  cognome: z.string().optional(),
-  note: z.string().nullable().optional(),
-  tipo: z.string().nullable().optional(),
-  data_di_nascita: z.string().nullable().optional(),
-  indirizzo: z.string().nullable().optional(),
-  cap: z.string().nullable().optional(),
-  citta: z.string().nullable().optional(),
-  cf: z.string().nullable().optional(),
-  collegato: z.string().nullable().optional(),
-  tel: z.string().nullable().optional(),
-  provenienza: z.string().nullable().optional(),
-  luogo_nascita: z.string().nullable().optional(),
-  provincia_nascita: z.string().nullable().optional(),
-  numero_passaporto: z.string().nullable().optional(),
-  data_scadenza_passaporto: z.string().nullable().optional(),
-  nazionalita: z.string().nullable().optional(),
-  provincia: z.string().nullable().optional(),
-  sesso: z.string().nullable().optional(),
-});
-export const DestinazioneSchema = z.object({
-  nome: z.string().min(1, { message: "Nome is required" }),
-});
-export const PreventivoSchema = z.object({
-  id_cliente: z.string(),
-  percentuale_ricarico: z.number().nullable().optional(),
-  note: z.string().nullable().optional(),
-  brand: z.enum(brandArray as [string, ...string[]]),
-  riferimento: z.string().nullable().optional(),
-  operatore: z.string().nullable().optional(),
-  feedback: z.string().nullable().optional(),
-  adulti: z.number().nullable().optional(),
-  bambini: z.number().nullable().optional(),
-  data_partenza: z.string().nullable().optional(),
-  data: z.string().nullable().optional(),
-  numero_preventivo: z.string(),
-  stato: z.string().nullable().optional(),
-  tipo_viaggio: z.string().nullable().optional(),
-  destinazione: z.string().nullable().optional(),
-  note_operative: z.string().nullable().optional(),
-});
-export const UpdatePreventivoSchema = z.object({
-  id: z.string(),
-  note: z.string().nullable().optional(),
-  percentuale_ricarico: z.number().nullable().optional(),
-  brand: z.enum(brandArray as [string, ...string[]]),
-  riferimento: z.string().nullable().optional(),
-  operatore: z.string().nullable().optional(),
-  feedback: z.string().nullable().optional(),
-  adulti: z.number().nullable().optional(),
-  bambini: z.number().nullable().optional(),
-  data_partenza: z.string().nullable().optional(),
-  data: z.string().nullable().optional(),
-  stato: z.enum(['da fare', 'in trattativa', 'confermato', 'inviato']),
-  numero_preventivo: z.string().nullable(),
-  tipo_viaggio: z.string().nullable().optional(),
-  destinazione: z.string().nullable().optional(),
-  note_operative: z.string().nullable().optional(),
-});
-export const ServizioATerraSchema = z.object({
-  id_preventivo: z.string(),
-  id_fornitore: z.string().nullable().optional(),
-  id_destinazione: z.string().nullable().optional(),
-  descrizione: z.string().nullable().optional(),
-  data_partenza: z.string().nullable().optional(),
-  data: z.string().nullable().optional(),
-  numero_notti: z.number().optional(),
-  numero_camere: z.number().optional(),
-  totale: z.number().optional(),
-  valuta: z.enum(valuteArray as [string, ...string[]]).nullable().optional(),
-  cambio: z.number().optional(),
-  servizio_aggiuntivo: z.boolean(),
-});
-export const UpdateServizioATerraSchema = z.object({
-  id_fornitore: z.string().nullable().optional(),
-  id_destinazione: z.string().nullable().optional(),
-  descrizione: z.string().nullable().optional(),
-  data_partenza: z.string().nullable().optional(),
-  data: z.string().nullable().optional(),
-  numero_notti: z.number().optional(),
-  numero_camere: z.number().optional(),
-  totale: z.number().optional(),
-  valuta: z.enum(valuteArray as [string, ...string[]]).nullable().optional(),
-  cambio: z.number().optional(),
-  servizio_aggiuntivo: z.boolean(),
-});
-export const VoloSchema = z.object({
-  id_preventivo: z.string(),
-  id_fornitore: z.string().nullable().optional(),
-  compagnia_aerea: z.string().nullable().optional(),
-  descrizione: z.string().nullable().optional(),
-  data_partenza: z.string().nullable().optional(),
-  data_arrivo: z.string().nullable().optional(),
-  totale: z.number().optional(),
-  ricarico: z.number().optional(),
-  numero: z.number().optional(),
-  valuta: z.enum(valuteArray as [string, ...string[]]).nullable().optional(),
-  cambio: z.number().optional(),
-});
-export const UpdateVoloSchema = z.object({
-  id_fornitore: z.string().nullable().optional(),
-  compagnia_aerea: z.string().nullable().optional(),
-  descrizione: z.string().nullable().optional(),
-  data_partenza: z.string().nullable().optional(),
-  data_arrivo: z.string().nullable().optional(),
-  totale: z.number().optional(),
-  ricarico: z.number().optional(),
-  numero: z.number().optional(),
-  valuta: z.enum(valuteArray as [string, ...string[]]).nullable().optional(),
-  cambio: z.number().optional(),
-});
-export const AssicurazioneSchema = z.object({
-  id_preventivo: z.string(),
-  id_fornitore: z.string().nullable().optional(),
-  assicurazione: z.string().optional(),
-  netto: z.number().optional(),
-  ricarico: z.number().optional(),
-  numero: z.number().optional()
-});
-export const UpdateAssicurazioneSchema = z.object({
-  id_fornitore: z.string().nullable().optional(),
-  assicurazione: z.string().optional(),
-  netto: z.number().optional(),
-  ricarico: z.number().optional(),
-  numero: z.number().optional()
+export const createUserSchema = userSchema.omit({ id: true });
+export const updateUserSchema = userSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
 
+// Destinazione schemas
+export const destinazioneSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  nome: z.string().min(1, { message: "Il nome è obbligatorio" }).max(255, { message: "Nome troppo lungo" })
+});
 
-export const PreventivoAlClienteSchema = z.object({
-  id_preventivo: z.string(),
-  descrizione_viaggio: z.string().optional(),
+export const createDestinazioneSchema = destinazioneSchema.omit({ id: true });
+export const updateDestinazioneSchema = destinazioneSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
-export const PreventivoAlClienteRowSchema = z.object({
-  id_preventivo_al_cliente: z.string(),
-  senza_assicurazione: z.boolean(),
-  destinazione: z.string().optional(),
-  descrizione: z.string().optional(),
-  individuale: z.number().optional(),
-  numero: z.number().optional(),
+
+// Banca schemas
+export const bancaSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  nome: z.string().min(1, { message: "Il nome è obbligatorio" }).max(255, { message: "Nome troppo lungo" })
 });
-export const UpdatePreventivoAlClienteSchema = z.object({
-  id: z.string(),
-  descrizione_viaggio: z.string().optional(),
+
+export const createBancaSchema = bancaSchema.omit({ id: true });
+export const updateBancaSchema = bancaSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
-export const UpdatePreventivoAlClienteRowSchema = z.object({
-  id: z.string(),
-  id_preventivo_al_cliente: z.string(),
-  senza_assicurazione: z.boolean(),
-  destinazione: z.string().optional(),
-  descrizione: z.string().optional(),
-  individuale: z.number().optional(),
-  numero: z.number().optional(),
+
+// Cliente schemas
+export const clienteSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  nome: z.string().max(255, { message: "Nome troppo lungo" }).optional().nullable(),
+  cognome: z.string().max(255, { message: "Cognome troppo lungo" }).optional().nullable(),
+  tel: z.string().max(20, { message: "Telefono troppo lungo" }).optional().nullable(),
+  indirizzo: z.string().max(255, { message: "Indirizzo troppo lungo" }).optional().nullable(),
+  cap: z.string().max(10, { message: "CAP troppo lungo" }).optional().nullable(),
+  citta: z.string().max(255, { message: "Città troppo lunga" }).optional().nullable(),
+  cf: z.string().max(16, { message: "Codice fiscale troppo lungo" }).optional().nullable(),
+  email: z.string().email({ message: "Email non valida" }).max(255, { message: "Email troppo lunga" }),
+  tipo: z.string().max(20, { message: "Tipo troppo lungo" }).optional().nullable(),
+  provenienza: z.string().max(20, { message: "Provenienza troppo lunga" }).optional().nullable(),
+  collegato: z.string().max(255, { message: "Collegato troppo lungo" }).optional().nullable(),
+  note: z.string().optional().nullable(),
+  data_di_nascita: z.date({ message: "Data di nascita non valida" }).optional().nullable(),
+  luogo_nascita: z.string().max(255, { message: "Luogo di nascita troppo lungo" }).optional().nullable(),
+  provincia_nascita: z.string().max(2, { message: "Provincia di nascita deve essere 2 caratteri" }).optional().nullable(),
+  numero_passaporto: z.string().max(50, { message: "Numero passaporto troppo lungo" }).optional().nullable(),
+  data_scadenza_passaporto: z.date({ message: "Data scadenza passaporto non valida" }).optional().nullable(),
+  nazionalita: z.string().max(100, { message: "Nazionalità troppo lunga" }).optional().nullable(),
+  provincia: z.string().max(2, { message: "Provincia deve essere 2 caratteri" }).optional().nullable(),
+  sesso: z.string().max(1, { message: "Sesso deve essere 1 carattere" }).optional().nullable()
 });
-export const PartecipanteSchema = z.object({
-  id_preventivo: z.string(),
-  nome: z.string().optional(),
-  cognome: z.string().optional(),
-  tot_quota: z.number().optional(),
+
+export const createClienteSchema = clienteSchema.omit({ id: true }).extend({
+  email: z.string().email({ message: "Email non valida" }).max(255, { message: "Email troppo lunga" })
 });
-export const IncassoPartecipanteSchema = z.object({
-  id_partecipante: z.string(),
-  id_banca: z.string(),
-  data_scadenza: z.string().nullable().optional(),
-  data_incasso: z.string().nullable().optional(),
-  importo: z.number().optional(),
+export const updateClienteSchema = clienteSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
-export const PagamentoServiziATerraSchema = z.object({
-  id_servizio_a_terra: z.string(),
-  id_fornitore: z.string(),
-  id_banca: z.string(),
-  data_scadenza: z.string().nullable().optional(),
-  data_incasso: z.string().nullable().optional(),
-  importo: z.number().optional(),
+
+// Fornitore schemas
+export const fornitoreSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  nome: z.string().min(1, { message: "Il nome è obbligatorio" }).max(255, { message: "Nome troppo lungo" }),
+  valuta: z.string().max(10, { message: "Valuta troppo lunga" }).optional().nullable()
 });
-export const PagamentoVoliSchema = z.object({
-  id_volo: z.string(),
-  id_fornitore: z.string(),
-  id_banca: z.string(),
-  data_scadenza: z.string().nullable().optional(),
-  data_incasso: z.string().nullable().optional(),
-  importo: z.number().optional(),
+
+export const createFornitoreSchema = fornitoreSchema.omit({ id: true });
+export const updateFornitoreSchema = fornitoreSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
-export const PagamentoAssicurazioneSchema = z.object({
-  id_fornitore: z.string(),
-  id_assicurazione: z.string(),
-  id_banca: z.string(),
-  data_scadenza: z.string().nullable().optional(),
-  data_incasso: z.string().nullable().optional(),
-  importo: z.number().optional(),
+
+// Preventivo schemas
+export const preventivoSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_cliente: z.string().min(1, { message: "ID cliente è obbligatorio" }),
+  percentuale_ricarico: z.number().min(0, { message: "Percentuale ricarico deve essere positiva" }).optional().nullable(),
+  note: z.string().optional().nullable(),
+  brand: z.string().max(255, { message: "Brand troppo lungo" }).optional().nullable(),
+  adulti: z.number().int().min(0, { message: "Numero adulti deve essere positivo" }).optional().nullable(),
+  bambini: z.number().int().min(0, { message: "Numero bambini deve essere positivo" }).optional().nullable(),
+  destinazione: z.string().max(255, { message: "Destinazione troppo lunga" }).optional().nullable(),
+  tipo_viaggio: z.string().max(20, { message: "Tipo viaggio troppo lungo" }).optional().nullable(),
+  note_operative: z.string().optional().nullable(),
+  riferimento: z.string().max(255, { message: "Riferimento troppo lungo" }).optional().nullable(),
+  data_partenza: z.date({ message: "Data partenza non valida" }).optional().nullable(),
+  operatore: z.string().max(255, { message: "Operatore troppo lungo" }).optional().nullable(),
+  feedback: z.string().optional().nullable(),
+  stato: z.string().max(20, { message: "Stato troppo lungo" }).optional().nullable(),
+  data: z.date({ message: "Data non valida" }),
+  numero_preventivo: z.string().max(255, { message: "Numero preventivo troppo lungo" }).optional().nullable()
 });
-export const PraticaSchema = z.object({
-  id_cliente: z.string(),
-  id_preventivo: z.string(),
-  data_conferma: z.string().nullable().optional(),
-  data_partenza: z.string().nullable().optional(),
-  data_rientro: z.string().nullable().optional(),
-  note: z.string().optional(),
-  numero_passeggeri: z.number().optional()  ,
+
+export const createPreventivoSchema = preventivoSchema.omit({ id: true, data: true });
+export const updatePreventivoSchema = preventivoSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
-export const FornitoreSchema = z.object({
-  nome: z.string().min(1, { message: "Nome is required" }),
-  valuta: z.enum(valuteArray as [string, ...string[]]).nullable().optional(),
+
+// ServiziATerra schemas
+export const serviziATerraSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_preventivo: z.string().min(1, { message: "ID preventivo è obbligatorio" }),
+  id_fornitore: z.string().optional().nullable(),
+  id_destinazione: z.string().optional().nullable(),
+  descrizione: z.string().optional().nullable(),
+  data: z.date({ message: "Data non valida" }).optional().nullable(),
+  numero_notti: z.number().int().min(0, { message: "Numero notti deve essere positivo" }).optional().nullable(),
+  numero_camere: z.number().int().min(0, { message: "Numero camere deve essere positivo" }).optional().nullable(),
+  totale: z.number().min(0, { message: "Totale deve essere positivo" }).optional().nullable(),
+  valuta: z.string().max(10, { message: "Valuta troppo lunga" }).optional().nullable(),
+  cambio: z.number().min(0, { message: "Cambio deve essere positivo" }).optional().nullable(),
+  servizio_aggiuntivo: z.boolean().optional().nullable()
 });
-export const BancaSchema = z.object({
-  nome: z.string().min(1, { message: "Nome is required" }),
+
+export const createServiziATerraSchema = serviziATerraSchema.omit({ id: true });
+export const updateServiziATerraSchema = serviziATerraSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
+// Volo schemas
+export const voloSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_preventivo: z.string().min(1, { message: "ID preventivo è obbligatorio" }),
+  id_fornitore: z.string().optional().nullable(),
+  compagnia_aerea: z.string().max(255, { message: "Compagnia aerea troppo lunga" }).optional().nullable(),
+  descrizione: z.string().optional().nullable(),
+  data_partenza: z.date({ message: "Data partenza non valida" }).optional().nullable(),
+  data_arrivo: z.date({ message: "Data arrivo non valida" }).optional().nullable(),
+  totale: z.number().min(0, { message: "Totale deve essere positivo" }).optional().nullable(),
+  ricarico: z.number().min(0, { message: "Ricarico deve essere positivo" }).optional().nullable(),
+  numero: z.number().int().min(0, { message: "Numero deve essere positivo" }).optional().nullable(),
+  valuta: z.string().max(10, { message: "Valuta troppo lunga" }).optional().nullable(),
+  cambio: z.number().min(0, { message: "Cambio deve essere positivo" }).optional().nullable()
+});
+
+export const createVoloSchema = voloSchema.omit({ id: true });
+export const updateVoloSchema = voloSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
+// Assicurazione schemas
+export const assicurazioneSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_preventivo: z.string().min(1, { message: "ID preventivo è obbligatorio" }),
+  id_fornitore: z.string().optional().nullable(),
+  assicurazione: z.string().max(255, { message: "Assicurazione troppo lunga" }).optional().nullable(),
+  netto: z.number().min(0, { message: "Netto deve essere positivo" }).optional().nullable(),
+  ricarico: z.number().min(0, { message: "Ricarico deve essere positivo" }).optional().nullable(),
+  numero: z.number().int().min(0, { message: "Numero deve essere positivo" }).optional().nullable()
+});
+
+export const createAssicurazioneSchema = assicurazioneSchema.omit({ id: true });
+export const updateAssicurazioneSchema = assicurazioneSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
+// PreventivoAlCliente schemas
+export const preventivoAlClienteSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_preventivo: z.string().optional().nullable(),
+  descrizione_viaggio: z.string().optional().nullable()
+});
+
+export const createPreventivoAlClienteSchema = preventivoAlClienteSchema.omit({ id: true });
+export const updatePreventivoAlClienteSchema = preventivoAlClienteSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
+// PreventivoAlClienteRow schemas
+export const preventivoAlClienteRowSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_preventivo_al_cliente: z.string().min(1, { message: "ID preventivo al cliente è obbligatorio" }),
+  senza_assicurazione: z.boolean().optional().nullable(),
+  destinazione: z.string().max(255, { message: "Destinazione troppo lunga" }).optional().nullable(),
+  descrizione: z.string().optional().nullable(),
+  individuale: z.number().min(0, { message: "Individuale deve essere positivo" }).optional().nullable(),
+  numero: z.number().int().min(0, { message: "Numero deve essere positivo" }).optional().nullable()
+});
+
+export const createPreventivoAlClienteRowSchema = preventivoAlClienteRowSchema.omit({ id: true });
+export const updatePreventivoAlClienteRowSchema = preventivoAlClienteRowSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
+// Combined schemas for complex operations
+export const preventivoCompletoSchema = preventivoSchema.extend({
+  cliente: clienteSchema,
+  serviziATerra: z.array(serviziATerraSchema),
+  voli: z.array(voloSchema),
+  assicurazioni: z.array(assicurazioneSchema),
+  preventiviAlCliente: z.array(preventivoAlClienteSchema)
 });

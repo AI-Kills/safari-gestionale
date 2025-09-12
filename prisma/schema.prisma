@@ -1,0 +1,295 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name     String? @db.VarChar(255)
+  email    String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+
+  @@map("users")
+}
+
+model Destinazione {
+  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome          String          @unique @db.VarChar(255)
+  serviziATerra ServiziATerra[]
+
+  @@map("destinazioni")
+}
+
+model Banca {
+  id                        String                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome                      String                      @unique @db.VarChar(255)
+  incassi_partecipanti      incassi_partecipanti[]
+  pagamenti_assicurazioni   pagamenti_assicurazioni[]
+  pagamenti_servizi_a_terra pagamenti_servizi_a_terra[]
+  pagamenti_voli            pagamenti_voli[]
+
+  @@map("banche")
+}
+
+model Cliente {
+  id                        String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome                      String?      @db.VarChar(255)
+  cognome                   String?      @db.VarChar(255)
+  tel                       String?      @db.VarChar(20)
+  indirizzo                 String?      @db.VarChar(255)
+  cap                       String?      @db.VarChar(10)
+  citta                     String?      @db.VarChar(255)
+  cf                        String?      @db.VarChar(16)
+  email                     String       @unique @db.VarChar(255)
+  tipo                      String?      @db.VarChar(20)
+  provenienza               String?      @db.VarChar(20)
+  collegato                 String?      @db.VarChar(255)
+  note                      String?
+  data_di_nascita           DateTime?    @db.Date
+  luogo_nascita             String?      @db.VarChar(255)
+  provincia_nascita         String?      @db.VarChar(2)
+  numero_passaporto         String?      @db.VarChar(50)
+  data_scadenza_passaporto  DateTime?    @db.Date
+  nazionalita               String?      @db.VarChar(100)
+  provincia                 String?      @db.VarChar(2)
+  sesso                     String?      @db.VarChar(1)
+  pratiche                  pratiche[]
+  preventivi                Preventivo[]
+
+  @@map("clienti")
+}
+
+model Fornitore {
+  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome          String          @unique @db.VarChar(255)
+  valuta        String?         @db.VarChar(10)
+  assicurazioni Assicurazione[]
+  serviziATerra ServiziATerra[]
+  voli          Volo[]
+
+  @@map("fornitori")
+}
+
+model Preventivo {
+  id                   String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_cliente           String                @db.Uuid
+  percentuale_ricarico Float?
+  note                 String?
+  brand                String?               @db.VarChar(255)
+  adulti               Int?
+  bambini              Int?
+  riferimento          String?               @db.VarChar(255)
+  data_partenza        DateTime?             @db.Date
+  operatore            String?               @db.VarChar(255)
+  feedback             String?
+  stato                String?               @db.VarChar(20)
+  data                 DateTime?             @default(now()) @db.Timestamp(6)
+  numero_preventivo    String?               @unique @db.VarChar(255)
+  assicurazioni        Assicurazione[]
+  partecipanti         partecipanti[]
+  pratiche             pratiche[]
+  cliente              Cliente               @relation(fields: [id_cliente], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  preventiviAlCliente  PreventivoAlCliente[]
+  serviziATerra        ServiziATerra[]
+  voli                 Volo[]
+
+  @@map("preventivi")
+}
+
+model ServiziATerra {
+  id                        String                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_preventivo             String                      @db.Uuid
+  id_fornitore              String?                     @db.Uuid
+  id_destinazione           String?                     @db.Uuid
+  descrizione               String?
+  data                      DateTime?                   @db.Date
+  numero_notti              Int?
+  numero_camere             Int?
+  totale                    Float?
+  valuta                    String?                     @db.VarChar(10)
+  cambio                    Float?
+  servizio_aggiuntivo       Boolean?
+  pagamenti_servizi_a_terra pagamenti_servizi_a_terra[]
+  destinazione              Destinazione?               @relation(fields: [id_destinazione], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fornitore                 Fornitore?                  @relation(fields: [id_fornitore], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  preventivo                Preventivo                  @relation(fields: [id_preventivo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("servizi_a_terra")
+}
+
+model Volo {
+  id              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_preventivo   String           @db.Uuid
+  id_fornitore    String?          @db.Uuid
+  compagnia_aerea String?          @db.VarChar(255)
+  descrizione     String?
+  data_partenza   DateTime?        @db.Date
+  data_arrivo     DateTime?        @db.Date
+  totale          Float?
+  ricarico        Float?
+  numero          Int?
+  valuta          String?          @db.VarChar(10)
+  cambio          Float?
+  pagamenti_voli  pagamenti_voli[]
+  fornitore       Fornitore?       @relation(fields: [id_fornitore], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  preventivo      Preventivo       @relation(fields: [id_preventivo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("voli")
+}
+
+model Assicurazione {
+  id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_preventivo           String                    @db.Uuid
+  id_fornitore            String?                   @db.Uuid
+  assicurazione           String?                   @db.VarChar(255)
+  netto                   Float?
+  ricarico                Float?
+  numero                  Int?
+  fornitore               Fornitore?                @relation(fields: [id_fornitore], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  preventivo              Preventivo                @relation(fields: [id_preventivo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pagamenti_assicurazioni pagamenti_assicurazioni[]
+
+  @@map("assicurazioni")
+}
+
+model PreventivoAlCliente {
+  id                  String                   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_preventivo       String?                  @db.Uuid
+  descrizione_viaggio String?
+  preventivo          Preventivo?              @relation(fields: [id_preventivo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rows                PreventivoAlClienteRow[]
+
+  @@map("preventivi_al_cliente")
+}
+
+model PreventivoAlClienteRow {
+  id                       String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_preventivo_al_cliente String              @db.Uuid
+  senza_assicurazione      Boolean?
+  destinazione             String?             @db.VarChar(255)
+  descrizione              String?
+  individuale              Float?
+  numero                   Int?
+  preventivoAlCliente      PreventivoAlCliente @relation(fields: [id_preventivo_al_cliente], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("preventivi_al_cliente_row")
+}
+
+model blog_article_comments {
+  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  article_id   String    @db.Uuid
+  user_id      String    @db.Uuid
+  content      String
+  date_created DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model blog_articles_ai {
+  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title        String    @db.VarChar(255)
+  content      String
+  date_created DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model customers {
+  id        String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String @db.VarChar(255)
+  email     String @db.VarChar(255)
+  image_url String @db.VarChar(255)
+}
+
+model incassi_partecipanti {
+  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_partecipante String       @db.Uuid
+  id_banca        String?      @db.Uuid
+  importo         Float?
+  data_scadenza   DateTime?    @db.Date
+  data_incasso    DateTime?    @db.Date
+  banche          Banca?       @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  partecipanti    partecipanti @relation(fields: [id_partecipante], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model invoices {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  customer_id String   @db.Uuid
+  amount      Int
+  status      String   @db.VarChar(255)
+  date        DateTime @db.Date
+}
+
+model pagamenti_assicurazioni {
+  id               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_assicurazione String        @db.Uuid
+  id_banca         String?       @db.Uuid
+  importo          Float?
+  data_scadenza    DateTime?     @db.Date
+  data_incasso     DateTime?     @db.Date
+  assicurazioni    Assicurazione @relation(fields: [id_assicurazione], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  banche           Banca?        @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model pagamenti_servizi_a_terra {
+  id                  String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_servizio_a_terra String        @db.Uuid
+  id_banca            String?       @db.Uuid
+  importo             Float?
+  data_scadenza       DateTime?     @db.Date
+  data_incasso        DateTime?     @db.Date
+  banche              Banca?        @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  servizi_a_terra     ServiziATerra @relation(fields: [id_servizio_a_terra], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model pagamenti_voli {
+  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_volo       String    @db.Uuid
+  id_banca      String?   @db.Uuid
+  importo       Float?
+  data_scadenza DateTime? @db.Date
+  data_incasso  DateTime? @db.Date
+  banche        Banca?    @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  voli          Volo      @relation(fields: [id_volo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model partecipanti {
+  id                   String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_preventivo        String                 @db.Uuid
+  nome                 String?                @db.VarChar(255)
+  cognome              String?                @db.VarChar(255)
+  tot_quota            Float?
+  incassi_partecipanti incassi_partecipanti[]
+  preventivi           Preventivo             @relation(fields: [id_preventivo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model pratiche {
+  id                String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_preventivo     String     @db.Uuid
+  id_cliente        String?    @db.Uuid
+  data_conferma     DateTime?  @db.Date
+  data_partenza     DateTime?  @db.Date
+  data_rientro      DateTime?  @db.Date
+  note              String?
+  numero_passeggeri Int?
+  totale            Float?
+  clienti           Cliente?   @relation(fields: [id_cliente], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  preventivi        Preventivo @relation(fields: [id_preventivo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model preventivi_mostrare_clienti {
+  id                String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_preventivo     String  @db.Uuid
+  id_destinazione   String  @db.Uuid
+  descrizione       String?
+  tipo              String? @db.VarChar(50)
+  costo_individuale Float?
+  importo_vendita   Float?
+  totale            Float?
+}
+
+model revenue {
+  month   String @unique @db.VarChar(4)
+  revenue Int
+}

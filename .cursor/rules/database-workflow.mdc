@@ -1,0 +1,55 @@
+---
+description: Workflow automatico per creare nuove tabelle quando il messaggio inizia con db_
+globs: 
+alwaysApply: true
+---
+
+# Database Workflow Rule
+
+Quando un messaggio dell'utente inizia con `db_` seguito dalla descrizione di una nuova tabella, esegui automaticamente il seguente workflow:
+
+## 1. Schema Prisma
+- Aggiungere la nuova tabella al file `prisma/schema.prisma`
+- Usare convenzioni standard:
+  - ID: `String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid`
+  - Campi stringa: `@db.VarChar(255)` per default
+  - Campi decimali: `@db.Decimal(10, 2)` per importi
+  - Date: `@db.Timestamp(6)`
+
+Attenzione: se l'utente non specifica di creare nuove tabelle, il prisma.schema non va
+modificato, in quanto il prisma.schema é la fonte unica di verita; 
+piuttosto modifichiamo il resto del codice del progetto di modo da essere sicuri
+che rispecchi il prisma.schema!
+
+## 2. Database Update
+- Eseguire `pnpm prisma migrate dev --name add_[nome_tabella]` per creare la migrazione
+- Eseguire `pnpm prisma generate` per rigenerare il client
+
+## 3. Schemi Zod
+- Implementare gli schemi zod nel file `app/lib/actions/entity-zod-schemas.ts`
+- Creare: `[nomeTabella]Schema`, `create[NomeTabella]Schema`, `update[NomeTabella]Schema`
+- Includere validazioni appropriate per ogni campo
+
+## 4. Server Actions
+- Implementare le operazioni CRUD base nel file `app/lib/actions/actions.ts`:
+  - `create[NomeTabella]`
+  - `update[NomeTabella]`
+  - `delete[NomeTabella]`
+  - `get[NomeTabella]`
+  - `getAll[NomeTabella]`
+
+## 5. Test
+- Implementare i test relativi alle actions nel file `test/actions.test.ts`
+- Includere test per:
+  - Creazione valida/invalida
+  - Aggiornamento valido/invalido
+  - Eliminazione
+  - Recupero dati
+  - Validazione schemi zod
+
+## Esempio di utilizzo:
+```
+User: db_ crea tabella categorie con id, nome, descrizione, attiva (boolean)
+```
+
+Il sistema dovrebbe automaticamente creare la tabella, schemi, actions e test seguendo questo workflow.
