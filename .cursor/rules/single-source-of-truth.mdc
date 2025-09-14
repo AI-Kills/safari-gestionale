@@ -1,0 +1,313 @@
+# 🎯 SINGLE SOURCE OF TRUTH - PRISMA SCHEMA
+
+## ⚡ PRINCIPIO FONDAMENTALE
+
+**IL PRISMA SCHEMA È L'UNICA FONTE DI VERITÀ**
+
+```
+prisma/schema.prisma → TUTTO IL RESTO
+```
+
+**NESSUNA MODIFICA** a types, actions, zod schemas o UI può essere fatta senza prima verificare e allineare il Prisma Schema.
+
+## 🔄 CATENA DI SINCRONIZZAZIONE OBBLIGATORIA
+
+### **1. PRISMA SCHEMA** (Fonte di Verità)
+```prisma
+// prisma/schema.prisma
+model Cliente {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome     String? @db.VarChar(255)
+  email    String @unique @db.VarChar(255)
+  // ... altri campi
+}
+```
+
+### **2. DEFINITIONS** (Riflette Schema)
+```typescript
+// app/lib/definitions.ts
+export type Cliente = {
+  id: string;
+  nome?: string | null;
+  email: string;
+  // ... deve rispecchiare ESATTAMENTE il schema Prisma
+}
+```
+
+### **3. ZOD SCHEMAS** (Validazione Allineata)
+```typescript
+// app/lib/actions/entity-zod-schemas.ts
+export const clienteSchema = z.object({
+  id: z.string().min(1),
+  nome: z.string().max(255).optional().nullable(),
+  email: z.string().email().max(255),
+  // ... DEVE essere allineato con Prisma Schema
+});
+```
+
+### **4. ACTIONS** (Operazioni Sicure)
+```typescript
+// app/lib/actions/clienti/clienti-actions.ts
+export async function createCliente(data: any): Promise<ApiResponse<ClienteType>> {
+  // Usa Zod Schema che è allineato con Prisma
+  const validatedData = createClienteSchema.safeParse(parsedData);
+  // Usa Prisma che è la fonte di verità
+  const cliente = await prisma.cliente.create({ data: validatedData.data });
+}
+```
+
+### **5. UI PAGES** (Consuma Actions Sicure)
+```typescript
+// app/dashboard/(overview)/clienti-table/page.tsx
+// Usa solo actions che sono allineate con il schema
+const clienti = await getAllClienti(); // ✅ Sicuro
+```
+
+## 🚨 PROCESSO DI MODIFICA OBBLIGATORIO
+
+### **QUANDO MODIFICHI IL DATABASE:**
+
+#### **Passo 1: Modifica Prisma Schema**
+```bash
+# 1. Modifica prisma/schema.prisma
+# 2. Crea migrazione
+pnpm prisma migrate dev --name descrizione_modifica
+# 3. Genera client
+pnpm prisma generate
+```
+
+#### **Passo 2: Aggiorna Definitions**
+```typescript
+// app/lib/definitions.ts
+// Aggiorna i types TypeScript per riflettere le modifiche del schema
+export type NuovaEntita = {
+  // ... campi che rispecchiano ESATTAMENTE il Prisma Schema
+}
+```
+
+#### **Passo 3: Aggiorna Zod Schemas**
+```typescript
+// app/lib/actions/entity-zod-schemas.ts
+export const nuovaEntitaSchema = z.object({
+  // ... validazione allineata con Prisma Schema
+});
+
+export const createNuovaEntitaSchema = nuovaEntitaSchema.omit({ id: true });
+export const updateNuovaEntitaSchema = nuovaEntitaSchema.partial().extend({
+  id: z.string().min(1)
+});
+```
+
+#### **Passo 4: Implementa/Aggiorna Actions**
+```typescript
+// app/lib/actions/[entita]/[entita]-actions.ts
+// Implementa CRUD completo usando i nuovi schemi
+export async function createNuovaEntita(data: any) { /* ... */ }
+export async function getAllNuovaEntita() { /* ... */ }
+// ... etc
+```
+
+#### **Passo 5: Aggiorna Export Index**
+```typescript
+// app/lib/actions/index.ts
+export * from './[entita]/[entita]-actions';
+```
+
+#### **Passo 6: Scrivi Test**
+```typescript
+// test/actions.test.ts
+describe('NuovaEntita Actions', () => {
+  // Test per ogni operazione CRUD
+});
+```
+
+#### **Passo 7: Aggiorna UI**
+```typescript
+// Solo DOPO che tutto è allineato, aggiorna le pagine
+// Usa SOLO le actions che sono sincronizzate
+```
+
+## 🔍 CHECKLIST DI VERIFICA OBBLIGATORIA
+
+### **Prima di ogni commit, verifica:**
+
+#### **✅ Schema Alignment Check**
+```bash
+# Verifica che il database sia aggiornato
+pnpm prisma db push --preview-feature
+# Verifica che il client sia generato
+pnpm prisma generate
+```
+
+#### **✅ Types Alignment Check**
+```typescript
+// app/lib/definitions.ts
+// Ogni type deve rispecchiare esattamente il Prisma Schema
+// Nullable fields: string | null (non string | undefined)
+// Required fields: string (non string | undefined)
+```
+
+#### **✅ Zod Alignment Check**
+```typescript
+// app/lib/actions/entity-zod-schemas.ts
+// Ogni schema deve validare esattamente i campi del Prisma Schema
+// .optional().nullable() per campi nullable
+// .min(1) per campi required
+// .max(255) per VarChar(255)
+```
+
+#### **✅ Actions Alignment Check**
+```typescript
+// Ogni action deve:
+// 1. Usare gli schemi Zod corretti
+// 2. Operare sui modelli Prisma corretti
+// 3. Restituire i types corretti da definitions.ts
+```
+
+#### **✅ Test Alignment Check**
+```bash
+# Tutti i test devono passare
+pnpm test
+```
+
+## 🚫 COSA NON FARE MAI
+
+### **❌ MODIFICHE FUORI SEQUENZA**
+```typescript
+// ❌ MAI fare questo
+export type Cliente = {
+  id: string;
+  nuovoCampo: string; // Aggiunto senza modificare Prisma Schema
+}
+
+// ❌ MAI fare questo
+export const clienteSchema = z.object({
+  email: z.string().max(500) // Diverso dal VarChar(255) nel Prisma Schema
+});
+```
+
+### **❌ BYPASS DELLA VALIDAZIONE**
+```typescript
+// ❌ MAI fare questo
+const cliente = await prisma.cliente.create({
+  data: rawData // Senza validazione Zod
+});
+```
+
+### **❌ MODIFICHE DIRETTE AL DATABASE**
+```sql
+-- ❌ MAI fare modifiche dirette al DB senza Prisma
+ALTER TABLE clienti ADD COLUMN nuovo_campo VARCHAR(255);
+```
+
+## 🔧 STRUMENTI DI VERIFICA
+
+### **Script di Controllo Sincronizzazione**
+```bash
+# Aggiungi questo script in package.json
+"scripts": {
+  "check-sync": "pnpm prisma validate && pnpm type-check && pnpm test"
+}
+```
+
+### **Pre-commit Hook Suggerito**
+```bash
+# Verifica automatica prima di ogni commit
+#!/bin/sh
+pnpm prisma validate
+pnpm type-check
+pnpm test-validation
+```
+
+## 📋 TEMPLATE PER NUOVE ENTITÀ
+
+### **1. Definisci in Prisma Schema**
+```prisma
+model NuovaEntita {
+  id    String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome  String @db.VarChar(255)
+  // ... altri campi
+  
+  @@map("nuova_entita")
+}
+```
+
+### **2. Migrazione e Generazione**
+```bash
+pnpm prisma migrate dev --name add_nuova_entita
+pnpm prisma generate
+```
+
+### **3. Definitions**
+```typescript
+export type NuovaEntita = {
+  id: string;
+  nome: string;
+  // ... rispecchia esattamente Prisma
+}
+```
+
+### **4. Zod Schemas**
+```typescript
+export const nuovaEntitaSchema = z.object({
+  id: z.string().min(1),
+  nome: z.string().min(1).max(255),
+});
+
+export const createNuovaEntitaSchema = nuovaEntitaSchema.omit({ id: true });
+export const updateNuovaEntitaSchema = nuovaEntitaSchema.partial().extend({
+  id: z.string().min(1)
+});
+```
+
+### **5. Actions Complete**
+```typescript
+// Implementa tutti i CRUD seguendo il template standard
+```
+
+### **6. Test**
+```typescript
+// Test per ogni operazione
+```
+
+### **7. UI Integration**
+```typescript
+// Solo dopo che tutto è sincronizzato
+```
+
+## ⚠️ SEGNALI DI ALLARME
+
+### **🔴 Errori che indicano disallineamento:**
+- Type errors su operations Prisma
+- Errori di validazione Zod inaspettati
+- Test che falliscono senza motivo apparente
+- Dati che non si salvano correttamente
+
+### **🔴 Quando sospettare disallineamento:**
+- Dopo pull di modifiche da altri sviluppatori
+- Dopo modifiche manuali al database
+- Quando i tipi TypeScript non matchano i dati effettivi
+- Quando le validazioni Zod falliscono su dati validi
+
+## 💡 REGOLA D'ORO
+
+**"Se non è nel Prisma Schema, non esiste nell'applicazione"**
+
+**"Se è nel Prisma Schema, deve essere riflesso ovunque"**
+
+**"Ogni modifica inizia dal Prisma Schema e si propaga in cascata"**
+
+## 🎯 RESPONSABILITÀ
+
+- **Developer**: Seguire sempre la catena di sincronizzazione
+- **Code Review**: Verificare allineamento prima di merge
+- **CI/CD**: Includere controlli di sincronizzazione
+- **Testing**: Validare integrità end-to-end
+
+---
+
+**RICORDA: Il Prisma Schema è il contratto tra la tua applicazione e il database. Rispettalo sempre! 🎯**
+description:
+globs:
+alwaysApply: true
+---

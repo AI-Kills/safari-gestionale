@@ -1,0 +1,204 @@
+name: Simple Database Backup
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Ogni giorno alle 2:00 AM UTC
+  workflow_dispatch:  # Permette esecuzione manuale
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # Necessario per Workload Identity Federation
+    steps:
+      - name: Install PostgreSQL client
+        run: |
+          echo "🔧 Installing PostgreSQL 17 client..."
+          
+          # Rimuovi eventuali versioni precedenti
+          sudo apt-get remove -y postgresql-client postgresql-client-* || true
+          
+          # Aggiungi repository PostgreSQL ufficiale
+          sudo apt-get update
+          sudo apt-get install -y wget ca-certificates lsb-release
+          
+          # Aggiungi la chiave GPG (metodo moderno)
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg
+          
+          # Aggiungi repository (con keyring specificato)
+          echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          
+          # Aggiorna e installa PostgreSQL 17 client
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          
+          # Verifica installazione
+          echo "🔍 Verificando installazione..."
+          which pg_dump
+          which psql
+          ls -la /usr/bin/pg_dump* || echo "No pg_dump found in /usr/bin/"
+          ls -la /usr/lib/postgresql/*/bin/pg_dump* || echo "No pg_dump found in postgresql dirs"
+          
+          # Forza l'uso della versione 17
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+          echo "PATH aggiornato: $PATH"
+          
+          # Verifica versioni finali
+          echo "✅ PostgreSQL client installed"
+          /usr/lib/postgresql/17/bin/pg_dump --version || pg_dump --version
+          /usr/lib/postgresql/17/bin/psql --version || psql --version
+          
+      - name: Debug - Before Authentication
+        run: |
+          echo "🔍 === DEBUG PRIMA AUTENTICAZIONE ==="
+          echo "Checking if gcloud is available..."
+          which gcloud || echo "gcloud not found"
+          echo "Checking environment variables..."
+          env | grep -E "(GOOGLE|GCLOUD)" || echo "No Google env vars found"
+          echo "=================================="
+          
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/38695026311/locations/global/workloadIdentityPools/github-pool/attribute.repository/AI-Kills/safari-gestionale
+          service_account: db-backup-agent@impronte-safari.iam.gserviceaccount.com
+          
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        
+      - name: Configure gcloud and test access
+        run: |
+          echo "🔧 === CONFIGURAZIONE GCLOUD ==="
+          
+          # Configura il progetto
+          gcloud config set project impronte-safari
+          
+          # Verifica autenticazione
+          echo "Current auth account:"
+          gcloud auth list --filter=status:ACTIVE --format="value(account)"
+          
+          # Test accesso al progetto
+          echo "Testing project access..."
+          gcloud projects describe impronte-safari --format="value(projectId)"
+          
+          # Configura gsutil per usare gcloud auth
+          gcloud config set pass_credentials_to_gsutil true
+          
+          # Test accesso bucket
+          echo "Testing bucket access..."
+          gsutil ls gs://safari-backups/ || echo "Bucket access test failed"
+          
+          echo "✅ gcloud configuration completed"
+          echo "=================================="
+          
+      - name: Debug - After Authentication
+        run: |
+          echo "🔍 === DEBUG DOPO AUTENTICAZIONE ==="
+          echo "Checking gcloud auth..."
+          gcloud auth list || echo "gcloud auth list failed"
+          echo "Checking gcloud config..."
+          gcloud config list || echo "gcloud config list failed"
+          echo "Testing gcloud access..."
+          gcloud projects describe impronte-safari || echo "Project access failed"
+          echo "=================================="
+        
+      - name: Debug - Database Connection Test
+        env:
+          PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
+        run: |
+          echo "🔍 === DEBUG TEST CONNESSIONE DATABASE ==="
+          
+          # Assicurati di usare PostgreSQL 17
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+          
+          if [ -z "$PROD_DB_URL" ]; then
+            echo "❌ PROD_DB_URL is empty or not set!"
+            exit 1
+          else
+            echo "✅ PROD_DB_URL is set (length: ${#PROD_DB_URL})"
+          fi
+          
+          echo "Testing database connection with PostgreSQL 17..."
+          echo "Using pg_isready: $(which pg_isready)"
+          pg_isready --version
+          pg_isready -d "$PROD_DB_URL" || echo "pg_isready failed"
+          
+          echo "Testing simple query..."
+          echo "Using psql: $(which psql)"
+          psql --version
+          psql "$PROD_DB_URL" -c "SELECT version();" || echo "Simple query failed"
+          echo "=================================="
+        
+      - name: Create database backup
+        env:
+          PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
+        run: |
+          echo "🔄 Creating database backup..."
+          
+          # Forza l'uso di PostgreSQL 17
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+          
+          # Verifica che tutte le variabili siano settate
+          if [ -z "$PROD_DB_URL" ]; then
+            echo "❌ PROD_DB_URL not set!"
+            exit 1
+          fi
+          
+          # Verifica versione pg_dump prima dell'uso
+          echo "🔍 Verificando pg_dump..."
+          echo "Using pg_dump: $(which pg_dump)"
+          pg_dump --version
+          
+          # Crea backup con timestamp
+          TIMESTAMP=$(date +"%Y-%m-%dT%H-%M-%S")
+          BACKUP_FILE="db-backup-${TIMESTAMP}.sql"
+          
+          echo "📝 Backup file: $BACKUP_FILE"
+          echo "📦 Running pg_dump..."
+          
+          # Esegui pg_dump con output dettagliato
+          if pg_dump "$PROD_DB_URL" > "$BACKUP_FILE" 2>&1; then
+            echo "✅ pg_dump completed successfully"
+          else
+            echo "❌ pg_dump failed!"
+            echo "Error output:"
+            cat "$BACKUP_FILE" || echo "No error file found"
+            exit 1
+          fi
+          
+          # Verifica che il file sia stato creato e non sia vuoto
+          if [ -f "$BACKUP_FILE" ]; then
+            FILESIZE=$(stat -f%z "$BACKUP_FILE" 2>/dev/null || stat -c%s "$BACKUP_FILE" 2>/dev/null || echo "0")
+            echo "📊 Backup file size: $FILESIZE bytes"
+            
+            if [ "$FILESIZE" -gt 100 ]; then
+              echo "✅ Backup file created successfully"
+            else
+              echo "❌ Backup file too small, probably failed"
+              echo "File contents:"
+              head -20 "$BACKUP_FILE" || echo "Cannot read file"
+              exit 1
+            fi
+          else
+            echo "❌ Backup file not created!"
+            exit 1
+          fi
+          
+          # Verifica credenziali prima dell'upload
+          echo "🔍 Verificando credenziali per upload..."
+          gcloud auth list --filter=status:ACTIVE --format="value(account)"
+          
+          echo "☁️ Uploading to Google Cloud Storage..."
+          if gsutil cp "$BACKUP_FILE" "gs://safari-backups/"; then
+            echo "✅ Upload completed successfully"
+          else
+            echo "❌ Upload failed!"
+            echo "Trying alternative upload method..."
+            gcloud storage cp "$BACKUP_FILE" "gs://safari-backups/" && echo "✅ Alternative upload successful" || exit 1
+          fi
+          
+          echo "✅ Backup completed: gs://safari-backups/$BACKUP_FILE"
+          
+          # Verifica upload
+          echo "🔍 Verifying upload..."
+          gsutil ls "gs://safari-backups/$BACKUP_FILE" && echo "✅ File verified on GCS"

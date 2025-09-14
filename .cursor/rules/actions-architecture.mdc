@@ -1,0 +1,349 @@
+# Actions Architecture - Server Actions con Prisma e Zod
+
+## 📁 Struttura Directory Actions
+
+```
+app/lib/actions/
+├── actions.ts                    # Entry point per backward compatibility
+├── index.ts                      # Re-export di tutte le funzioni
+├── entity-zod-schemas.ts         # Tutti gli schemi Zod per validazione
+├── api-layer.ts                  # Servizi CRUD generici
+├── data-transformers.ts          # Trasformatori per UI InputGroups
+├── utils/
+│   ├── types.ts                  # Tipi TypeScript condivisi
+│   ├── helpers.ts                # Utility functions (Prisma, validazione)
+│   └── general-utils.ts          # Utility generali per entità
+├── auth/
+│   └── auth-actions.ts           # Autenticazione e gestione utenti
+├── clienti/
+│   └── clienti-actions.ts        # CRUD clienti
+├── preventivi/
+│   ├── preventivi-actions.ts     # CRUD preventivi principali
+│   └── preventivi-al-cliente-actions.ts # Gestione preventivi per cliente
+├── fornitori/
+│   └── fornitori-actions.ts      # CRUD fornitori
+├── destinazioni/
+│   └── destinazioni-actions.ts   # CRUD destinazioni
+├── servizi-a-terra/
+│   └── servizi-a-terra-actions.ts # CRUD servizi a terra
+├── voli/
+│   └── voli-actions.ts           # CRUD voli
+└── assicurazioni/
+    └── assicurazioni-actions.ts  # CRUD assicurazioni
+```
+
+## 🔧 Principi Architetturali
+
+### 1. **Separazione per Entità**
+- Ogni entità del database ha la sua directory dedicata
+- Un file actions per entità con tutte le operazioni CRUD
+- Nomi consistenti: `[entità]-actions.ts`
+
+### 2. **Triplo Layer di Sicurezza**
+```typescript
+// 1. Validazione Zod
+const validatedData = createClienteSchema.safeParse(parsedData);
+// 2. Prisma Type Safety
+const cliente = await prisma.cliente.create({ data: validatedData.data });
+// 3. Error Handling
+catch (error) { return handlePrismaError(error); }
+```
+
+### 3. **Server Actions Only**
+```typescript
+"use server"; // Sempre all'inizio di ogni file actions
+```
+
+## 📋 Pattern Standard per Actions
+
+### **Template Base per Nuove Entità**
+
+```typescript
+"use server";
+
+import { revalidatePath } from 'next/cache';
+import type { [Entità] as [Entità]Type } from '../../definitions';
+import { prisma, handleValidationErrors, handlePrismaError, parseFormDates } from '../utils/helpers';
+import type { ApiResponse, DBResult } from '../utils/types';
+import { [entità]Schema, create[Entità]Schema, update[Entità]Schema } from '../entity-zod-schemas';
+
+// CREATE
+export async function create[Entità](data: any): Promise<ApiResponse<[Entità]Type>> {
+  try {
+    const parsedData = parseFormDates(data);
+    const validatedData = create[Entità]Schema.safeParse(parsedData);
+    if (!validatedData.success) {
+      return handleValidationErrors(validatedData.error);
+    }
+
+    const [entità] = await prisma.[entità].create({
+      data: validatedData.data
+    });
+
+    revalidatePath('/dashboard/[entità]-table');
+    return { success: true, data: [entità] as [Entità]Type };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// READ ALL
+export async function getAll[Entità](): Promise<[Entità]Type[]> {
+  try {
+    const [entità] = await prisma.[entità].findMany({
+      orderBy: { nome: 'asc' } // o altro campo appropriato
+    });
+    return [entità] as [Entità]Type[];
+  } catch (error) {
+    console.error('Error fetching [entità]:', error);
+    return [];
+  }
+}
+
+// READ BY ID
+export async function get[Entità]ById(id: string): Promise<DBResult<[Entità]Type>> {
+  try {
+    const [entità] = await prisma.[entità].findUnique({
+      where: { id },
+      include: { /* relazioni se necessarie */ }
+    });
+    
+    if (![entità]) {
+      return { success: false, errorsMessage: '[Entità] non trovata' };
+    }
+    
+    return { success: true, data: [entità] as [Entità]Type };
+  } catch (error) {
+    console.error('Error fetching [entità] by id:', error);
+    return { success: false, errorsMessage: 'Errore nel recupero [entità]' };
+  }
+}
+
+// UPDATE
+export async function update[Entità](data: any): Promise<ApiResponse<[Entità]Type>> {
+  try {
+    const parsedData = parseFormDates(data);
+    const validatedData = update[Entità]Schema.safeParse(parsedData);
+    if (!validatedData.success) {
+      return handleValidationErrors(validatedData.error);
+    }
+
+    const [entità] = await prisma.[entità].update({
+      where: { id: validatedData.data.id },
+      data: validatedData.data
+    });
+
+    revalidatePath('/dashboard/[entità]-table');
+    return { success: true, data: [entità] as [Entità]Type };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+
+// DELETE
+export async function delete[Entità](id: string): Promise<ApiResponse> {
+  try {
+    await prisma.[entità].delete({
+      where: { id }
+    });
+
+    revalidatePath('/dashboard/[entità]-table');
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+```
+
+## 🔒 Integrazione con Zod
+
+### **Schema Patterns**
+```typescript
+// entity-zod-schemas.ts
+
+// Schema base completo
+export const [entità]Schema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  nome: z.string().min(1, { message: "Il nome è obbligatorio" })
+    .max(255, { message: "Nome troppo lungo" }),
+  // ... altri campi
+});
+
+// Schema per creazione (senza ID)
+export const create[Entità]Schema = [entità]Schema.omit({ id: true });
+
+// Schema per aggiornamento (tutti i campi opzionali tranne ID)
+export const update[Entità]Schema = [entità]Schema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+```
+
+### **Validazione Date**
+```typescript
+// Per campi date
+data_di_nascita: z.date({ message: "Data di nascita non valida" }).optional().nullable(),
+
+// Parsing automatico delle date
+const parsedData = parseFormDates(data); // converte stringhe in Date objects
+```
+
+## 🗄️ Integrazione con Prisma
+
+### **Client Prisma Singleton**
+```typescript
+// utils/helpers.ts
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+```
+
+### **Error Handling Prisma**
+```typescript
+// Gestione errori Prisma standardizzata
+export function handlePrismaError(error: any): ApiResponse {
+  if (error.code === 'P2002') {
+    return { success: false, error: 'Un record con questi dati esiste già' };
+  }
+  if (error.code === 'P2025') {
+    return { success: false, error: 'Record non trovato' };
+  }
+  return { success: false, error: error.message || 'Errore del database' };
+}
+```
+
+### **Transazioni per Operazioni Complesse**
+```typescript
+// Esempio: creazione preventivo con servizi correlati
+const result = await prisma.$transaction(async (tx) => {
+  const preventivo = await tx.preventivo.create({ data: preventivoData });
+  
+  for (const servizio of servizi) {
+    await tx.serviziATerra.create({
+      data: { ...servizio, id_preventivo: preventivo.id }
+    });
+  }
+  
+  return preventivo;
+});
+```
+
+## 📤 Tipi di Risposta Standardizzati
+
+### **ApiResponse per Operazioni CRUD**
+```typescript
+type ApiResponse<T = any> = {
+  success: boolean
+  data?: T
+  error?: string
+  errors?: Record<string, string[]> // Per errori di validazione Zod
+}
+```
+
+### **DBResult per Query Complesse**
+```typescript
+type DBResult<T = any> = {
+  success: boolean
+  values?: T
+  errorsMessage?: string
+}
+```
+
+## 🔄 Cache Revalidation
+
+### **Paths Standard da Revalidare**
+```typescript
+// Per ogni entità, revalida sempre:
+revalidatePath('/dashboard/[entità]-table');
+
+// Per operazioni che impattano dashboard generale:
+revalidatePath('/dashboard');
+revalidatePath('/dashboard/general-interface');
+```
+
+## 📊 Data Transformers
+
+### **Per UI InputGroups**
+```typescript
+// data-transformers.ts
+export class DataTransformers {
+  static async [entità]ToInputGroup([entità]: any[]): Promise<[Entità]InputGroup[]> {
+    // Trasforma dati DB in formato per UI components
+  }
+}
+```
+
+## 🚨 Convenzioni Obbligatorie
+
+### **1. Naming**
+- File: `[entità]-actions.ts` (kebab-case)
+- Funzioni: `create[Entità]`, `getAll[Entità]`, `update[Entità]`, `delete[Entità]`
+- Schemi Zod: `[entità]Schema`, `create[Entità]Schema`, `update[Entità]Schema`
+
+### **2. Import Order**
+```typescript
+"use server";
+
+import { revalidatePath } from 'next/cache';
+import type { [Entità] as [Entità]Type } from '../../definitions';
+import { prisma, handleValidationErrors, handlePrismaError, parseFormDates } from '../utils/helpers';
+import type { ApiResponse, DBResult } from '../utils/types';
+import { [schemas] } from '../entity-zod-schemas';
+```
+
+### **3. Export da index.ts**
+```typescript
+// Sempre aggiungere nuove actions a index.ts
+export * from './[entità]/[entità]-actions';
+```
+
+### **4. Sincronizzazione Obbligatoria**
+Quando aggiungi una nuova entità, devi sempre aggiornare:
+1. `prisma/schema.prisma` - Schema database
+2. `app/lib/definitions.ts` - Tipi TypeScript
+3. `app/lib/actions/entity-zod-schemas.ts` - Schemi validazione
+4. `app/lib/actions/[entità]/[entità]-actions.ts` - Server actions
+5. `test/actions.test.ts` - Test per le nuove actions
+
+## 🧪 Testing delle Actions
+
+Ogni action deve avere test corrispondenti in `test/actions.test.ts`:
+
+```typescript
+describe('[Entità] Actions', () => {
+  test('should create [entità] successfully', async () => {
+    // Test creazione valida
+  });
+  
+  test('should reject invalid data', async () => {
+    // Test validazione Zod
+  });
+  
+  test('should handle database errors', async () => {
+    // Test gestione errori Prisma
+  });
+});
+```
+
+## 💡 Best Practices
+
+1. **Sempre validare con Zod prima di Prisma**
+2. **Usare transazioni per operazioni multi-tabella**
+3. **Gestire errori in modo consistente**
+4. **Revalidare cache appropriatamente**
+5. **Mantenere funzioni pure e testabili**
+6. **Documentare business logic complessa**
+7. **Usare TypeScript strict per type safety**
+
+## 🔗 Collegamenti Importanti
+
+- Schema Database: `prisma/schema.prisma`
+- Definizioni Tipi: `app/lib/definitions.ts`
+- Schemi Validazione: `app/lib/actions/entity-zod-schemas.ts`
+- Test Actions: `test/actions.test.ts`
+- Utility Helper: `app/lib/actions/utils/helpers.ts`
+description:
+globs:
+alwaysApply: true
+---
