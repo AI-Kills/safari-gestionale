@@ -1,0 +1,737 @@
+# IMPLEMENTAZIONE TEST DATABASE CON PRISMA
+# Guida completa per replicare l'implementazione in altri progetti
+
+## PANORAMICA GENERALE
+
+Questo progetto implementa un sistema dual-schema per Prisma che consente di:
+- Usare PostgreSQL in produzione
+- Usare SQLite per i test (più veloce e isolato)
+- Mantenere la stessa struttura dati in entrambi gli ambienti
+- Gestire automaticamente setup, cleanup e seeding per i test
+
+## 1. STRUTTURA FILE E DIRECTORY
+
+```
+project/
+├── prisma/
+│   ├── schema.prisma              # Schema produzione (PostgreSQL)
+│   ├── schema.test.prisma         # Schema test (SQLite)
+│   ├── test.sqlite                # File database SQLite per test
+│   └── migrations/                # Migrazioni solo per produzione
+├── generated/
+│   └── prisma-test/               # Client Prisma generato per test
+├── app/lib/actions/
+│   ├── actions.ts                 # Server actions produzione
+│   ├── actions.test.ts            # TestActions per test
+│   └── entity-zod-schemas.ts      # Schemi validazione condivisi
+├── test/
+│   ├── test-db-setup.ts           # Manager database test
+│   ├── setup.ts                   # Setup globale test
+│   └── *.test.ts                  # File di test
+└── vitest.config.mjs              # Configurazione Vitest
+```
+
+## 2. DUAL SCHEMA SETUP
+
+### Schema Produzione (prisma/schema.prisma)
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model example_entity {
+  id           String  @id @default(cuid())
+  field_name   String  @db.VarChar(255)
+  numeric_field Decimal @db.Decimal(10, 2)
+  date_field   DateTime @db.Timestamp(6)
+  boolean_field Boolean
+  optional_date DateTime? @db.Timestamp(6)
+}
+```
+
+### Schema Test (prisma/schema.test.prisma)
+```prisma
+generator testClient {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma-test"    # IMPORTANTE: client separato
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./test.sqlite"          # File SQLite locale
+}
+
+# Stessi modelli ma senza decoratori PostgreSQL specifici
+model example_entity {
+  id           String  @id @default(uuid())  # uuid() per SQLite
+  field_name   String                        # Senza @db.VarChar
+  numeric_field Decimal
+  date_field   DateTime
+  boolean_field Boolean
+  optional_date DateTime?
+}
+```
+
+**PUNTI CHIAVE:**
+- Schema test genera client in directory separata (`generated/prisma-test`)
+- SQLite usa `uuid()` invece di `cuid()` per ID
+- Rimuovere decoratori specifici PostgreSQL (`@db.VarChar`, `@db.Decimal`, etc.)
+- Mantenere stessa struttura relazionale e nomi campi
+
+## 3. TEST DATABASE MANAGER
+
+### File: test/test-db-setup.ts
+```typescript
+import { PrismaClient } from '../generated/prisma-test';
+import { execSync } from 'child_process';
+
+export class TestDatabaseManager {
+  private static instance: TestDatabaseManager;
+  private client: PrismaClient;
+  private initialized = false;
+
+  private constructor() {
+    this.client = new PrismaClient();
+  }
+
+  static getInstance(): TestDatabaseManager {
+    if (!TestDatabaseManager.instance) {
+      TestDatabaseManager.instance = new TestDatabaseManager();
+    }
+    return TestDatabaseManager.instance;
+  }
+
+  private async syncSchema() {
+    // Sincronizza schema con database SQLite
+    try {
+      execSync('pnpm prisma db push --schema=prisma/schema.test.prisma --force-reset --accept-data-loss', {
+        stdio: 'pipe' // Riduce output rumoroso
+      });
+      console.log('✅ Schema sincronizzato con database SQLite');
+    } catch (error) {
+      console.error('Errore sincronizzazione schema:', error);
+      throw error;
+    }
+  }
+
+  async initialize() {
+    if (this.initialized) {
+      return this.client;
+    }
+
+    try {
+      // 1. Genera client test se necessario
+      execSync('pnpm prisma generate --schema=prisma/schema.test.prisma', {
+        stdio: 'pipe'
+      });
+
+      // 2. Inizializza database SQLite
+      await this.syncSchema();
+      
+      this.initialized = true;
+      return this.client;
+    } catch (error) {
+      console.error('Errore inizializzazione database test:', error);
+      throw error;
+    }
+  }
+
+  getClient(): PrismaClient {
+    if (!this.initialized) {
+      throw new Error('Database non inizializzato. Chiama initialize() prima.');
+    }
+    return this.client;
+  }
+
+  // Pulisce SOLO i dati, mantiene schema
+  async cleanup() {
+    try {
+      await this.client.$transaction(async (tx) => {
+        // Elimina in ordine per rispettare foreign key
+        await tx.child_table.deleteMany();
+        await tx.parent_table.deleteMany();
+      });
+      console.log('✅ Database pulito (solo dati)');
+    } catch (error) {
+      // Fallback: reset completo se cleanup fallisce
+      console.warn('Cleanup fallito, eseguo reset completo:', error);
+      await this.reset();
+    }
+  }
+
+  // Reset completo: schema + dati
+  async reset() {
+    try {
+      execSync('pnpm prisma db push --schema=prisma/schema.test.prisma --force-reset --accept-data-loss', {
+        stdio: 'pipe'
+      });
+      console.log('✅ Database resettato completamente');
+    } catch (error) {
+      console.error('Errore reset database:', error);
+      throw error;
+    }
+  }
+
+  // Seeding dati test
+  async seedTestData() {
+    // Usa upsert per evitare violazioni unique constraint
+    const testEntity = await this.client.example_entity.upsert({
+      where: { unique_field: 'test_value' },
+      update: {
+        field_name: 'Test Entity Updated',
+        numeric_field: 200.00
+      },
+      create: {
+        field_name: 'Test Entity',
+        numeric_field: 100.50,
+        date_field: new Date(),
+        boolean_field: true
+      }
+    });
+
+    return { testEntity };
+  }
+
+  async close() {
+    await this.client.$disconnect();
+    this.initialized = false;
+  }
+}
+
+export const testDb = TestDatabaseManager.getInstance();
+```
+
+**CARATTERISTICHE MANAGER:**
+- **Singleton**: Una sola istanza per tutti i test
+- **Lazy Initialization**: Inizializza solo quando necessario
+- **Schema Sync**: Usa `db push` per creare tabelle SQLite
+- **Cleanup vs Reset**: Cleanup mantiene schema, Reset ricrea tutto
+- **Seeding**: Pattern upsert per dati riutilizzabili
+
+## 4. TEST ACTIONS CLASS
+
+### File: app/lib/actions/actions.test.ts
+```typescript
+import { PrismaClient } from '../../../generated/prisma-test';
+import { 
+  createEntitySchema, 
+  updateEntitySchema
+} from './entity-zod-schemas';
+
+export class TestActions {
+  private prisma: PrismaClient;
+
+  constructor(prismaClient: PrismaClient) {
+    this.prisma = prismaClient;
+  }
+
+  // CRUD Operations - stessa interfaccia delle server actions
+  async createEntity(data: any) {
+    const validatedData = createEntitySchema.safeParse(data);
+    if (!validatedData.success) {
+      return { success: false, errors: validatedData.error.issues };
+    }
+
+    const entity = await this.prisma.example_entity.create({
+      data: validatedData.data
+    });
+
+    return { success: true, data: entity };
+  }
+
+  async getAllEntities(): Promise<EntityType[]> {
+    const entities = await this.prisma.example_entity.findMany({
+      orderBy: [{ field_name: 'asc' }]
+    });
+
+    // Mapping a tipi TypeScript definiti globalmente
+    return entities.map((entity) => ({
+      id: entity.id,
+      field_name: entity.field_name,
+      numeric_field: entity.numeric_field.toNumber(), // Decimal -> number
+      date_field: entity.date_field,
+      boolean_field: entity.boolean_field
+    }));
+  }
+
+  async updateEntity(data: any) {
+    const validatedData = updateEntitySchema.safeParse(data);
+    if (!validatedData.success) {
+      return { success: false, errors: validatedData.error.issues };
+    }
+
+    const entity = await this.prisma.example_entity.update({
+      where: { id: data.id },
+      data: validatedData.data
+    });
+
+    return { success: true, data: entity };
+  }
+
+  async deleteEntity(id: string) {
+    await this.prisma.example_entity.delete({
+      where: { id }
+    });
+    return { success: true };
+  }
+}
+```
+
+**VANTAGGI TEST ACTIONS:**
+- **Dependency Injection**: Riceve client come parametro
+- **Interfaccia Identica**: Stessi metodi delle server actions produzione
+- **Validazione Zod**: Usa stessi schemi validazione di produzione
+- **Type Safety**: Mapping a tipi TypeScript globali
+
+## 5. SETUP GLOBALE TEST
+
+### File: test/setup.ts
+```typescript
+import { testDb } from './test-db-setup';
+import fs from 'fs';
+import '@/lib/utils';
+import '@/app/appConfig';
+import '@testing-library/jest-dom';
+
+// Setup globale per tutti i test
+beforeAll(async () => {
+  // Inizializza database con schema e tabelle
+  await testDb.initialize();
+});
+
+beforeEach(async () => {
+  // Pulisce dati prima di ogni test senza ricreare tabelle
+  await testDb.cleanup();
+});
+
+afterAll(async () => {
+  // Chiude connessione dopo tutti i test
+  await testDb.close();
+  // Rimuove file SQLite
+  try {
+    fs.unlinkSync('prisma/test.sqlite');
+  } catch (e) {
+    // Ignora se file non esiste
+  }
+});
+```
+
+### File: vitest.config.mjs
+```javascript
+import { defineConfig } from 'vitest/config';
+import path from 'path';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react({
+    jsxRuntime: 'automatic'
+  })],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, '.'),
+    }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./test/setup.ts'],           # IMPORTANTE: setup globale
+    include: ['./test/*.test.{js,ts,tsx}'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/generated/**'],
+    testTimeout: 30000,
+    poolOptions: {
+      threads: false,    # Importante per database condiviso
+      isolate: true      # Isolamento tra test
+    }
+  },
+});
+```
+
+## 6. STRUTTURA TEST TIPICA
+
+### File: test/actions.test.ts
+```typescript
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
+import { testDb } from './test-db-setup';
+import { TestActions } from '../app/lib/actions/actions.test';
+
+describe('CRUD Operations with Test Database', () => {
+  let testActions: TestActions;
+
+  beforeAll(async () => {
+    // Setup una sola volta per suite
+    const client = await testDb.initialize();
+    testActions = new TestActions(client);
+  });
+
+  beforeEach(async () => {
+    // Cleanup automatico gestito da setup.ts
+    // Opzionale: seeding specifico per suite
+    await testDb.seedTestData();
+  });
+
+  describe('Entity CRUD Operations', () => {
+    it('should create a new entity', async () => {
+      const entityData = {
+        field_name: 'Test Entity',
+        numeric_field: 100.50,
+        date_field: new Date(),
+        boolean_field: true
+      };
+
+      const result = await testActions.createEntity(entityData);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
+
+      const entities = await testActions.getAllEntities();
+      expect(entities).toHaveLength(1);
+      expect(entities[0].field_name).toBe('Test Entity');
+    });
+
+    it('should validate entity creation data', async () => {
+      const invalidData = {
+        field_name: '', // Invalid: empty
+        numeric_field: -10, // Invalid: negative
+      };
+
+      const result = await testActions.createEntity(invalidData);
+
+      expect(result.success).toBe(false);
+      expect(result.errors).toBeDefined();
+      expect(result.errors).toHaveLength(2); // Due errori validazione
+    });
+  });
+
+  describe('Business Logic Tests', () => {
+    it('should handle complex business logic', async () => {
+      const { testEntity } = await testDb.seedTestData();
+
+      const result = await testActions.complexBusinessLogic(testEntity.id, 'parameters');
+
+      expect(result.success).toBe(true);
+      
+      const entities = await testActions.getAllEntities();
+      expect(entities[0].calculated_field).toBe('expected_result');
+    });
+  });
+});
+```
+
+## 7. ZOD SCHEMAS CONDIVISI
+
+### File: app/lib/actions/entity-zod-schemas.ts
+```typescript
+import { z } from "zod";
+
+// Schema base completo
+export const entitySchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  field_name: z.string().min(1, { message: "Il campo nome è obbligatorio" }),
+  numeric_field: z.number().positive({ message: "Deve essere positivo" }),
+  date_field: z.date({ message: "Data obbligatoria" }),
+  boolean_field: z.boolean().default(true),
+  optional_field: z.string().optional()
+});
+
+// Create schema (senza ID auto-generato)
+export const createEntitySchema = entitySchema.omit({ id: true }).extend({
+  id: z.string().min(1).optional() // ID opzionale per create
+});
+
+// Update schema (ID obbligatorio)
+export const updateEntitySchema = entitySchema;
+
+// Nested object schemas
+export const addressSchema = z.object({
+  indirizzo: z.string().min(1, { message: "Indirizzo obbligatorio" }),
+  citta: z.string().min(1, { message: "Città obbligatoria" }),
+  provincia: z.string().length(2, { message: "Provincia deve essere 2 caratteri" }),
+  cap: z.string().length(5, { message: "CAP deve essere 5 caratteri" })
+});
+```
+
+**PATTERN SCHEMI:**
+- **entitySchema**: Schema base completo con tutti i campi
+- **createEntitySchema**: Omette ID, lo rende opzionale
+- **updateEntitySchema**: ID obbligatorio per identificare record
+- **Nested schemas**: Oggetti complessi in schemi separati
+- **Messaggi italiani**: Validazione con messaggi localizzati
+
+## 8. COMANDI E SCRIPT
+
+### Package.json Scripts
+```json
+{
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:generate-test": "prisma generate --schema=prisma/schema.test.prisma",
+    "prisma:push": "prisma db push",
+    "prisma:push-test": "prisma db push --schema=prisma/schema.test.prisma",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test-actions": "vitest test/actions.test.ts --run"
+  }
+}
+```
+
+### Workflow Sviluppo
+```bash
+# Setup iniziale progetto
+pnpm prisma:generate          # Client produzione
+pnpm prisma:generate-test     # Client test
+pnpm prisma:push              # Schema a DB produzione
+
+# Durante sviluppo
+pnpm test:watch               # Test in watch mode
+pnpm test-actions             # Solo test actions
+pnpm test                     # Tutti i test
+
+# Dopo modifiche schema
+pnpm prisma:generate-test     # Rigenera client test
+pnpm test                     # Verifica test ancora funzionanti
+```
+
+## 9. MIGRAZIONE A NUOVO PROGETTO
+
+### Step 1: Copia Struttura Base
+```bash
+mkdir new-project
+cd new-project
+
+# Copia file essenziali
+cp -r old-project/prisma/ ./
+cp old-project/test/test-db-setup.ts ./test/
+cp old-project/test/setup.ts ./test/
+cp old-project/vitest.config.mjs ./
+```
+
+### Step 2: Adatta Schema Produzione
+```prisma
+# Modifica prisma/schema.prisma per nuove entità
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"  # O il tuo DB produzione
+  url      = env("DATABASE_URL")
+}
+
+model your_new_entity {
+  id           String  @id @default(cuid())
+  name         String  @db.VarChar(255)
+  amount       Decimal @db.Decimal(10, 2)
+  created_at   DateTime @db.Timestamp(6)
+  active       Boolean @default(true)
+}
+```
+
+### Step 3: Adatta Schema Test
+```prisma
+# Modifica prisma/schema.test.prisma
+generator testClient {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma-test"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./test.sqlite"
+}
+
+model your_new_entity {
+  id           String  @id @default(uuid())  # SQLite compatible
+  name         String                        # Remove PostgreSQL decorators
+  amount       Decimal
+  created_at   DateTime
+  active       Boolean @default(true)
+}
+```
+
+### Step 4: Crea Zod Schemas
+```typescript
+// app/lib/actions/entity-zod-schemas.ts
+import { z } from "zod";
+
+export const yourEntitySchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1, { message: "Nome obbligatorio" }),
+  amount: z.number().positive({ message: "Importo deve essere positivo" }),
+  created_at: z.date(),
+  active: z.boolean().default(true)
+});
+
+export const createYourEntitySchema = yourEntitySchema.omit({ id: true, created_at: true });
+export const updateYourEntitySchema = yourEntitySchema;
+```
+
+### Step 5: Crea TestActions
+```typescript
+// app/lib/actions/actions.test.ts
+import { PrismaClient } from '../../../generated/prisma-test';
+import { createYourEntitySchema, updateYourEntitySchema } from './entity-zod-schemas';
+
+export class TestActions {
+  private prisma: PrismaClient;
+
+  constructor(prismaClient: PrismaClient) {
+    this.prisma = prismaClient;
+  }
+
+  async createYourEntity(data: any) {
+    const validatedData = createYourEntitySchema.safeParse(data);
+    if (!validatedData.success) {
+      return { success: false, errors: validatedData.error.issues };
+    }
+
+    const entity = await this.prisma.your_new_entity.create({
+      data: {
+        ...validatedData.data,
+        created_at: new Date()
+      }
+    });
+
+    return { success: true, data: entity };
+  }
+
+  async getAllYourEntities() {
+    return await this.prisma.your_new_entity.findMany({
+      orderBy: { name: 'asc' }
+    });
+  }
+
+  // ... altri metodi CRUD
+}
+```
+
+### Step 6: Aggiorna Test Database Manager
+```typescript
+// Modifica seedTestData() in test/test-db-setup.ts
+async seedTestData() {
+  const testEntity = await this.client.your_new_entity.upsert({
+    where: { name: 'Test Entity' }, // O altro campo unique
+    update: {
+      amount: 200.00,
+      active: true
+    },
+    create: {
+      name: 'Test Entity',
+      amount: 100.50,
+      created_at: new Date(),
+      active: true
+    }
+  });
+
+  return { testEntity };
+}
+
+// Aggiorna cleanup() per nuove tabelle
+async cleanup() {
+  try {
+    await this.client.$transaction(async (tx) => {
+      // Ordine dipendenze FK
+      await tx.child_table.deleteMany();
+      await tx.your_new_entity.deleteMany();
+    });
+  } catch (error) {
+    await this.reset();
+  }
+}
+```
+
+### Step 7: Crea Test
+```typescript
+// test/your-entity.test.ts
+import { describe, it, expect, beforeAll } from 'vitest';
+import { testDb } from './test-db-setup';
+import { TestActions } from '../app/lib/actions/actions.test';
+
+describe('Your Entity CRUD Operations', () => {
+  let testActions: TestActions;
+
+  beforeAll(async () => {
+    const client = await testDb.initialize();
+    testActions = new TestActions(client);
+  });
+
+  it('should create your entity', async () => {
+    const entityData = {
+      name: 'Test Entity',
+      amount: 100.50,
+      active: true
+    };
+
+    const result = await testActions.createYourEntity(entityData);
+
+    expect(result.success).toBe(true);
+    expect(result.data.name).toBe('Test Entity');
+  });
+});
+```
+
+### Step 8: Genera Client e Testa
+```bash
+# Genera client test
+pnpm prisma generate --schema=prisma/schema.test.prisma
+
+# Esegui test
+pnpm test
+
+# Se tutto funziona, genera client produzione
+pnpm prisma generate
+```
+
+## 10. BEST PRACTICES E TROUBLESHOOTING
+
+### Best Practices
+1. **Mantieni schemi sincronizzati**: Ogni modifica al schema produzione deve essere riflessa nel test
+2. **Usa cleanup, non reset**: Reset è più lento, usa solo quando necessario
+3. **Pattern upsert per seeding**: Evita errori unique constraint
+4. **Test isolati**: Ogni test deve funzionare indipendentemente
+5. **Dependency injection**: TestActions riceve client come parametro
+
+### Troubleshooting Comuni
+
+**Errore "Table doesn't exist"**
+```bash
+# Rigenera client e sincronizza schema
+pnpm prisma generate --schema=prisma/schema.test.prisma
+pnpm prisma db push --schema=prisma/schema.test.prisma --force-reset
+```
+
+**Errore "Client not generated"**
+```bash
+# Assicurati che la directory generated/prisma-test esista
+pnpm prisma generate --schema=prisma/schema.test.prisma
+```
+
+**Test lenti**
+- Usa `cleanup()` invece di `reset()`
+- Verifica `poolOptions.threads: false` in vitest.config.mjs
+- Considera database in-memory: `url = "file::memory:?cache=shared"`
+
+**Foreign key violations**
+- Ordina correttamente le operazioni delete in `cleanup()`
+- Usa transazioni per operazioni atomiche
+- Verifica relazioni nel schema test
+
+### Vantaggi di Questa Implementazione
+- **Velocità**: SQLite è molto più veloce di PostgreSQL per test
+- **Isolamento**: Ogni test suite ha database pulito
+- **Consistency**: Stessa validazione e logica di produzione
+- **Maintainability**: Struttura chiara e replicabile
+- **Type Safety**: TypeScript + Prisma + Zod integration
+- **CI/CD Ready**: Non richiede database esterno per test
+
+### Limitazioni
+- Schema test deve essere mantenuto manualmente sincronizzato
+- Alcune funzionalità PostgreSQL non disponibili in SQLite
+- Migrazioni non supportate per schema test (solo db push)
+
+Questa implementazione fornisce una base solida per test database con Prisma che bilancia velocità, isolamento e maintainability.

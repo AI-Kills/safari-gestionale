@@ -110,12 +110,12 @@ export class DataTransformers {
   // Helper methods
   private static async getDestinazioneNome(id: string): Promise<string> {
     const result = await getDestinazioneById(id);
-    return result.success ? result.data?.nome || "" : "";
+    return result.success ? result.values?.nome || "" : "";
   }
 
   private static async getFornitoreNome(id: string): Promise<string> {
     const result = await getFornitoreById(id);
-    return result.success ? result.data?.nome || "" : "";
+    return result.success ? result.values?.nome || "" : "";
   }
 }
 

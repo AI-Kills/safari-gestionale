@@ -1,9 +1,9 @@
 'use client';
 
 import { useSpinnerContext } from "@/app/context/spinner-context";
-import { addFundamentalEntity, DBResult, setOptionsJson, ApiResponse } from "@/app/lib/actions/actions";
+import { addFundamentalEntity, ApiResponse } from "@/app/lib/actions/actions";
 import { useToast } from "@/components/ui/use-toast";
-import Feedback from "@/app/ui/feedback/feedback";
+
 import InputSelect from "@/app/ui/inputs/input-select";
 import InputText from "@/app/ui/inputs/input-text";
 import { Button } from "@/components/ui/button";
@@ -48,8 +48,6 @@ export default function AggiungiPage() {
     setIsActiveSpinner(true);
     const result = await addFundamentalEntity(newEntity.tableName, newEntity.value);
     setIsActiveSpinner(false);
-
-    await setOptionsJson({});
 
     if (result.success) {
       // Show toast success notification
@@ -166,12 +164,10 @@ export default function AggiungiPage() {
       {feedback && !feedback.success && (
         <Card className="border-l-4 border-l-red-500 bg-red-50">
           <CardContent className="p-4">
-            <Feedback<any> result={{
-              success: feedback.success,
-              values: feedback.data,
-              errors: {},
-              errorsMessage: feedback.error || ''
-            }} />
+            <div className="text-red-800">
+              <h4 className="font-semibold mb-2">Errore</h4>
+              <p>{feedback.error}</p>
+            </div>
           </CardContent>
         </Card>
       )}

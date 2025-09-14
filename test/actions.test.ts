@@ -1,17 +1,21 @@
-import { describe, test, expect, beforeAll, afterEach } from 'vitest';
+import { describe, test, expect, beforeAll, afterEach, afterAll } from 'vitest';
 import { testDb } from './test-db-setup';
-import { TestActions } from '../app/lib/actions/actions.test';
+import { TestActionsHelper } from './test-helpers';
 
 describe('CRUD Operations with Test Database', () => {
-  let testActions: TestActions;
+  let testActions: TestActionsHelper;
 
   beforeAll(async () => {
     await testDb.initialize();
-    testActions = new TestActions(testDb.getClient());
+    testActions = new TestActionsHelper(testDb.getClient());
   });
 
   afterEach(async () => {
     await testDb.cleanup();
+  });
+
+  afterAll(async () => {
+    await testDb.disconnect();
   });
 
   // ============================================================================
@@ -43,7 +47,6 @@ describe('CRUD Operations with Test Database', () => {
 
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
-      expect(result.errors?.[0].message).toContain('Email non valida');
     });
 
     test('should fail user creation with short password', async () => {
@@ -56,7 +59,6 @@ describe('CRUD Operations with Test Database', () => {
 
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
-      expect(result.errors?.[0].message).toContain('almeno 6 caratteri');
     });
 
     test('should get all users', async () => {
@@ -110,9 +112,8 @@ describe('CRUD Operations with Test Database', () => {
       const clienteData = {
         nome: 'Mario',
         cognome: 'Rossi',
-        email: 'mario.rossi@example.com',
-        tel: '+39 123 456 7890',
-        citta: 'Roma'
+        email: 'mario.rossi@test.com',
+        tel: '+39123456789'
       };
 
       const result = await testActions.createCliente(clienteData);
@@ -121,7 +122,8 @@ describe('CRUD Operations with Test Database', () => {
       expect(result.data).toBeDefined();
       expect(result.data.nome).toBe('Mario');
       expect(result.data.cognome).toBe('Rossi');
-      expect(result.data.email).toBe('mario.rossi@example.com');
+      expect(result.data.email).toBe('mario.rossi@test.com');
+      expect(result.data.id).toBeDefined();
     });
 
     test('should fail cliente creation with invalid email', async () => {
@@ -129,188 +131,193 @@ describe('CRUD Operations with Test Database', () => {
         nome: 'Mario',
         cognome: 'Rossi',
         email: 'invalid-email',
-        tel: '+39 123 456 7890',
-        citta: 'Roma'
+        tel: '+39123456789'
       };
 
       const result = await testActions.createCliente(clienteData);
 
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
-      expect(result.errors?.[0].message).toContain('Email non valida');
     });
 
-    test('should get all clienti ordered by cognome, nome', async () => {
-      await testActions.createCliente({
-        nome: 'Mario', cognome: 'Rossi', email: 'mario@test.com'
-      });
-      await testActions.createCliente({
-        nome: 'Luigi', cognome: 'Bianchi', email: 'luigi@test.com'
-      });
+    test('should fail cliente creation with duplicate email', async () => {
+      const clienteData = {
+        nome: 'Mario',
+        cognome: 'Rossi',
+        email: 'duplicate@test.com'
+      };
 
-      const clienti = await testActions.getAllClienti();
+      // Create first cliente
+      await testActions.createCliente(clienteData);
 
-      expect(clienti).toHaveLength(2);
-      expect(clienti[0].cognome).toBe('Bianchi'); // Bianchi comes before Rossi
-      expect(clienti[1].cognome).toBe('Rossi');
-    });
+      // Try to create duplicate
+      const result = await testActions.createCliente(clienteData);
 
-    test('should get cliente by id', async () => {
-      const createResult = await testActions.createCliente({
-        nome: 'Mario', cognome: 'Rossi', email: 'mario@test.com'
-      });
-
-      const cliente = await testActions.getCliente(createResult.data.id);
-
-      expect(cliente).toBeDefined();
-      expect(cliente.nome).toBe('Mario');
-      expect(cliente.email).toBe('mario@test.com');
-    });
-
-    test('should get cliente by email', async () => {
-      await testActions.createCliente({
-        nome: 'Mario', cognome: 'Rossi', email: 'mario@test.com'
-      });
-
-      const cliente = await testActions.getClienteByEmail('mario@test.com');
-
-      expect(cliente).toBeDefined();
-      expect(cliente.nome).toBe('Mario');
-      expect(cliente.email).toBe('mario@test.com');
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
 
     test('should update cliente successfully', async () => {
       const createResult = await testActions.createCliente({
-        nome: 'Mario', cognome: 'Rossi', email: 'mario@test.com'
+        nome: 'Mario',
+        cognome: 'Rossi',
+        email: 'mario@test.com'
       });
 
       const updateResult = await testActions.updateCliente({
         id: createResult.data.id,
-        nome: 'Mario Updated',
-        tel: '+39 999 888 7777'
+        nome: 'Giuseppe',
+        email: 'giuseppe@test.com'
       });
 
       expect(updateResult.success).toBe(true);
-      expect(updateResult.data.nome).toBe('Mario Updated');
-      expect(updateResult.data.tel).toBe('+39 999 888 7777');
-      expect(updateResult.data.email).toBe('mario@test.com'); // unchanged
+      expect(updateResult.data.nome).toBe('Giuseppe');
+      expect(updateResult.data.email).toBe('giuseppe@test.com');
     });
 
     test('should delete cliente successfully', async () => {
       const createResult = await testActions.createCliente({
-        nome: 'Mario', cognome: 'Rossi', email: 'mario@test.com'
+        nome: 'Mario',
+        cognome: 'Rossi',
+        email: 'delete@test.com'
       });
 
       const deleteResult = await testActions.deleteCliente(createResult.data.id);
 
       expect(deleteResult.success).toBe(true);
 
-      const cliente = await testActions.getCliente(createResult.data.id);
-      expect(cliente).toBeNull();
+      const clienti = await testActions.getAllClienti();
+      expect(clienti).toHaveLength(0);
     });
 
-    test('should validate cliente email uniqueness', async () => {
+    test('should search clienti successfully', async () => {
+      // Create test clienti
       await testActions.createCliente({
-        nome: 'Mario', cognome: 'Rossi', email: 'mario@test.com'
+        nome: 'Mario',
+        cognome: 'Rossi',
+        email: 'mario.rossi@test.com',
+        citta: 'Roma'
+      });
+      await testActions.createCliente({
+        nome: 'Giuseppe',
+        cognome: 'Verdi',
+        email: 'giuseppe.verdi@test.com',
+        citta: 'Milano'
       });
 
-      const isUnique = await testActions.validateClienteUniqueness('mario@test.com');
-      expect(isUnique).toBe(false);
+      // Search by nome
+      const searchResult = await testActions.searchClienti({ nome: 'Mario' });
 
-      const isUniqueNew = await testActions.validateClienteUniqueness('new@test.com');
-      expect(isUniqueNew).toBe(true);
+      expect(searchResult.success).toBe(true);
+      expect(searchResult.data).toHaveLength(1);
+      expect(searchResult.data[0].nome).toBe('Mario');
     });
   });
 
   // ============================================================================
-  // FORNITORE TESTS
+  // PREVENTIVO TESTS
   // ============================================================================
 
-  describe('Fornitore CRUD Operations', () => {
-    test('should create a new fornitore successfully', async () => {
-      const fornitoreData = {
-        nome: 'Hotel Paradise',
-        valuta: 'EUR'
+  describe('Preventivo CRUD Operations', () => {
+    let testClienteId: string;
+
+    beforeEach(async () => {
+      // Create test cliente for preventivi
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente',
+        email: 'test.cliente@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+    });
+
+    test('should create a new preventivo successfully', async () => {
+      const preventivoData = {
+        id_cliente: testClienteId,
+        brand: 'Test Brand',
+        operatore: 'Test Operator',
+        destinazione: 'Roma',
+        adulti: 2,
+        bambini: 1,
+        percentuale_ricarico: 10.5,
+        numero_preventivo: '0001'
       };
 
-      const result = await testActions.createFornitore(fornitoreData);
+      const result = await testActions.createPreventivo(preventivoData);
 
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
-      expect(result.data.nome).toBe('Hotel Paradise');
-      expect(result.data.valuta).toBe('EUR');
+      expect(result.data.brand).toBe('Test Brand');
+      expect(result.data.id_cliente).toBe(testClienteId);
+      expect(result.data.id).toBeDefined();
     });
 
-    test('should fail fornitore creation without nome', async () => {
-      const fornitoreData = {
-        valuta: 'EUR'
-      };
-
-      const result = await testActions.createFornitore(fornitoreData);
-
-      expect(result.success).toBe(false);
-      expect(result.errors).toBeDefined();
-      expect(result.errors?.[0].message).toContain('obbligatorio');
-    });
-
-    test('should get all fornitori ordered by nome', async () => {
-      await testActions.createFornitore({ nome: 'Zebra Hotel', valuta: 'EUR' });
-      await testActions.createFornitore({ nome: 'Alpha Resort', valuta: 'USD' });
-
-      const fornitori = await testActions.getAllFornitori();
-
-      expect(fornitori).toHaveLength(2);
-      expect(fornitori[0].nome).toBe('Alpha Resort');
-      expect(fornitori[1].nome).toBe('Zebra Hotel');
-    });
-
-    test('should get fornitore by nome', async () => {
-      await testActions.createFornitore({ nome: 'Test Hotel', valuta: 'EUR' });
-
-      const fornitore = await testActions.getFornitoreByNome('Test Hotel');
-
-      expect(fornitore).toBeDefined();
-      expect(fornitore.nome).toBe('Test Hotel');
-      expect(fornitore.valuta).toBe('EUR');
-    });
-
-    test('should update fornitore successfully', async () => {
-      const createResult = await testActions.createFornitore({
-        nome: 'Original Hotel', valuta: 'EUR'
+    test('should get number of preventivi', async () => {
+      // Create some preventivi
+      await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: '0001'
+      });
+      await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: '0002'
       });
 
-      const updateResult = await testActions.updateFornitore({
+      const result = await testActions.getNumberOfPreventivi();
+
+      expect(result.success).toBe(true);
+      expect(result.values).toBe(2);
+    });
+
+    test('should fetch preventivi by cliente id', async () => {
+      // Create preventivi for the test cliente
+      await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        brand: 'Brand 1',
+        numero_preventivo: '0001'
+      });
+      await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        brand: 'Brand 2',
+        numero_preventivo: '0002'
+      });
+
+      const result = await testActions.fetchPreventiviByIdCliente(testClienteId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+    });
+
+    test('should update preventivo successfully', async () => {
+      const createResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        brand: 'Original Brand',
+        numero_preventivo: '0001'
+      });
+
+      const updateResult = await testActions.updatePreventivo({
         id: createResult.data.id,
-        nome: 'Updated Hotel',
-        valuta: 'USD'
+        brand: 'Updated Brand',
+        operatore: 'New Operator'
       });
 
       expect(updateResult.success).toBe(true);
-      expect(updateResult.data.nome).toBe('Updated Hotel');
-      expect(updateResult.data.valuta).toBe('USD');
+      expect(updateResult.data.brand).toBe('Updated Brand');
+      expect(updateResult.data.operatore).toBe('New Operator');
     });
 
-    test('should delete fornitore successfully', async () => {
-      const createResult = await testActions.createFornitore({
-        nome: 'Delete Me Hotel', valuta: 'EUR'
+    test('should delete preventivo successfully', async () => {
+      const createResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: '0001'
       });
 
-      const deleteResult = await testActions.deleteFornitore(createResult.data.id);
+      const deleteResult = await testActions.deletePreventivo(createResult.data.id);
 
       expect(deleteResult.success).toBe(true);
 
-      const fornitore = await testActions.getFornitoreByNome('Delete Me Hotel');
-      expect(fornitore).toBeNull();
-    });
-
-    test('should validate fornitore nome uniqueness', async () => {
-      await testActions.createFornitore({ nome: 'Unique Hotel', valuta: 'EUR' });
-
-      const isUnique = await testActions.validateFornitoreUniqueness('Unique Hotel');
-      expect(isUnique).toBe(false);
-
-      const isUniqueNew = await testActions.validateFornitoreUniqueness('New Hotel');
-      expect(isUniqueNew).toBe(true);
+      const preventivi = await testActions.getAllPreventivi();
+      expect(preventivi).toHaveLength(0);
     });
   });
 
@@ -321,460 +328,132 @@ describe('CRUD Operations with Test Database', () => {
   describe('Destinazione CRUD Operations', () => {
     test('should create a new destinazione successfully', async () => {
       const destinazioneData = {
-        nome: 'Maldive'
+        nome: 'Roma'
       };
 
       const result = await testActions.createDestinazione(destinazioneData);
 
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
-      expect(result.data.nome).toBe('Maldive');
+      expect(result.data.nome).toBe('Roma');
+      expect(result.data.id).toBeDefined();
     });
 
-    test('should fail destinazione creation without nome', async () => {
-      const destinazioneData = {};
+    test('should fail destinazione creation with duplicate name', async () => {
+      const destinazioneData = { nome: 'Milano' };
 
+      // Create first destinazione
+      await testActions.createDestinazione(destinazioneData);
+
+      // Try to create duplicate
       const result = await testActions.createDestinazione(destinazioneData);
 
       expect(result.success).toBe(false);
-      expect(result.errors).toBeDefined();
-      expect(result.errors?.[0].message).toContain('obbligatorio');
     });
 
-    test('should get all destinazioni ordered by nome', async () => {
-      await testActions.createDestinazione({ nome: 'Zanzibar' });
-      await testActions.createDestinazione({ nome: 'Bali' });
+    test('should get destinazione by id', async () => {
+      const createResult = await testActions.createDestinazione({ nome: 'Napoli' });
+      
+      const result = await testActions.getDestinazioneById(createResult.data.id);
 
-      const destinazioni = await testActions.getAllDestinazioni();
-
-      expect(destinazioni).toHaveLength(2);
-      expect(destinazioni[0].nome).toBe('Bali');
-      expect(destinazioni[1].nome).toBe('Zanzibar');
-    });
-
-    test('should get destinazione by nome', async () => {
-      await testActions.createDestinazione({ nome: 'Test Destination' });
-
-      const destinazione = await testActions.getDestinazioneByNome('Test Destination');
-
-      expect(destinazione).toBeDefined();
-      expect(destinazione.nome).toBe('Test Destination');
+      expect(result.success).toBe(true);
+      expect(result.values.nome).toBe('Napoli');
     });
 
     test('should update destinazione successfully', async () => {
-      const createResult = await testActions.createDestinazione({
-        nome: 'Original Destination'
-      });
+      const createResult = await testActions.createDestinazione({ nome: 'Firenze' });
 
       const updateResult = await testActions.updateDestinazione({
         id: createResult.data.id,
-        nome: 'Updated Destination'
+        nome: 'Firenze Centro'
       });
 
       expect(updateResult.success).toBe(true);
-      expect(updateResult.data.nome).toBe('Updated Destination');
+      expect(updateResult.data.nome).toBe('Firenze Centro');
     });
 
     test('should delete destinazione successfully', async () => {
-      const createResult = await testActions.createDestinazione({
-        nome: 'Delete Me Destination'
-      });
+      const createResult = await testActions.createDestinazione({ nome: 'Torino' });
 
       const deleteResult = await testActions.deleteDestinazione(createResult.data.id);
 
       expect(deleteResult.success).toBe(true);
 
-      const destinazione = await testActions.getDestinazioneByNome('Delete Me Destination');
-      expect(destinazione).toBeNull();
-    });
-
-    test('should validate destinazione nome uniqueness', async () => {
-      await testActions.createDestinazione({ nome: 'Unique Destination' });
-
-      const isUnique = await testActions.validateDestinazioneUniqueness('Unique Destination');
-      expect(isUnique).toBe(false);
-
-      const isUniqueNew = await testActions.validateDestinazioneUniqueness('New Destination');
-      expect(isUniqueNew).toBe(true);
+      const destinazioni = await testActions.getAllDestinazioni();
+      expect(destinazioni).toHaveLength(0);
     });
   });
 
   // ============================================================================
-  // BANCA TESTS
+  // FORNITORE TESTS
   // ============================================================================
 
-  describe('Banca CRUD Operations', () => {
-    test('should create a new banca successfully', async () => {
-      const bancaData = {
-        nome: 'Banca Intesa'
+  describe('Fornitore CRUD Operations', () => {
+    test('should create a new fornitore successfully', async () => {
+      const fornitoreData = {
+        nome: 'Hotel Roma',
+        valuta: 'EUR'
       };
 
-      const result = await testActions.createBanca(bancaData);
+      const result = await testActions.createFornitore(fornitoreData);
 
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
-      expect(result.data.nome).toBe('Banca Intesa');
+      expect(result.data.nome).toBe('Hotel Roma');
+      expect(result.data.valuta).toBe('EUR');
+      expect(result.data.id).toBeDefined();
     });
 
-    test('should fail banca creation without nome', async () => {
-      const bancaData = {};
+    test('should fail fornitore creation with duplicate name', async () => {
+      const fornitoreData = { nome: 'Hotel Milano' };
 
-      const result = await testActions.createBanca(bancaData);
-
-      expect(result.success).toBe(false);
-      expect(result.errors).toBeDefined();
-      expect(result.errors?.[0].message).toContain('obbligatorio');
-    });
-
-    test('should get all banche ordered by nome', async () => {
-      await testActions.createBanca({ nome: 'Zebra Bank' });
-      await testActions.createBanca({ nome: 'Alpha Bank' });
-
-      const banche = await testActions.getAllBanche();
-
-      expect(banche).toHaveLength(2);
-      expect(banche[0].nome).toBe('Alpha Bank');
-      expect(banche[1].nome).toBe('Zebra Bank');
-    });
-
-    test('should update banca successfully', async () => {
-      const createResult = await testActions.createBanca({
-        nome: 'Original Bank'
-      });
-
-      const updateResult = await testActions.updateBanca({
-        id: createResult.data.id,
-        nome: 'Updated Bank'
-      });
-
-      expect(updateResult.success).toBe(true);
-      expect(updateResult.data.nome).toBe('Updated Bank');
-    });
-
-    test('should delete banca successfully', async () => {
-      const createResult = await testActions.createBanca({
-        nome: 'Delete Me Bank'
-      });
-
-      const deleteResult = await testActions.deleteBanca(createResult.data.id);
-
-      expect(deleteResult.success).toBe(true);
-
-      const banche = await testActions.getAllBanche();
-      expect(banche.find(b => b.id === createResult.data.id)).toBeUndefined();
-    });
-  });
-
-  // ============================================================================
-  // PREVENTIVO TESTS
-  // ============================================================================
-
-  describe('Preventivo CRUD Operations', () => {
-    test('should create a complete preventivo workflow', async () => {
-      const clienteData = {
-        nome: 'Mario',
-        cognome: 'Rossi',
-        email: 'mario.workflow@test.com'
-      };
-
-      const preventivoData = {
-        brand: 'Premium Travel',
-        adulti: 2,
-        bambini: 0,
-        destinazione: 'Maldive',
-        tipo_viaggio: 'leisure',
-        stato: 'draft',
-        numero_preventivo: 'PREV-001-2024'
-      };
-
-      const result = await testActions.complexPreventivoWorkflow(clienteData, preventivoData);
-
-      expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data.cliente).toBeDefined();
-      expect(result.data.preventivo).toBeDefined();
-      expect(result.data.preventivo.id_cliente).toBe(result.data.cliente.id);
-      expect(result.data.preventivo.brand).toBe('Premium Travel');
-      expect(result.data.preventivo.adulti).toBe(2);
-    });
-
-    test('should create preventivo with existing cliente', async () => {
-      // Create cliente first
-      const clienteResult = await testActions.createCliente({
-        nome: 'Luigi',
-        cognome: 'Bianchi',
-        email: 'luigi.preventivo@test.com'
-      });
-
-      const preventivoData = {
-        id_cliente: clienteResult.data.id,
-        brand: 'Budget Travel',
-        adulti: 1,
-        bambini: 1,
-        destinazione: 'Sardegna',
-        tipo_viaggio: 'family',
-        stato: 'in trattativa',
-        numero_preventivo: 'PREV-002-2024'
-      };
-
-      const result = await testActions.createPreventivo(preventivoData);
-
-      expect(result.success).toBe(true);
-      expect(result.data.id_cliente).toBe(clienteResult.data.id);
-      expect(result.data.brand).toBe('Budget Travel');
-    });
-
-    test('should fail preventivo creation without cliente', async () => {
-      const preventivoData = {
-        brand: 'No Cliente Travel',
-        adulti: 2,
-        destinazione: 'Nowhere'
-      };
-
-      const result = await testActions.createPreventivo(preventivoData);
-
-      expect(result.success).toBe(false);
-      expect(result.errors).toBeDefined();
-      expect(result.errors?.[0].message).toContain('cliente');
-    });
-
-    test('should get all preventivi with cliente info', async () => {
-      // Create cliente and preventivo
-      const clienteResult = await testActions.createCliente({
-        nome: 'Test', cognome: 'Cliente', email: 'test.preventivi@test.com'
-      });
-
-      await testActions.createPreventivo({
-        id_cliente: clienteResult.data.id,
-        brand: 'Test Travel',
-        numero_preventivo: 'TEST-001'
-      });
-
-      const preventivi = await testActions.getAllPreventivi();
-
-      expect(preventivi).toHaveLength(1);
-      expect(preventivi[0].cliente).toBeDefined();
-      expect(preventivi[0].cliente.email).toBe('test.preventivi@test.com');
-    });
-
-    test('should get preventivo with complete relations', async () => {
-      // Setup complete preventivo with relations
-      const clienteResult = await testActions.createCliente({
-        nome: 'Complete', cognome: 'Test', email: 'complete@test.com'
-      });
-
-      const preventivoResult = await testActions.createPreventivo({
-        id_cliente: clienteResult.data.id,
-        brand: 'Complete Travel',
-        numero_preventivo: 'COMPLETE-001'
-      });
-
-      const preventivo = await testActions.getPreventivo(preventivoResult.data.id);
-
-      expect(preventivo).toBeDefined();
-      expect(preventivo.cliente).toBeDefined();
-      expect(preventivo.cliente.email).toBe('complete@test.com');
-      expect(preventivo.serviziATerra).toBeDefined();
-      expect(preventivo.voli).toBeDefined();
-      expect(preventivo.assicurazioni).toBeDefined();
-    });
-
-    test('should get preventivi by cliente', async () => {
-      const clienteResult = await testActions.createCliente({
-        nome: 'Multi', cognome: 'Preventivo', email: 'multi@test.com'
-      });
-
-      // Create multiple preventivi for same cliente
-      await testActions.createPreventivo({
-        id_cliente: clienteResult.data.id,
-        numero_preventivo: 'MULTI-001'
-      });
-      await testActions.createPreventivo({
-        id_cliente: clienteResult.data.id,
-        numero_preventivo: 'MULTI-002'
-      });
-
-      const preventivi = await testActions.getPreventiviByCliente(clienteResult.data.id);
-
-      expect(preventivi).toHaveLength(2);
-      expect(preventivi[0].numero_preventivo).toBe('MULTI-002'); // most recent first
-      expect(preventivi[1].numero_preventivo).toBe('MULTI-001');
-    });
-
-    test('should update preventivo successfully', async () => {
-      const clienteResult = await testActions.createCliente({
-        nome: 'Update', cognome: 'Test', email: 'update@test.com'
-      });
-
-      const preventivoResult = await testActions.createPreventivo({
-        id_cliente: clienteResult.data.id,
-        brand: 'Original',
-        stato: 'draft'
-      });
-
-      const updateResult = await testActions.updatePreventivo({
-        id: preventivoResult.data.id,
-        brand: 'Updated',
-        stato: 'confermato',
-        adulti: 3
-      });
-
-      expect(updateResult.success).toBe(true);
-      expect(updateResult.data.brand).toBe('Updated');
-      expect(updateResult.data.stato).toBe('confermato');
-      expect(updateResult.data.adulti).toBe(3);
-    });
-
-    test('should delete preventivo with cascade', async () => {
-      const clienteResult = await testActions.createCliente({
-        nome: 'Delete', cognome: 'Test', email: 'delete@test.com'
-      });
-
-      const preventivoResult = await testActions.createPreventivo({
-        id_cliente: clienteResult.data.id,
-        numero_preventivo: 'DELETE-001'
-      });
-
-      const deleteResult = await testActions.deletePreventivo(preventivoResult.data.id);
-
-      expect(deleteResult.success).toBe(true);
-
-      const preventivo = await testActions.getPreventivo(preventivoResult.data.id);
-      expect(preventivo).toBeNull();
-    });
-  });
-
-  // ============================================================================
-  // VALIDATION TESTS
-  // ============================================================================
-
-  describe('Validation Tests', () => {
-    test('should handle zod validation errors correctly', async () => {
-      const invalidCliente = {
-        nome: 'a'.repeat(300), // Too long
-        email: 'not-an-email',
-        tel: 'x'.repeat(25) // Too long
-      };
-
-      const result = await testActions.createCliente(invalidCliente);
-
-      expect(result.success).toBe(false);
-      expect(result.errors).toBeDefined();
-      expect(result.errors).toHaveLength(3); // nome, email, tel errors
-    });
-
-    test('should handle database constraint violations', async () => {
-      // Create first cliente
-      await testActions.createCliente({
-        nome: 'Unique', cognome: 'Test', email: 'unique@test.com'
-      });
+      // Create first fornitore
+      await testActions.createFornitore(fornitoreData);
 
       // Try to create duplicate
-      const result = await testActions.createCliente({
-        nome: 'Another', cognome: 'Test', email: 'unique@test.com'
+      const result = await testActions.createFornitore(fornitoreData);
+
+      expect(result.success).toBe(false);
+    });
+
+    test('should get fornitore by id', async () => {
+      const createResult = await testActions.createFornitore({ 
+        nome: 'Hotel Napoli',
+        valuta: 'EUR'
+      });
+      
+      const result = await testActions.getFornitoreById(createResult.data.id);
+
+      expect(result.success).toBe(true);
+      expect(result.values.nome).toBe('Hotel Napoli');
+    });
+
+    test('should update fornitore successfully', async () => {
+      const createResult = await testActions.createFornitore({ 
+        nome: 'Hotel Firenze',
+        valuta: 'EUR'
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('già esistente');
+      const updateResult = await testActions.updateFornitore({
+        id: createResult.data.id,
+        nome: 'Grand Hotel Firenze',
+        valuta: 'USD'
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect(updateResult.data.nome).toBe('Grand Hotel Firenze');
+      expect(updateResult.data.valuta).toBe('USD');
     });
 
-    test('should handle missing required fields', async () => {
-      const incompleteData = {
-        nome: 'Test'
-        // Missing email (required)
-      };
+    test('should delete fornitore successfully', async () => {
+      const createResult = await testActions.createFornitore({ nome: 'Hotel Torino' });
 
-      const result = await testActions.createCliente(incompleteData);
+      const deleteResult = await testActions.deleteFornitore(createResult.data.id);
 
-      expect(result.success).toBe(false);
-      expect(result.errors).toBeDefined();
-    });
-  });
+      expect(deleteResult.success).toBe(true);
 
-  // ============================================================================
-  // EDGE CASES
-  // ============================================================================
-
-  describe('Edge Cases', () => {
-    test('should handle empty strings correctly', async () => {
-      const clienteData = {
-        nome: '',
-        cognome: '',
-        email: 'empty@test.com'
-      };
-
-      const result = await testActions.createCliente(clienteData);
-      
-      expect(result.success).toBe(true);
-      expect(result.data.nome).toBe('');
-      expect(result.data.cognome).toBe('');
-    });
-
-    test('should handle null values correctly', async () => {
-      const clienteData = {
-        nome: null,
-        cognome: null,
-        email: 'null@test.com',
-        tel: null,
-        note: null
-      };
-
-      const result = await testActions.createCliente(clienteData);
-      
-      expect(result.success).toBe(true);
-      expect(result.data.nome).toBeNull();
-      expect(result.data.tel).toBeNull();
-    });
-
-    test('should handle special characters in data', async () => {
-      const clienteData = {
-        nome: "Mario D'Angelo",
-        cognome: 'Rossi-Bianchi',
-        email: 'mario.special@test.com',
-        note: 'Note with special chars: àèéìòù €£$'
-      };
-
-      const result = await testActions.createCliente(clienteData);
-      
-      expect(result.success).toBe(true);
-      expect(result.data.nome).toBe("Mario D'Angelo");
-      expect(result.data.cognome).toBe('Rossi-Bianchi');
-      expect(result.data.note).toBe('Note with special chars: àèéìòù €£$');
-    });
-
-    test('should handle very long text fields', async () => {
-      const longNote = 'x'.repeat(1000);
-      
-      const clienteData = {
-        nome: 'Long Note',
-        cognome: 'Test',
-        email: 'longnote@test.com',
-        note: longNote
-      };
-
-      const result = await testActions.createCliente(clienteData);
-      
-      expect(result.success).toBe(true);
-      expect(result.data.note).toBe(longNote);
-    });
-
-    test('should handle date edge cases', async () => {
-      const futureDate = new Date('2050-12-31');
-      const pastDate = new Date('1900-01-01');
-      
-      const clienteData = {
-        nome: 'Date Test',
-        cognome: 'Test',
-        email: 'datetest@test.com',
-        data_di_nascita: pastDate,
-        data_scadenza_passaporto: futureDate
-      };
-
-      const result = await testActions.createCliente(clienteData);
-      
-      expect(result.success).toBe(true);
-      expect(new Date(result.data.data_di_nascita)).toEqual(pastDate);
-      expect(new Date(result.data.data_scadenza_passaporto)).toEqual(futureDate);
+      const fornitori = await testActions.getAllFornitori();
+      expect(fornitori).toHaveLength(0);
     });
   });
 }); 

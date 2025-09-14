@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.11.1
- * Query Engine version: f40f79ec31188888a2e33acda0ecc8fd10a853a9
+ * Prisma Client JS version: 6.14.0
+ * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
  */
 Prisma.prismaVersion = {
-  client: "6.11.1",
-  engine: "f40f79ec31188888a2e33acda0ecc8fd10a853a9"
+  client: "6.14.0",
+  engine: "717184b7b35ea05dfa71a3236b7af656013e1e49"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -119,6 +119,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   email: 'email',
   password: 'password'
 };
@@ -139,9 +140,9 @@ exports.Prisma.ClienteScalarFieldEnum = {
   cognome: 'cognome',
   tel: 'tel',
   indirizzo: 'indirizzo',
-  CAP: 'CAP',
+  cap: 'cap',
   citta: 'citta',
-  CF: 'CF',
+  cf: 'cf',
   email: 'email',
   tipo: 'tipo',
   provenienza: 'provenienza',
@@ -195,6 +196,7 @@ exports.Prisma.ServiziATerraScalarFieldEnum = {
   totale: 'totale',
   valuta: 'valuta',
   cambio: 'cambio',
+  ricarico: 'ricarico',
   servizio_aggiuntivo: 'servizio_aggiuntivo'
 };
 
@@ -236,7 +238,110 @@ exports.Prisma.PreventivoAlClienteRowScalarFieldEnum = {
   destinazione: 'destinazione',
   descrizione: 'descrizione',
   individuale: 'individuale',
-  numero: 'numero'
+  numero: 'numero',
+  is_primo_tipo: 'is_primo_tipo'
+};
+
+exports.Prisma.Blog_article_commentsScalarFieldEnum = {
+  id: 'id',
+  article_id: 'article_id',
+  user_id: 'user_id',
+  content: 'content',
+  date_created: 'date_created'
+};
+
+exports.Prisma.Blog_articles_aiScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  date_created: 'date_created'
+};
+
+exports.Prisma.CustomersScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  image_url: 'image_url'
+};
+
+exports.Prisma.Incassi_partecipantiScalarFieldEnum = {
+  id: 'id',
+  id_partecipante: 'id_partecipante',
+  id_banca: 'id_banca',
+  importo: 'importo',
+  data_scadenza: 'data_scadenza',
+  data_incasso: 'data_incasso'
+};
+
+exports.Prisma.InvoicesScalarFieldEnum = {
+  id: 'id',
+  customer_id: 'customer_id',
+  amount: 'amount',
+  status: 'status',
+  date: 'date'
+};
+
+exports.Prisma.Pagamenti_assicurazioniScalarFieldEnum = {
+  id: 'id',
+  id_assicurazione: 'id_assicurazione',
+  id_banca: 'id_banca',
+  importo: 'importo',
+  data_scadenza: 'data_scadenza',
+  data_incasso: 'data_incasso'
+};
+
+exports.Prisma.Pagamenti_servizi_a_terraScalarFieldEnum = {
+  id: 'id',
+  id_servizio_a_terra: 'id_servizio_a_terra',
+  id_banca: 'id_banca',
+  importo: 'importo',
+  data_scadenza: 'data_scadenza',
+  data_incasso: 'data_incasso'
+};
+
+exports.Prisma.Pagamenti_voliScalarFieldEnum = {
+  id: 'id',
+  id_volo: 'id_volo',
+  id_banca: 'id_banca',
+  importo: 'importo',
+  data_scadenza: 'data_scadenza',
+  data_incasso: 'data_incasso'
+};
+
+exports.Prisma.PartecipantiScalarFieldEnum = {
+  id: 'id',
+  id_preventivo: 'id_preventivo',
+  nome: 'nome',
+  cognome: 'cognome',
+  tot_quota: 'tot_quota'
+};
+
+exports.Prisma.PraticheScalarFieldEnum = {
+  id: 'id',
+  id_preventivo: 'id_preventivo',
+  id_cliente: 'id_cliente',
+  data_conferma: 'data_conferma',
+  data_partenza: 'data_partenza',
+  data_rientro: 'data_rientro',
+  note: 'note',
+  numero_passeggeri: 'numero_passeggeri',
+  totale: 'totale'
+};
+
+exports.Prisma.Preventivi_mostrare_clientiScalarFieldEnum = {
+  id: 'id',
+  id_preventivo: 'id_preventivo',
+  id_destinazione: 'id_destinazione',
+  descrizione: 'descrizione',
+  tipo: 'tipo',
+  costo_individuale: 'costo_individuale',
+  importo_vendita: 'importo_vendita',
+  totale: 'totale'
+};
+
+exports.Prisma.RevenueScalarFieldEnum = {
+  month: 'month',
+  revenue: 'revenue'
 };
 
 exports.Prisma.SortOrder = {
@@ -261,7 +366,19 @@ exports.Prisma.ModelName = {
   Volo: 'Volo',
   Assicurazione: 'Assicurazione',
   PreventivoAlCliente: 'PreventivoAlCliente',
-  PreventivoAlClienteRow: 'PreventivoAlClienteRow'
+  PreventivoAlClienteRow: 'PreventivoAlClienteRow',
+  blog_article_comments: 'blog_article_comments',
+  blog_articles_ai: 'blog_articles_ai',
+  customers: 'customers',
+  incassi_partecipanti: 'incassi_partecipanti',
+  invoices: 'invoices',
+  pagamenti_assicurazioni: 'pagamenti_assicurazioni',
+  pagamenti_servizi_a_terra: 'pagamenti_servizi_a_terra',
+  pagamenti_voli: 'pagamenti_voli',
+  partecipanti: 'partecipanti',
+  pratiche: 'pratiche',
+  preventivi_mostrare_clienti: 'preventivi_mostrare_clienti',
+  revenue: 'revenue'
 };
 
 /**

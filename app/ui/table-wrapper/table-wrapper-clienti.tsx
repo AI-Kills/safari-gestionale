@@ -57,16 +57,37 @@ import {
   Columns3,
   Filter,
   ListFilter,
+  Eye,
+  Edit,
+  Trash2,
+  MoreHorizontal,
+  Save,
+  X,
 } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Cliente } from "@/app/lib/definitions";
-
+import { deleteCliente, updateCliente } from "@/app/lib/actions";
+import { useRouter } from "next/navigation";
+import Modal from "@/app/ui/modal";
+import InputText from "@/app/ui/inputs/input-text";
+import InputEmail from "@/app/ui/inputs/input-email";
+import InputTell from "@/app/ui/inputs/input-tell";
+import InputDate from "@/app/ui/inputs/input-date";
+import InputSelect from "@/app/ui/inputs/input-select";
 
 // Custom filter function for multi-column searching
 const multiColumnFilterFn: FilterFn<Cliente> = (row, columnId, filterValue) => {
   const searchableRowContent = `${row.original.nome} ${row.original.cognome} ${row.original.email}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();
   return searchableRowContent.includes(searchTerm);
+};
+
+// Helper per formattare le date
+const formatDateForInput = (date: Date | string | null): string => {
+  if (!date) return '';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+  return d.toISOString().split('T')[0];
 };
 
 const columns: ColumnDef<Cliente>[] = [
@@ -100,9 +121,7 @@ const columns: ColumnDef<Cliente>[] = [
     accessorKey: "tipo",
     cell: ({ row }) => (
       <Badge
-        className={cn(
-          row.getValue("tipo") === "PRIVATO" && "bg-muted-foreground/60 text-primary-foreground",
-        )}
+        variant={row.getValue("tipo") === "PRIVATO" ? "default" : "secondary"}
       >
         {row.getValue("tipo")}
       </Badge>
@@ -195,9 +214,348 @@ const columns: ColumnDef<Cliente>[] = [
     header: "Note",
     accessorKey: "note",
     size: 200,
+  },
+  {
+    id: "actions",
+    header: "Azioni",
+    cell: ({ row }) => <ClienteActions cliente={row.original} />,
+    size: 120,
+    enableHiding: false,
   }
-
 ];
+
+// Componente per le azioni sui clienti con modale di modifica
+function ClienteActions({ cliente }: { cliente: Cliente }) {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [editedCliente, setEditedCliente] = useState<Cliente>(cliente);
+
+  // Opzioni per i dropdown
+  const provenienzaOptions = [
+    'Passaparola',
+    'Sito IWS',
+    'Sito INO',
+    'Telefono',
+    'Email Diretta',
+    'Sito ISE',
+    'Sito IMS'
+  ];
+
+  const tipoOptions = ['PRIVATO', 'AGENZIA VIAGGI', 'AZIENDA'];
+  const sessoOptions = ['M', 'F'];
+
+  const handleView = () => {
+    router.push(`/dashboard/clienti-table/${cliente.id}`);
+  };
+
+  const handleEditClick = () => {
+    setEditedCliente(cliente);
+    setShowEditModal(true);
+  };
+
+  const handleInputChange = (field: keyof Cliente, value: any) => {
+    setEditedCliente(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    setIsUpdating(true);
+    try {
+      const result = await updateCliente(editedCliente);
+      if (result.success) {
+        setShowEditModal(false);
+        // Ricarica la pagina per vedere le modifiche
+        window.location.reload();
+      } else {
+        alert(`Errore durante l'aggiornamento: ${result.errorsMessage || 'Errore sconosciuto'}`);
+      }
+    } catch (error) {
+      console.error('Errore durante l\'aggiornamento:', error);
+      alert('Errore durante l\'aggiornamento del cliente');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`Sei sicuro di voler eliminare il cliente ${cliente.cognome} ${cliente.nome}?\n\nQuesta azione non può essere annullata.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const result = await deleteCliente(cliente.id);
+      if (result.success) {
+        // Ricarica la pagina per vedere le modifiche
+        window.location.reload();
+      } else {
+        alert('Errore durante l\'eliminazione del cliente');
+      }
+    } catch (error) {
+      console.error('Errore durante l\'eliminazione:', error);
+      alert('Errore durante l\'eliminazione del cliente');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Apri menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Azioni</DropdownMenuLabel>
+          <button
+            onClick={handleView}
+            className="w-full px-2 py-1.5 text-sm text-left hover:bg-accent flex items-center gap-2"
+          >
+            <Eye className="h-4 w-4" />
+            Visualizza
+          </button>
+          <button
+            onClick={handleEditClick}
+            className="w-full px-2 py-1.5 text-sm text-left hover:bg-accent flex items-center gap-2"
+          >
+            <Edit className="h-4 w-4" />
+            Modifica
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="w-full px-2 py-1.5 text-sm text-left hover:bg-accent flex items-center gap-2 text-red-600 disabled:opacity-50"
+          >
+            <Trash2 className="h-4 w-4" />
+            {isDeleting ? 'Eliminazione...' : 'Elimina'}
+          </button>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Modale di Modifica */}
+      <Modal
+        showModal={showEditModal}
+        dark={false}
+        header={
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800">
+              Modifica Cliente: {cliente.cognome} {cliente.nome}
+            </h2>
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        }
+        body={
+          <div className="max-h-96 overflow-y-auto text-gray-800">
+            <div className="space-y-4">
+              {/* Informazioni Base */}
+              <div className="grid grid-cols-2 gap-4">
+                <InputText
+                  label="Nome"
+                  name="nome"
+                  value={editedCliente.nome || ''}
+                  onChange={(e) => handleInputChange('nome', e.target.value)}
+                />
+                <InputText
+                  label="Cognome"
+                  name="cognome"
+                  value={editedCliente.cognome || ''}
+                  onChange={(e) => handleInputChange('cognome', e.target.value)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <InputEmail
+                  label="Email"
+                  name="email"
+                  value={editedCliente.email || ''}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                />
+                <InputTell
+                  label="Telefono"
+                  name="tel"
+                  value={editedCliente.tel || ''}
+                  onChange={(e) => handleInputChange('tel', e.target.value)}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <InputSelect
+                  label="Tipo"
+                  name="tipo"
+                  options={tipoOptions}
+                  value={editedCliente.tipo || ''}
+                  onChange={(e) => handleInputChange('tipo', e.target.value)}
+                />
+                <InputSelect
+                  label="Sesso"
+                  name="sesso"
+                  options={sessoOptions}
+                  value={editedCliente.sesso || ''}
+                  onChange={(e) => handleInputChange('sesso', e.target.value)}
+                />
+                <InputSelect
+                  label="Provenienza"
+                  name="provenienza"
+                  options={provenienzaOptions}
+                  value={editedCliente.provenienza || ''}
+                  onChange={(e) => handleInputChange('provenienza', e.target.value)}
+                />
+              </div>
+
+              {/* Indirizzo */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-700">Indirizzo</h3>
+                <InputText
+                  label="Indirizzo"
+                  name="indirizzo"
+                  value={editedCliente.indirizzo || ''}
+                  onChange={(e) => handleInputChange('indirizzo', e.target.value)}
+                />
+                <div className="grid grid-cols-3 gap-4">
+                  <InputText
+                    label="CAP"
+                    name="cap"
+                    value={editedCliente.cap || ''}
+                    onChange={(e) => handleInputChange('cap', e.target.value)}
+                  />
+                  <InputText
+                    label="Città"
+                    name="citta"
+                    value={editedCliente.citta || ''}
+                    onChange={(e) => handleInputChange('citta', e.target.value)}
+                  />
+                  <InputText
+                    label="Provincia"
+                    name="provincia"
+                    value={editedCliente.provincia || ''}
+                    onChange={(e) => handleInputChange('provincia', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Dati Anagrafici */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-700">Dati Anagrafici</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <InputDate
+                    label="Data di Nascita"
+                    name="data_di_nascita"
+                    value={formatDateForInput(editedCliente.data_di_nascita)}
+                    onChange={(e) => handleInputChange('data_di_nascita', new Date(e.target.value))}
+                  />
+                  <InputText
+                    label="Codice Fiscale"
+                    name="cf"
+                    value={editedCliente.cf || ''}
+                    onChange={(e) => handleInputChange('cf', e.target.value)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <InputText
+                    label="Luogo di Nascita"
+                    name="luogo_nascita"
+                    value={editedCliente.luogo_nascita || ''}
+                    onChange={(e) => handleInputChange('luogo_nascita', e.target.value)}
+                  />
+                  <InputText
+                    label="Provincia Nascita"
+                    name="provincia_nascita"
+                    value={editedCliente.provincia_nascita || ''}
+                    onChange={(e) => handleInputChange('provincia_nascita', e.target.value)}
+                  />
+                </div>
+                <InputText
+                  label="Nazionalità"
+                  name="nazionalita"
+                  value={editedCliente.nazionalita || ''}
+                  onChange={(e) => handleInputChange('nazionalita', e.target.value)}
+                />
+              </div>
+
+              {/* Passaporto */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-700">Passaporto</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <InputText
+                    label="Numero Passaporto"
+                    name="numero_passaporto"
+                    value={editedCliente.numero_passaporto || ''}
+                    onChange={(e) => handleInputChange('numero_passaporto', e.target.value)}
+                  />
+                  <InputDate
+                    label="Scadenza Passaporto"
+                    name="data_scadenza_passaporto"
+                    value={formatDateForInput(editedCliente.data_scadenza_passaporto)}
+                    onChange={(e) => handleInputChange('data_scadenza_passaporto', new Date(e.target.value))}
+                  />
+                </div>
+              </div>
+
+              {/* Informazioni Commerciali */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-700">Informazioni Commerciali</h3>
+                <InputText
+                  label="Collegato"
+                  name="collegato"
+                  value={editedCliente.collegato || ''}
+                  onChange={(e) => handleInputChange('collegato', e.target.value)}
+                />
+                <InputText
+                  label="Note"
+                  name="note"
+                  textarea
+                  value={editedCliente.note || ''}
+                  onChange={(e) => handleInputChange('note', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        }
+        buttons={
+          <div className="flex justify-end gap-3 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowEditModal(false)}
+              disabled={isUpdating}
+              className="text-black border-gray-300 hover:bg-gray-50"
+            >
+              Annulla
+            </Button>
+            <Button
+              onClick={handleSaveChanges}
+              disabled={isUpdating}
+              className="flex items-center gap-2"
+            >
+              {isUpdating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Salva Modifiche
+                </>
+              )}
+            </Button>
+          </div>
+        }
+      />
+    </>
+  );
+}
 
 export default function TableClienti({ data }: { data: Cliente[] }) {
   const id = useId();
@@ -474,8 +832,11 @@ export default function TableClienti({ data }: { data: Cliente[] }) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-sm">Non ci sono risultati</div>
+                    <div className="text-xs">Prova a modificare i filtri o aggiungi nuovi elementi</div>
+                  </div>
                 </TableCell>
               </TableRow>
             )}

@@ -1,0 +1,179 @@
+# Actions Testing Rule
+
+## Database di Test
+
+**OBBLIGATORIO**: Tutti i test delle server actions devono utilizzare il database SQLite di test isolato configurato in `test/test-db-setup.ts`.
+
+### Configurazione Database Test
+
+Il sistema di test utilizza:
+- **SQLite** come database di test (non PostgreSQL)
+- **Schema automatico** generato da `prisma/schema.prisma`
+- **Isolamento completo** tra test e ambiente di sviluppo
+- **Cleanup automatico** dopo ogni test
+
+### Pattern di Test Standard
+
+```typescript
+import { describe, test, expect, beforeAll, afterEach, afterAll } from 'vitest';
+import { testDb } from './test-db-setup';
+import { TestActionsHelper } from './test-helpers';
+
+describe('Nome Entità CRUD Operations', () => {
+  let testActions: TestActionsHelper;
+
+  beforeAll(async () => {
+    await testDb.initialize();
+    testActions = new TestActionsHelper(testDb.getClient());
+  });
+
+  afterEach(async () => {
+    await testDb.cleanup();
+  });
+
+  afterAll(async () => {
+    await testDb.disconnect();
+  });
+
+  test('should create entity successfully', async () => {
+    const data = { /* test data */ };
+    const result = await testActions.createEntity(data);
+    
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
+  });
+});
+```
+
+## TestDatabaseManager
+
+### Funzionalità Chiave
+
+1. **Schema Conversion**: Converte automaticamente da PostgreSQL a SQLite
+2. **Isolation**: Ogni test run usa un database temporaneo unico
+3. **Cleanup**: Pulizia automatica dei dati tra test
+4. **Seeding**: Dati di test predefiniti disponibili
+
+### Utilizzo Corretto
+
+```typescript
+// ✅ CORRETTO - Usa testDb
+beforeAll(async () => {
+  await testDb.initialize();
+  testActions = new TestActionsHelper(testDb.getClient());
+});
+
+// ❌ SBAGLIATO - Non usare il client di produzione
+import { prisma } from '../app/lib/actions/utils/helpers';
+// NON fare questo nei test!
+```
+
+## TestActionsHelper
+
+### Mock Pattern
+
+Il `TestActionsHelper` implementa il pattern di mocking per sostituire il client Prisma di produzione con quello di test:
+
+```typescript
+export class TestActionsHelper {
+  setupMocks() {
+    // Sostituisce il prisma client con quello di test
+    const helpersModule = require('../app/lib/actions/utils/helpers');
+    helpersModule.prisma = testClient;
+  }
+
+  async createEntity(data: any) {
+    this.setupMocks();
+    try {
+      return await actions.createEntity(data);
+    } finally {
+      this.restoreMocks();
+    }
+  }
+}
+```
+
+## Regole Obbligatorie
+
+### 1. Database Isolation
+- **SEMPRE** usare `testDb` per i test
+- **MAI** connettere ai database di sviluppo/produzione
+- **SEMPRE** fare cleanup dopo ogni test
+
+### 2. Schema Consistency
+- Il test schema è **automaticamente generato** da `prisma/schema.prisma`
+- **NON modificare** manualmente `test/schema-test.prisma`
+- Le conversioni PostgreSQL → SQLite sono **automatiche**
+
+### 3. Test Structure
+- Usare `TestActionsHelper` per tutte le action calls
+- Implementare setup/teardown corretto
+- Test isolati e indipendenti
+
+### 4. Data Management
+```typescript
+// ✅ CORRETTO - Cleanup automatico
+afterEach(async () => {
+  await testDb.cleanup(); // Pulisce TUTTI i dati
+});
+
+// ✅ CORRETTO - Seed data quando necessario
+const seedData = await testDb.seedTestData();
+```
+
+## Conversioni Automatiche PostgreSQL → SQLite
+
+Il sistema converte automaticamente:
+- `provider = "postgresql"` → `provider = "sqlite"`
+- `@default(dbgenerated("uuid_generate_v4()"))` → `@default(uuid())`
+- `@db.Uuid` → rimosso
+- `@db.VarChar(255)` → rimosso
+- `@db.Timestamp(6)` → rimosso
+- `@db.Decimal(10,2)` → rimosso
+
+## File Structure Test
+
+```
+test/
+├── test-db-setup.ts      # Database manager
+├── test-helpers.ts       # Actions helper
+├── actions.test.ts       # Test delle actions
+├── schema-test.prisma    # Schema generato (temporaneo)
+└── test-*.sqlite         # Database temporanei
+```
+
+## Comandi Test
+
+```bash
+# Esegui tutti i test
+pnpm test
+
+# Esegui solo test actions
+pnpm test actions.test.ts
+
+# Test con coverage
+pnpm test --coverage
+```
+
+## Troubleshooting
+
+### Schema Sync Issues
+Se i test falliscono per problemi di schema:
+```bash
+# Il sistema si auto-ripara, ma in caso di problemi:
+rm test/schema-test.prisma
+rm test/test-*.sqlite
+pnpm test  # Rigenera automaticamente
+```
+
+### Mock Issues
+Se le actions non usano il database di test:
+- Verificare che `TestActionsHelper.setupMocks()` sia chiamato
+- Controllare che il path del modulo helpers sia corretto
+- Assicurarsi che `restoreMocks()` sia nel `finally`
+
+**IMPORTANTE**: Questo pattern garantisce test veloci, isolati e affidabili senza interferire con i dati di sviluppo.
+description:
+globs:
+alwaysApply: true
+---

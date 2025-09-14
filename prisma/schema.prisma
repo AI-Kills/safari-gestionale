@@ -82,6 +82,9 @@ model Preventivo {
   brand                String?               @db.VarChar(255)
   adulti               Int?
   bambini              Int?
+  destinazione         String?               @db.VarChar(255)
+  tipo_viaggio         String?               @db.VarChar(50)
+  note_operative       String?
   riferimento          String?               @db.VarChar(255)
   data_partenza        DateTime?             @db.Date
   operatore            String?               @db.VarChar(255)
@@ -112,6 +115,7 @@ model ServiziATerra {
   totale                    Float?
   valuta                    String?                     @db.VarChar(10)
   cambio                    Float?
+  ricarico                  Float?
   servizio_aggiuntivo       Boolean?
   pagamenti_servizi_a_terra pagamenti_servizi_a_terra[]
   destinazione              Destinazione?               @relation(fields: [id_destinazione], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -174,6 +178,7 @@ model PreventivoAlClienteRow {
   descrizione              String?
   individuale              Float?
   numero                   Int?
+  is_primo_tipo            Boolean?
   preventivoAlCliente      PreventivoAlCliente @relation(fields: [id_preventivo_al_cliente], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("preventivi_al_cliente_row")

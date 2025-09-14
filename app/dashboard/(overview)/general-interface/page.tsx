@@ -14,18 +14,176 @@ import brandValues from "@/app/seed/brands.json";
 import operatoriValues from "@/app/seed/operatori.json";
 import { ClienteInputGroup, PreventivoInputGroup, ServizioATerraInputGroup, VoloInputGroup, AssicurazioneInputGroup, Data, PreventivoAlClienteRow, PreventivoAlClienteInputGroup, Pagamento } from "./general-interface.defs";
 import { formatDate, isValidEmail } from "@/app/lib/utils";
-import { createCliente, DBResult, updateCliente } from "@/app/lib/actions/actions";
+import { 
+  // Types
+  DBResult, 
+  // Client actions
+  createCliente, 
+  updateCliente, 
+  searchClienti, 
+  // Preventivi actions
+  fetchPreventiviByIdCliente, 
+  getNumberOfPreventivi,
+  submitCreatePreventivoGI,
+  updatePreventivo,
+  // Servizi a terra actions
+  fetchServiziATerraByPreventivoId,
+  fetchServiziAggiuntiviByPreventivoId,
+  fetchServizioATerraById,
+  createServizioATerra,
+  updateServizioATerra,
+  deleteServizioATerraById,
+  // Voli actions
+  fetchVoliByPreventivoId,
+  fetchVoloById,
+  createVolo,
+  updateVolo,
+  deleteVoloById,
+  // Assicurazioni actions
+  fetchAssicurazioniByPreventivoId,
+  fetchAssicurazioneById,
+  createAssicurazione,
+  updateAssicurazione,
+  deleteAssicurazioneById,
+  // Preventivo al cliente actions
+  fetchPreventivoAlClienteByPreventivoId,
+  updatePreventivoAlClienteDescrizione,
+  updatePreventivoAlClienteRow,
+  deletePreventivoAlClienteRowById,
+  createPreventivoAlClienteRow,
+  // Entity lookup actions
+  getDestinazioneById,
+  getFornitoreById
+} from "@/app/lib/actions";
 import { getTotServizio, getRicaricoServizio, getTotVolo, getTotAssicurazione, formatDateToString, getSommaTuttiTotEuro, validationErrorsToString, numberToExcelFormat, formatNumberItalian, isValidTel, dataErrors, errorTranslations } from "./helpers";
 import { useSpinnerContext } from '@/app/context/spinner-context';
 import { useDebouncedCallback } from 'use-debounce';
 import moment from 'moment';
 import Feedback from '@/app/ui/feedback/feedback';
-import { Preventivo } from '@/app/lib/definitions';
+import { Preventivo, PreventivoAlCliente } from '@/app/lib/definitions';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserIcon, DocumentTextIcon, PlusIcon, MinusIcon, CurrencyEuroIcon, CalendarIcon, BuildingOfficeIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
+import {
+  AssicurazioneInputGroup as AssicurazioneInputGroupType,
+  Data as DataType,
+  PreventivoAlClienteInputGroup as PreventivoAlClienteInputGroupType,
+  PreventivoAlClienteRow as PreventivoAlClienteRowType,
+  PreventivoInputGroup as PreventivoInputGroupType,
+  ServizioATerraInputGroup as ServizioATerraInputGroupType,
+  VoloInputGroup as VoloInputGroupType,
+} from "./general-interface.defs";
 
+
+// Helper functions for data transformation
+const getServiziATerraInputGroup = async (serviziATerra: any[]): Promise<ServizioATerraInputGroupType[]> => {
+  const res: ServizioATerraInputGroupType[] = [];
+  for (let i = 0; i < serviziATerra.length; i++) {
+    // se c'e la destinazione, ottienila
+    let destinazione: any = "";
+    const id_destinazione = serviziATerra[i]?.id_destinazione;
+    if (id_destinazione) {
+      const _destinazione = await getDestinazioneById(id_destinazione);
+      if (_destinazione.success) {
+        destinazione = _destinazione.values?.nome;
+      }
+    }
+    // se c'e il fornitore, ottienilo
+    let fornitore: any = "";
+    const id_fornitore = serviziATerra[i]?.id_fornitore;
+    if (id_fornitore) {
+      const _fornitore = await getFornitoreById(id_fornitore);
+      if (_fornitore.success) {
+        fornitore = _fornitore.values?.nome;
+      }
+    }
+    // create inputGroup
+    const iG = new ServizioATerraInputGroup(
+      i,
+      destinazione,
+      fornitore,
+      serviziATerra[i]?.descrizione,
+      serviziATerra[i]?.data,
+      serviziATerra[i]?.numero_notti,
+      serviziATerra[i]?.numero_camere,
+      serviziATerra[i]?.valuta,
+      serviziATerra[i]?.totale,
+      serviziATerra[i]?.cambio,
+      serviziATerra[i]?.servizio_aggiuntivo,
+      serviziATerra[i]?.id
+    );
+    res.push(iG);
+  }
+  return res;
+};
+
+const getVoliInputGroup = async (voli: any[]): Promise<VoloInputGroupType[]> => {
+  const res: VoloInputGroupType[] = [];
+  for (let i = 0; i < voli.length; i++) {
+    // se c'e il fornitore, ottienilo
+    let fornitore: any = "";
+    const id_fornitore = voli[i]?.id_fornitore;
+    if (id_fornitore) {
+      const _fornitore = await getFornitoreById(id_fornitore);
+      if (_fornitore.success) {
+        fornitore = _fornitore.values?.nome;
+      }
+    }
+    const iG = new VoloInputGroup(
+      i,
+      fornitore,
+      voli[i]?.compagnia_aerea,
+      voli[i]?.descrizione,
+      voli[i]?.data_partenza,
+      voli[i]?.data_arrivo,
+      voli[i]?.totale,
+      voli[i]?.ricarico,
+      voli[i]?.numero,
+      voli[i]?.valuta,
+      voli[i]?.cambio,
+      voli[i]?.id
+    );
+    res.push(iG);
+  }
+  return res;
+};
+
+const getAssicurazioniInputGroup = async (assicurazioni: any[]): Promise<AssicurazioneInputGroupType[]> => {
+  const res: AssicurazioneInputGroupType[] = [];
+  for (let i = 0; i < assicurazioni.length; i++) {
+    // se c'e il fornitore, ottienilo
+    let fornitore: any = "";
+    const id_fornitore = assicurazioni[i]?.id_fornitore;
+    if (id_fornitore) {
+      const _fornitore = await getFornitoreById(id_fornitore);
+      if (_fornitore.success) {
+        fornitore = _fornitore.values?.nome;
+      }
+    }
+    const iG = new AssicurazioneInputGroup(
+      i, 
+      fornitore, 
+      assicurazioni[i]?.assicurazione, 
+      assicurazioni[i]?.netto, 
+      assicurazioni[i]?.ricarico,
+      assicurazioni[i]?.numero,
+      assicurazioni[i]?.id
+    );
+    res.push(iG);
+  }
+  return res;
+};
+
+const getPreventivoAlClienteInputGroup = async (preventivoAlCliente: PreventivoAlCliente): Promise<PreventivoAlClienteInputGroupType> => {
+  const res: PreventivoAlClienteInputGroupType = new PreventivoAlClienteInputGroup(
+    preventivoAlCliente.descrizione_viaggio,
+    preventivoAlCliente.righePrimoTipo.map((row, i) => new PreventivoAlClienteRow(i, row.destinazione, row.descrizione, row.individuale, row.numero, row.id)),
+    preventivoAlCliente.righeSecondoTipo.map((row, i) => new PreventivoAlClienteRow(i, row.destinazione, row.descrizione, row.individuale, row.numero, row.id)),
+    preventivoAlCliente.id
+  );
+  return res;
+};
 
 export default function CreaPreventivoGeneralInterface() {
 
@@ -329,49 +487,75 @@ export default function CreaPreventivoGeneralInterface() {
   }
 
   // feedbacks del form
-  const [feedback, setFeedback] = useState<{ success: true } | null>(null);
+  const [feedback, setFeedback] = useState<{ success: boolean } | null>(null);
   // errors list
   const [errorsList, setErrorsList] = useState<string[]>([]);
 
   // ### API CALLS ###
   /** Fetch the clienti corrispondenti to the cliente input. */
   const fetchClientiCorrispondenti = async () => {
-    // Esegui la chiamata all'API solo se 
-    // showFormPreventivo è false
-    const response = await fetch('/api/clienti', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(cliente),
-    });
-    if (response.ok) {
-      const data: ClienteInputGroup[] = await response.json();
-      console.log('data: ', data);
-      return data;
-    } else {
-      setErrorsList(['Errore nella chiamata: ', response.statusText]);
+    // Chiama direttamente la server action invece dell'API route
+    try {
+      const result = await searchClienti(cliente);
+      console.log('data: ', result);
+      if (result.success && result.values) {
+        return result.values;
+      } else {
+        setErrorsList(['Errore nella ricerca clienti: ', result.errorsMessage || 'Errore sconosciuto']);
+        return [];
+      }
+    } catch (error) {
+      setErrorsList(['Errore nella chiamata: ', error.toString()]);
+      return [];
     }
   }
-  const fetchDataPreventivoDaAggiornare = async (p: PreventivoInputGroup): Promise<Data> => {
+  
+  const fetchDataPreventivoDaAggiornare = async (p: PreventivoInputGroup): Promise<DataType> => {
     console.log("p: ", p);
-    const response = await fetch('/api/preventivi/data-preventivo-completi', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(p),
-    });
-    if (response.ok) {
-      const data: DBResult<Data> = await response.json();
-      console.log('data completi preventivo: ', data);
-      if (data.success) {
-        return data.values;
-      } else {
-        setErrorsList(['Errore nella chiamata: ', (data.errorsMessage || '') + '\n', validationErrorsToString(data.errors)]);
+    try {
+      const [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente] = await Promise.all([
+        fetchServiziATerraByPreventivoId(p.id),
+        fetchServiziAggiuntiviByPreventivoId(p.id),
+        fetchVoliByPreventivoId(p.id),
+        fetchAssicurazioniByPreventivoId(p.id),
+        fetchPreventivoAlClienteByPreventivoId(p.id)
+      ]);
+
+      // if any of the fetching fails, return error
+      if(!serviziATerra.success || !serviziAggiuntivi.success || !voli.success || !assicurazioni.success || !preventivoAlCliente.success) {
+        let errorsMessage = '';
+        [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente].forEach(s => {
+          if(!s.success) {
+            errorsMessage += s.errorsMessage + "\n";
+          }
+        });
+        setErrorsList(['Errore nella chiamata: ', errorsMessage]);
+        return null;
       }
-    } else {
-      setErrorsList(['Errore nella chiamata: ', response.statusText]);
+
+      // ### trasformare dati nei rispettivi inputGroups ###
+      const [serviziATerraInputGroup, serviziAggiuntiviInputGroup, voliInputGroup, assicurazioniInputGroup, preventivoAlClienteInputGroup] = await Promise.all([
+        getServiziATerraInputGroup(serviziATerra.values as any[]),
+        getServiziATerraInputGroup(serviziAggiuntivi.values as any[]),
+        getVoliInputGroup(voli.values as any[]),
+        getAssicurazioniInputGroup(assicurazioni.values as any[]),
+        getPreventivoAlClienteInputGroup(preventivoAlCliente.values as PreventivoAlCliente)
+      ]);
+
+      const data: DataType = {
+        preventivo: p,
+        serviziATerra: serviziATerraInputGroup,
+        serviziAggiuntivi: serviziAggiuntiviInputGroup,
+        voli: voliInputGroup,
+        assicurazioni: assicurazioniInputGroup,
+        preventivoAlCliente: preventivoAlClienteInputGroup,
+      };
+
+      console.log("Dato restituito da fetchDataPreventivoDaAggiornare: ", data)
+      return data;
+    } catch (error) {
+      setErrorsList(['Errore nella chiamata: ', error.toString()]);
+      return null;
     }
   }
 
@@ -399,9 +583,9 @@ export default function CreaPreventivoGeneralInterface() {
           const clienti = await fetchClientiCorrispondenti();
           setClientiTrovati(clienti);
           setIsActiveSpinner(false);
-          showOperationSuccessfull();
+          setFeedback({ success: true });
         } else { // TODO: mostrare errori in modo più esplicito -> mostrare errori validazione, mostrare tipo di errore (db o altro)
-          setErrorsList(['Errore nella creazione del cliente: ', (res.error || '') + '\n', validationErrorsToString(res.errors)]);
+          setErrorsList(['Errore nella creazione del cliente: ', (res.errorsMessage || '') + '\n', validationErrorsToString(res.errors)]);
         }
       } catch (error) {
         setErrorsList(['Errore nella chiamata: ' + error.toString()]);
@@ -432,9 +616,9 @@ export default function CreaPreventivoGeneralInterface() {
         if (res.success) {
           setCliente(c);
           setShowClientiTrovati(false);
-          showOperationSuccessfull();
+          setFeedback({ success: true });
         } else {
-          setErrorsList(['Errore nell\'aggiornamento del cliente: ', (res.error || '') + '\n', validationErrorsToString(res.errors)]);
+          setErrorsList(['Errore nell\'aggiornamento del cliente: ', (res.errorsMessage || '') + '\n', validationErrorsToString(res.errors)]);
         }
       } catch (error) {
         setErrorsList(['Errore nella chiamata: ' + error.toString()]);
@@ -450,28 +634,28 @@ export default function CreaPreventivoGeneralInterface() {
   const onClickMostraListaPreventivi = async (c: ClienteInputGroup) => {
     setIsActiveSpinner(true);
     console.log('the cliente state is: ', c);
-    const response = await fetch('/api/preventivi/preventivi-by-cliente', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(c.id),
-    });
-    const preventiviByClienteDBResult: DBResult<Preventivo[]> = await response.json();
-    console.log('data: ', preventiviByClienteDBResult);
-    if (preventiviByClienteDBResult.success) { // se la chiamata all'API è andata a buon fine
-      // se ci sono preventivi, mostrare la lista, altrimenti mostrare errore
-      if (preventiviByClienteDBResult.values.length > 0) {
-        const preventiviInputGroup = preventiviByClienteDBResult.values.map(p => new PreventivoInputGroup(p));
-        setClienteDaAggiornare(c);
-        setPreventiviClienteList(preventiviInputGroup);
-        setShowPreventiviClienteList(!showPreventiviClienteList);
+    
+    try {
+      const preventiviByClienteDBResult = await fetchPreventiviByIdCliente(c.id);
+      console.log('data: ', preventiviByClienteDBResult);
+      
+      if (preventiviByClienteDBResult.success) { // se la chiamata è andata a buon fine
+        // se ci sono preventivi, mostrare la lista, altrimenti mostrare errore
+        if (preventiviByClienteDBResult.values.length > 0) {
+          const preventiviInputGroup = preventiviByClienteDBResult.values.map(p => new PreventivoInputGroup(p));
+          setClienteDaAggiornare(c);
+          setPreventiviClienteList(preventiviInputGroup);
+          setShowPreventiviClienteList(!showPreventiviClienteList);
+        } else {
+          setErrorsList(['Il cliente non ha preventivi...']);
+        }
       } else {
-        setErrorsList(['Il cliente non ha preventivi...']);
+        setErrorsList(['Errore nella ricerca dei preventivi del cliente: ', (preventiviByClienteDBResult.errorsMessage || '') + '\n', validationErrorsToString(preventiviByClienteDBResult.errors)]);
       }
-    } else {
-      setErrorsList(['Errore nella ricerca dei preventivi del cliente: ', (preventiviByClienteDBResult.errorsMessage || '') + '\n', validationErrorsToString(preventiviByClienteDBResult.errors)]);
+    } catch (error) {
+      setErrorsList(['Errore nella chiamata: ', error.toString()]);
     }
+    
     setIsActiveSpinner(false);
   }
 
@@ -482,14 +666,10 @@ export default function CreaPreventivoGeneralInterface() {
   const onClickNuovoPreventivo = async (c: ClienteInputGroup) => {
     setCliente((prevState) => { return { ...prevState, ...c } });
     setIsActiveSpinner(true);
-    const response = await fetch('/api/preventivi/number-of-preventivi', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (response.ok) {
-      const numeroPreventiviDBResult: DBResult<number> = await response.json();
+    
+    try {
+      const numeroPreventiviDBResult = await getNumberOfPreventivi();
+      
       if (numeroPreventiviDBResult.success) {
         const numeroPreventivo = numberToExcelFormat((numeroPreventiviDBResult.values || 0) + 1);
         setPreventivo(() => new PreventivoInputGroup(numeroPreventivo));
@@ -505,21 +685,22 @@ export default function CreaPreventivoGeneralInterface() {
           (numeroPreventiviDBResult.errorsMessage || '') + '\n'
         ]);
       }
-    } else {
-      setErrorsList(['Errore nella chiamata per ottenere numero di preventivi, controlla la connessione e riprova: ', response.statusText]);
+    } catch (error) {
+      setErrorsList(['Errore nella chiamata per ottenere numero di preventivi: ', error.toString()]);
     }
+    
     setIsActiveSpinner(false);
   }
 
-  /** Call api to create a preventivo and set the feedback */
+  /** Call server action to create a preventivo and set the feedback */
   const submitCreatePreventivo = async () => {
     setErrorsList([]);
 
     if (preventivo.id) {
-
+      // Update logic would go here
     }
     else {
-      const data: Data = {
+      const data: DataType = {
         cliente: cliente,
         preventivo: preventivo,
         serviziATerra: serviziATerra,
@@ -529,19 +710,16 @@ export default function CreaPreventivoGeneralInterface() {
         preventivoAlCliente: preventivoAlCliente
       }
       const errors = dataErrors(data);
-      if (errors.length == 0) { // all required fields are filled -> CALL API
+      if (errors.length == 0) { // all required fields are filled -> CALL SERVER ACTION
         setIsActiveSpinner(true);
         try {
-          const response = await fetch('/api/preventivi/create', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          });
-          await response.json();
-          showOperationSuccessfull();
-          setShowFormPreventivo(false);
+          const result = await submitCreatePreventivoGI(data);
+          if (result.success) {
+            setFeedback({ success: true });
+            setShowFormPreventivo(false);
+          } else {
+            setErrorsList(['Errore nella creazione: ', result.error || '', validationErrorsToString(result.errors)]);
+          }
         } catch (error) {
           setErrorsList(['Errore nella chiamata: ' + error.toString()]);
         }
@@ -558,8 +736,9 @@ export default function CreaPreventivoGeneralInterface() {
     setIsActiveSpinner(true);
     const data = await fetchDataPreventivoDaAggiornare(p);
     console.log("data lpkojihugyftdr: ", data);
-    data.preventivo.numero_preventivo = numberToExcelFormat(parseInt(data.preventivo.numero_preventivo));
+    
     if (data) {
+      data.preventivo.numero_preventivo = numberToExcelFormat(parseInt(data.preventivo.numero_preventivo));
       setCliente(c);
       setPreventivo(data.preventivo);
       setServiziATerra(data.serviziATerra);
@@ -574,7 +753,7 @@ export default function CreaPreventivoGeneralInterface() {
 
   const submitUpdatePreventivo = async () => {
     setErrorsList([]);
-    const data: Data = {
+    const data: DataType = {
       cliente: cliente,
       preventivo: preventivo,
       serviziATerra: serviziATerra,
@@ -584,17 +763,19 @@ export default function CreaPreventivoGeneralInterface() {
       preventivoAlCliente: preventivoAlCliente
     }
     const errors = dataErrors(data);
-    if (errors.length == 0) { // all required fields are filled -> CALL API
+    if (errors.length == 0) { // all required fields are filled -> CALL SERVER ACTIONS
       setIsActiveSpinner(true);
       try {
-        await fetch('/api/preventivi/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-        showOperationSuccessfull();
+        const results = await Promise.all([
+          updatePreventivo(data.preventivo),
+          // TODO: Implementare le funzioni di update per i servizi
+          // updateServiziATerraPreventivo(data),
+          // updateServiziAggiuntiviPreventivo(data),
+          // updateVoliPreventivo(data),
+          // updateAssicurazioniPreventivo(data),
+          // updatePreventivoAlCliente(data),
+        ]);
+        setFeedback({ success: true });
         setShowFormPreventivo(false);
       } catch (error) {
         setErrorsList(['Errore nella chiamata: ' + error.toString()]);
@@ -607,15 +788,16 @@ export default function CreaPreventivoGeneralInterface() {
     }
   }
 
-  const showOperationSuccessfull = () => {
-    setTimeout(() => {
-      setFeedback({ success: true });
-    }, 200);
-    setTimeout(() => {
-      setErrorsList([]);
-      setFeedback(null);
-    }, 2200);
-  }
+  // Auto-clear feedback after success
+  useEffect(() => {
+    if (feedback?.success) {
+      const timer = setTimeout(() => {
+        setFeedback(null);
+        setErrorsList([]);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback]);
 
   /** Pulizia di tutti i campi */
   const clearAll = () => {

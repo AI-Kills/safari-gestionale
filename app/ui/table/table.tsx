@@ -70,12 +70,15 @@ const multiColumnFilterFn: FilterFn<Cliente> = (row, columnId, filterValue) => {
 
 export default function STable<R extends Record<string, any>>({ data, columnsSize }: { data: R[], columnsSize?: number }) {
   console.log("data ricevuti: ", data)
-  const columns: ColumnDef<R>[] =
-    Object.keys(data[0] ?? []).map((key) => ({
-      header: key as string,
-      accessorKey: key as keyof R,
-      size: columnsSize ?? 250,
-    }));
+  
+  // Genera le colonne dai dati disponibili o usa un array vuoto se non ci sono dati
+  const columns: ColumnDef<R>[] = data.length > 0 
+    ? Object.keys(data[0]).map((key) => ({
+        header: key as string,
+        accessorKey: key as keyof R,
+        size: columnsSize ?? 250,
+      }))
+    : []; // Array vuoto quando non ci sono dati
 
   const id = useId();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -345,8 +348,11 @@ export default function STable<R extends Record<string, any>>({ data, columnsSiz
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                <TableCell colSpan={Math.max(columns.length, 1)} className="h-24 text-center text-muted-foreground">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-sm">Non ci sono risultati</div>
+                    <div className="text-xs">Prova a modificare i filtri o aggiungi nuovi elementi</div>
+                  </div>
                 </TableCell>
               </TableRow>
             )}

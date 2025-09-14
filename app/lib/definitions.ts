@@ -54,23 +54,24 @@ export interface Preventivo extends Entity {
   adulti?: number;
   bambini?: number;
   destinazione?: string;
-  tipo_viaggio?: 'viaggio di nozze' | 'viaggio di lavoro' | 'altro';
+  tipo_viaggio?: string;
   note_operative?: string;
   riferimento?: string;
   data_partenza?: Date;
   operatore?: string;
   feedback?: string;
-  stato?: 'da fare' | 'in trattativa' | 'confermato' | 'inviato';
+  stato?: string;
   data?: Date;
   numero_preventivo?: string;
 }
 export interface ServizioATerra extends Entity{
   id_preventivo: string;
-  id_fornitore: string;
-  id_destinazione: string;
+  id_fornitore?: string;
+  id_destinazione?: string;
   descrizione?: string;
   data?: Date;
   numero_notti?: number;
+  numero_camere?: number;
   totale?: number;
   valuta?: string;
   cambio?: number;
@@ -79,22 +80,24 @@ export interface ServizioATerra extends Entity{
 }
 export interface Volo extends Entity{
   id_preventivo: string;
-  id_fornitore: string;
+  id_fornitore?: string;
   compagnia_aerea?: string;
   descrizione?: string;
   data_partenza?: Date;
   data_arrivo?: Date;
   totale?: number;
+  ricarico?: number;
+  numero?: number;
   valuta?: string;
   cambio?: number;
-  ricarico?: number;
 }
 export interface Assicurazione extends Entity{
   id_preventivo: string;
-  id_fornitore: string;
+  id_fornitore?: string;
   assicurazione?: string;
   netto?: number;
   ricarico?: number;
+  numero?: number;
 }
 export interface PreventivoAlClienteRow extends Entity{
   id_preventivo_al_cliente: string;
@@ -103,13 +106,13 @@ export interface PreventivoAlClienteRow extends Entity{
   descrizione?: string;
   individuale?: number;
   numero?: number;
+  is_primo_tipo?: boolean;
 }
 export interface PreventivoAlCliente extends Entity{
-  id_preventivo: string;
+  id_preventivo?: string;
   descrizione_viaggio?: string;
-  id: string;
-  righePrimoTipo: PreventivoAlClienteRow[]; // senza assicurazione
-  righeSecondoTipo: PreventivoAlClienteRow[]; // con assicurazione
+  righePrimoTipo?: PreventivoAlClienteRow[];
+  righeSecondoTipo?: PreventivoAlClienteRow[];
 }
 export interface Partecipante extends Entity{
   id_preventivo: string;

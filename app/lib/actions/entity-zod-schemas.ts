@@ -8,7 +8,10 @@ export const userSchema = z.object({
   password: z.string().min(6, { message: "Password deve essere di almeno 6 caratteri" }).max(255, { message: "Password troppo lunga" })
 });
 
-export const createUserSchema = userSchema.omit({ id: true });
+export const createUserSchema = userSchema.omit({ id: true }).extend({
+  email: z.string().email({ message: "Email non valida" }).max(255, { message: "Email troppo lunga" }),
+  password: z.string().min(6, { message: "Password deve essere di almeno 6 caratteri" }).max(255, { message: "Password troppo lunga" })
+});
 export const updateUserSchema = userSchema.partial().extend({
   id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
@@ -60,9 +63,7 @@ export const clienteSchema = z.object({
   sesso: z.string().max(1, { message: "Sesso deve essere 1 carattere" }).optional().nullable()
 });
 
-export const createClienteSchema = clienteSchema.omit({ id: true }).extend({
-  email: z.string().email({ message: "Email non valida" }).max(255, { message: "Email troppo lunga" })
-});
+export const createClienteSchema = clienteSchema.omit({ id: true });
 export const updateClienteSchema = clienteSchema.partial().extend({
   id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
@@ -89,7 +90,7 @@ export const preventivoSchema = z.object({
   adulti: z.number().int().min(0, { message: "Numero adulti deve essere positivo" }).optional().nullable(),
   bambini: z.number().int().min(0, { message: "Numero bambini deve essere positivo" }).optional().nullable(),
   destinazione: z.string().max(255, { message: "Destinazione troppo lunga" }).optional().nullable(),
-  tipo_viaggio: z.string().max(20, { message: "Tipo viaggio troppo lungo" }).optional().nullable(),
+  tipo_viaggio: z.string().max(50, { message: "Tipo viaggio troppo lungo" }).optional().nullable(),
   note_operative: z.string().optional().nullable(),
   riferimento: z.string().max(255, { message: "Riferimento troppo lungo" }).optional().nullable(),
   data_partenza: z.date({ message: "Data partenza non valida" }).optional().nullable(),
@@ -100,7 +101,9 @@ export const preventivoSchema = z.object({
   numero_preventivo: z.string().max(255, { message: "Numero preventivo troppo lungo" }).optional().nullable()
 });
 
-export const createPreventivoSchema = preventivoSchema.omit({ id: true, data: true });
+export const createPreventivoSchema = preventivoSchema.omit({ id: true, data: true }).extend({
+  id_cliente: z.string().min(1, { message: "ID cliente è obbligatorio" })
+});
 export const updatePreventivoSchema = preventivoSchema.partial().extend({
   id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
@@ -118,10 +121,13 @@ export const serviziATerraSchema = z.object({
   totale: z.number().min(0, { message: "Totale deve essere positivo" }).optional().nullable(),
   valuta: z.string().max(10, { message: "Valuta troppo lunga" }).optional().nullable(),
   cambio: z.number().min(0, { message: "Cambio deve essere positivo" }).optional().nullable(),
+  ricarico: z.number().min(0, { message: "Ricarico deve essere positivo" }).optional().nullable(),
   servizio_aggiuntivo: z.boolean().optional().nullable()
 });
 
-export const createServiziATerraSchema = serviziATerraSchema.omit({ id: true });
+export const createServiziATerraSchema = serviziATerraSchema.omit({ id: true }).extend({
+  id_preventivo: z.string().min(1, { message: "ID preventivo è obbligatorio" })
+});
 export const updateServiziATerraSchema = serviziATerraSchema.partial().extend({
   id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
@@ -142,7 +148,9 @@ export const voloSchema = z.object({
   cambio: z.number().min(0, { message: "Cambio deve essere positivo" }).optional().nullable()
 });
 
-export const createVoloSchema = voloSchema.omit({ id: true });
+export const createVoloSchema = voloSchema.omit({ id: true }).extend({
+  id_preventivo: z.string().min(1, { message: "ID preventivo è obbligatorio" })
+});
 export const updateVoloSchema = voloSchema.partial().extend({
   id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
@@ -158,7 +166,9 @@ export const assicurazioneSchema = z.object({
   numero: z.number().int().min(0, { message: "Numero deve essere positivo" }).optional().nullable()
 });
 
-export const createAssicurazioneSchema = assicurazioneSchema.omit({ id: true });
+export const createAssicurazioneSchema = assicurazioneSchema.omit({ id: true }).extend({
+  id_preventivo: z.string().min(1, { message: "ID preventivo è obbligatorio" })
+});
 export const updateAssicurazioneSchema = assicurazioneSchema.partial().extend({
   id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
@@ -183,10 +193,13 @@ export const preventivoAlClienteRowSchema = z.object({
   destinazione: z.string().max(255, { message: "Destinazione troppo lunga" }).optional().nullable(),
   descrizione: z.string().optional().nullable(),
   individuale: z.number().min(0, { message: "Individuale deve essere positivo" }).optional().nullable(),
-  numero: z.number().int().min(0, { message: "Numero deve essere positivo" }).optional().nullable()
+  numero: z.number().int().min(0, { message: "Numero deve essere positivo" }).optional().nullable(),
+  is_primo_tipo: z.boolean().optional().nullable()
 });
 
-export const createPreventivoAlClienteRowSchema = preventivoAlClienteRowSchema.omit({ id: true });
+export const createPreventivoAlClienteRowSchema = preventivoAlClienteRowSchema.omit({ id: true }).extend({
+  id_preventivo_al_cliente: z.string().min(1, { message: "ID preventivo al cliente è obbligatorio" })
+});
 export const updatePreventivoAlClienteRowSchema = preventivoAlClienteRowSchema.partial().extend({
   id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
