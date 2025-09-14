@@ -113,20 +113,30 @@ export async function getPreventivo(id: string): Promise<any | null> {
 
 export async function updatePreventivo(data: any): Promise<ApiResponse<PreventivoType>> {
   try {
+    console.log('🔧 updatePreventivo called with:', data);
+    
     const parsedData = parseFormDates(data);
+    console.log('📅 After parseFormDates:', parsedData);
+    
     const validatedData = updatePreventivoSchema.safeParse(parsedData);
     if (!validatedData.success) {
+      console.error('❌ Preventivo validation failed:', validatedData.error);
+      console.error('❌ Validation issues:', validatedData.error.issues);
       return handleValidationErrors(validatedData.error);
     }
+
+    console.log('✅ Preventivo validation successful:', validatedData.data);
 
     const preventivo = await prisma.preventivo.update({
       where: { id: validatedData.data.id },
       data: validatedData.data
     });
 
+    console.log('🎉 Preventivo updated successfully:', preventivo.id);
     revalidatePath('/dashboard/preventivi-table');
     return { success: true, data: preventivo as PreventivoType };
   } catch (error) {
+    console.error('💥 Error in updatePreventivo:', error);
     return handlePrismaError(error);
   }
 }

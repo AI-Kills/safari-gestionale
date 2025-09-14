@@ -332,24 +332,38 @@ export default function CreaPreventivoGeneralInterface() {
   }
 
   const onVCServizioATerra = (e: any, id: number, name: string) => {
-    console.log('change in a value of a servizioATerra <event, id, name>: ', e, id, name);
+    console.log('🔄 ServizioATerra field change:', { groupId: id, field: name, value: e.target.value, type: typeof e.target.value });
+    
     setServiziATerra(serviziATerra.map(servizio => {
       if (servizio.groupId === id) {
         if (name === 'data') {
           servizio.data = new Date(e.target.value);
+          console.log('📅 Updated data field:', servizio.data);
         } else {
+          const oldValue = servizio[name];
           servizio[name] = e.target.value;
           switch (name) {
-            case 'numero_notti': servizio[name] = parseInt(e.target.value);
+            case 'numero_notti': 
+              servizio[name] = parseInt(e.target.value);
+              console.log('🔢 Converted numero_notti:', oldValue, '→', servizio[name]);
               break;
-            case 'numero_camere': servizio[name] = parseInt(e.target.value);
+            case 'numero_camere': 
+              servizio[name] = parseInt(e.target.value);
+              console.log('🔢 Converted numero_camere:', oldValue, '→', servizio[name]);
               break;
-            case 'totale': servizio[name] = parseFloat(e.target.value);
-              break
-            case 'cambio': servizio[name] = parseFloat(e.target.value);
-              break
+            case 'totale': 
+              servizio[name] = parseFloat(e.target.value);
+              console.log('💰 Converted totale:', oldValue, '→', servizio[name]);
+              break;
+            case 'cambio': 
+              servizio[name] = parseFloat(e.target.value);
+              console.log('💱 Converted cambio:', oldValue, '→', servizio[name]);
+              break;
+            default:
+              console.log('📝 String field updated:', name, oldValue, '→', servizio[name]);
           }
         }
+        console.log('✅ Updated servizio state:', servizio);
       }
       return { ...servizio };
     }));
@@ -817,6 +831,25 @@ export default function CreaPreventivoGeneralInterface() {
         console.log('🔧 Dati preventivo da aggiornare:', plainData.preventivo);
         console.log('💰 Percentuale ricarico nel plainData:', plainData.preventivo.percentuale_ricarico);
         console.log('📋 Servizi a terra da salvare:', plainData.serviziATerra?.length || 0);
+        
+        // Debug dettagliato dei servizi a terra
+        if (plainData.serviziATerra && plainData.serviziATerra.length > 0) {
+          plainData.serviziATerra.forEach((servizio, index) => {
+            console.log(`🔍 Servizio ${index + 1}:`, {
+              groupId: servizio.groupId,
+              destinazione: servizio.destinazione,
+              fornitore: servizio.fornitore,
+              descrizione: servizio.descrizione,
+              totale: servizio.totale,
+              numero_notti: servizio.numero_notti,
+              numero_camere: servizio.numero_camere,
+              valuta: servizio.valuta,
+              cambio: servizio.cambio,
+              data: servizio.data
+            });
+          });
+        }
+        
         console.log('➕ Servizi aggiuntivi da salvare:', plainData.serviziAggiuntivi?.length || 0);
         console.log('✈️ Voli da salvare:', plainData.voli?.length || 0);
         console.log('🛡️ Assicurazioni da salvare:', plainData.assicurazioni?.length || 0);

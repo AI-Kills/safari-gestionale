@@ -40,31 +40,64 @@ export async function createServiziATerra(data: any): Promise<ApiResponse<Serviz
 
 export async function createServizioATerra(data: any, preventivoId: string, isServizioAggiuntivo: boolean): Promise<ApiResponse<ServiziATerraType>> {
   try {
+    console.log('🏗️ createServizioATerra called with:', { data, preventivoId, isServizioAggiuntivo });
+    
     const parsedData = parseFormDates(data);
     parsedData.id_preventivo = preventivoId;
     parsedData.servizio_aggiuntivo = isServizioAggiuntivo;
     
+    // Pulizia dati: converti stringhe vuote in null
+    Object.keys(parsedData).forEach(key => {
+      if (parsedData[key] === '' || parsedData[key] === 'undefined') {
+        parsedData[key] = null;
+      }
+      // Converti stringhe numeriche vuote in null
+      if (['totale', 'cambio', 'ricarico', 'numero_notti', 'numero_camere'].includes(key)) {
+        if (parsedData[key] === '' || isNaN(parsedData[key])) {
+          parsedData[key] = null;
+        } else if (typeof parsedData[key] === 'string') {
+          parsedData[key] = parseFloat(parsedData[key]);
+        }
+      }
+    });
+    
+    console.log('📅 After parseFormDates and cleanup:', parsedData);
+    
     // Trova gli ID delle entità correlate se i nomi sono forniti
     if (parsedData.destinazione) {
+      console.log('🌍 Looking for destinazione:', parsedData.destinazione);
       const destinazione = await prisma.destinazione.findFirst({
         where: { nome: parsedData.destinazione }
       });
+      console.log('🌍 Found destinazione:', destinazione);
       parsedData.id_destinazione = destinazione?.id;
       delete parsedData.destinazione;
     }
     
     if (parsedData.fornitore) {
+      console.log('🏢 Looking for fornitore:', parsedData.fornitore);
       const fornitore = await prisma.fornitore.findFirst({
         where: { nome: parsedData.fornitore }
       });
+      console.log('🏢 Found fornitore:', fornitore);
       parsedData.id_fornitore = fornitore?.id;
       delete parsedData.fornitore;
     }
 
+    // Rimuovi campi che non servono per il database
+    delete parsedData.groupId;
+    delete parsedData.pagamenti;
+
+    console.log('🔧 Data before validation:', parsedData);
+
     const validatedData = createServiziATerraSchema.safeParse(parsedData);
     if (!validatedData.success) {
+      console.error('❌ Validation failed:', validatedData.error);
+      console.error('❌ Validation issues:', validatedData.error.issues);
       return handleValidationErrors(validatedData.error);
     }
+
+    console.log('✅ Validation successful:', validatedData.data);
 
     const servizio = await prisma.serviziATerra.create({
       data: {
@@ -83,9 +116,11 @@ export async function createServizioATerra(data: any, preventivoId: string, isSe
       }
     });
 
+    console.log('🎉 Servizio created successfully:', servizio.id);
     revalidatePath('/dashboard/preventivi-table');
     return { success: true, data: servizio as ServiziATerraType };
   } catch (error) {
+    console.error('💥 Error in createServizioATerra:', error);
     return handlePrismaError(error);
   }
 }
