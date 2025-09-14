@@ -14,6 +14,10 @@ import {
   createPreventivoAlClienteSchema,
   createPreventivoAlClienteRowSchema
 } from '../entity-zod-schemas';
+import { createServizioATerra } from '../servizi-a-terra/servizi-a-terra-actions';
+import { createVolo } from '../voli/voli-actions';
+import { createAssicurazione } from '../assicurazioni/assicurazioni-actions';
+import { createPreventivoAlClienteRow } from './preventivi-al-cliente-actions';
 
 export async function createPreventivo(data: any): Promise<ApiResponse<PreventivoType>> {
   try {
@@ -276,20 +280,7 @@ export async function submitCreatePreventivoGI(data: any): Promise<ApiResponse> 
           const validatedServizioData = createServiziATerraSchema.safeParse(parsedServizioData);
           if (validatedServizioData.success) {
             await tx.serviziATerra.create({
-              data: {
-                id_preventivo: validatedServizioData.data.id_preventivo!,
-                id_fornitore: validatedServizioData.data.id_fornitore,
-                id_destinazione: validatedServizioData.data.id_destinazione,
-                descrizione: validatedServizioData.data.descrizione,
-                data: validatedServizioData.data.data,
-                numero_notti: validatedServizioData.data.numero_notti,
-                numero_camere: validatedServizioData.data.numero_camere,
-                totale: validatedServizioData.data.totale,
-                valuta: validatedServizioData.data.valuta,
-                cambio: validatedServizioData.data.cambio,
-                ricarico: validatedServizioData.data.ricarico,
-                servizio_aggiuntivo: validatedServizioData.data.servizio_aggiuntivo
-              }
+              data: validatedServizioData.data
             });
           }
         }
@@ -456,5 +447,197 @@ export async function submitCreatePreventivoGI(data: any): Promise<ApiResponse> 
   } catch (error) {
     console.error('Errore in submitCreatePreventivoGI:', error);
     return handlePrismaError(error);
+  }
+}
+
+// Funzione semplificata per aggiornare preventivo completo
+export async function updatePreventivoCompleto(data: any): Promise<ApiResponse> {
+  try {
+    console.log('updatePreventivoCompleto called with:', data);
+    
+    // Esegui operazioni sequenzialmente per evitare conflitti
+    // 1. Aggiorna il preventivo principale
+    const preventivoResult = await updatePreventivo(data.preventivo);
+    if (!preventivoResult.success) {
+      throw new Error(`Errore aggiornamento preventivo: ${preventivoResult.error}`);
+    }
+    
+    // 2. Gestisci servizi a terra (elimina tutti e ricrea)
+    await updateServiziATerraCompleto(data.preventivo.id, data.serviziATerra || [], false);
+    
+    // 3. Gestisci servizi aggiuntivi (elimina tutti e ricrea)
+    await updateServiziATerraCompleto(data.preventivo.id, data.serviziAggiuntivi || [], true);
+    
+    // 4. Gestisci voli (elimina tutti e ricrea)
+    await updateVoliCompleto(data.preventivo.id, data.voli || []);
+    
+    // 5. Gestisci assicurazioni (elimina tutti e ricrea)
+    await updateAssicurazioniCompleto(data.preventivo.id, data.assicurazioni || []);
+    
+    // 6. Gestisci preventivo al cliente
+    await updatePreventivoAlClienteCompleto(data.preventivo.id, data.preventivoAlCliente);
+
+    revalidatePath('/dashboard/preventivi-table');
+    revalidatePath('/dashboard/general-interface');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Errore in updatePreventivoCompleto:', error);
+    return handlePrismaError(error);
+  }
+}
+
+// Helper functions per l'aggiornamento
+async function updateServiziATerraCompleto(preventivoId: string, servizi: any[], isServizioAggiuntivo: boolean): Promise<void> {
+  console.log(`Updating servizi a terra: ${servizi.length} servizi, isServizioAggiuntivo: ${isServizioAggiuntivo}`);
+  
+  // Elimina tutti i servizi esistenti del tipo specificato
+  await prisma.serviziATerra.deleteMany({
+    where: { 
+      id_preventivo: preventivoId,
+      servizio_aggiuntivo: isServizioAggiuntivo
+    }
+  });
+
+  // Crea i nuovi servizi
+  for (let i = 0; i < servizi.length; i++) {
+    const servizio = servizi[i];
+    console.log(`Creating servizio ${i + 1}/${servizi.length}:`, servizio);
+    
+    try {
+      const result = await createServizioATerra(servizio, preventivoId, isServizioAggiuntivo);
+      if (!result.success) {
+        console.error(`Failed to create servizio ${i + 1}:`, result);
+        throw new Error(`Errore nella creazione del servizio ${i + 1}: ${result.error || 'Errore sconosciuto'}`);
+      }
+      console.log(`Successfully created servizio ${i + 1}`);
+    } catch (error) {
+      console.error(`Error creating servizio ${i + 1}:`, error);
+      throw error;
+    }
+  }
+}
+
+async function updateVoliCompleto(preventivoId: string, voli: any[]): Promise<void> {
+  console.log(`Updating voli: ${voli.length} voli`);
+  
+  // Elimina tutti i voli esistenti
+  await prisma.volo.deleteMany({
+    where: { id_preventivo: preventivoId }
+  });
+
+  // Crea i nuovi voli
+  for (let i = 0; i < voli.length; i++) {
+    const volo = voli[i];
+    console.log(`Creating volo ${i + 1}/${voli.length}:`, volo);
+    
+    try {
+      const voloData = { ...volo, id_preventivo: preventivoId };
+      const result = await createVolo(voloData);
+      if (!result.success) {
+        console.error(`Failed to create volo ${i + 1}:`, result);
+        throw new Error(`Errore nella creazione del volo ${i + 1}: ${result.error || 'Errore sconosciuto'}`);
+      }
+      console.log(`Successfully created volo ${i + 1}`);
+    } catch (error) {
+      console.error(`Error creating volo ${i + 1}:`, error);
+      throw error;
+    }
+  }
+}
+
+async function updateAssicurazioniCompleto(preventivoId: string, assicurazioni: any[]): Promise<void> {
+  console.log(`Updating assicurazioni: ${assicurazioni.length} assicurazioni`);
+  
+  // Elimina tutte le assicurazioni esistenti
+  await prisma.assicurazione.deleteMany({
+    where: { id_preventivo: preventivoId }
+  });
+
+  // Crea le nuove assicurazioni
+  for (let i = 0; i < assicurazioni.length; i++) {
+    const assicurazione = assicurazioni[i];
+    console.log(`Creating assicurazione ${i + 1}/${assicurazioni.length}:`, assicurazione);
+    
+    try {
+      const assicurazioneData = { ...assicurazione, id_preventivo: preventivoId };
+      const result = await createAssicurazione(assicurazioneData);
+      if (!result.success) {
+        console.error(`Failed to create assicurazione ${i + 1}:`, result);
+        throw new Error(`Errore nella creazione dell'assicurazione ${i + 1}: ${result.error || 'Errore sconosciuto'}`);
+      }
+      console.log(`Successfully created assicurazione ${i + 1}`);
+    } catch (error) {
+      console.error(`Error creating assicurazione ${i + 1}:`, error);
+      throw error;
+    }
+  }
+}
+
+async function updatePreventivoAlClienteCompleto(preventivoId: string, preventivoAlCliente: any): Promise<void> {
+  if (!preventivoAlCliente) {
+    console.log('No preventivo al cliente to update');
+    return;
+  }
+
+  console.log('Updating preventivo al cliente:', preventivoAlCliente);
+
+  // Trova il preventivo al cliente esistente
+  const existing = await prisma.preventivoAlCliente.findFirst({
+    where: { id_preventivo: preventivoId },
+    include: { rows: true }
+  });
+
+  if (existing) {
+    // Elimina le righe esistenti
+    await prisma.preventivoAlClienteRow.deleteMany({
+      where: { id_preventivo_al_cliente: existing.id }
+    });
+
+    // Aggiorna la descrizione
+    await prisma.preventivoAlCliente.update({
+      where: { id: existing.id },
+      data: {
+        descrizione_viaggio: preventivoAlCliente.descrizione_viaggio
+      }
+    });
+
+    // Crea le nuove righe primo tipo
+    if (preventivoAlCliente.righePrimoTipo && preventivoAlCliente.righePrimoTipo.length > 0) {
+      console.log(`Creating ${preventivoAlCliente.righePrimoTipo.length} righe primo tipo`);
+      for (let i = 0; i < preventivoAlCliente.righePrimoTipo.length; i++) {
+        const row = preventivoAlCliente.righePrimoTipo[i];
+        try {
+          const result = await createPreventivoAlClienteRow(row, true, existing.id);
+          if (!result.success) {
+            console.error(`Failed to create riga primo tipo ${i + 1}:`, result);
+            throw new Error(`Errore nella creazione della riga primo tipo ${i + 1}: ${result.error || 'Errore sconosciuto'}`);
+          }
+        } catch (error) {
+          console.error(`Error creating riga primo tipo ${i + 1}:`, error);
+          throw error;
+        }
+      }
+    }
+
+    // Crea le nuove righe secondo tipo
+    if (preventivoAlCliente.righeSecondoTipo && preventivoAlCliente.righeSecondoTipo.length > 0) {
+      console.log(`Creating ${preventivoAlCliente.righeSecondoTipo.length} righe secondo tipo`);
+      for (let i = 0; i < preventivoAlCliente.righeSecondoTipo.length; i++) {
+        const row = preventivoAlCliente.righeSecondoTipo[i];
+        try {
+          const result = await createPreventivoAlClienteRow(row, false, existing.id);
+          if (!result.success) {
+            console.error(`Failed to create riga secondo tipo ${i + 1}:`, result);
+            throw new Error(`Errore nella creazione della riga secondo tipo ${i + 1}: ${result.error || 'Errore sconosciuto'}`);
+          }
+        } catch (error) {
+          console.error(`Error creating riga secondo tipo ${i + 1}:`, error);
+          throw error;
+        }
+      }
+    }
+  } else {
+    console.log('No existing preventivo al cliente found');
   }
 }

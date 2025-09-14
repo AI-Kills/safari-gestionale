@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll, afterEach, afterAll } from 'vitest';
+import { describe, test, expect, beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
 import { testDb } from './test-db-setup';
 import { TestActionsHelper } from './test-helpers';
 
@@ -15,7 +15,7 @@ describe('CRUD Operations with Test Database', () => {
   });
 
   afterAll(async () => {
-    await testDb.disconnect();
+    await testDb.close();
   });
 
   // ============================================================================
@@ -381,6 +381,308 @@ describe('CRUD Operations with Test Database', () => {
 
       const destinazioni = await testActions.getAllDestinazioni();
       expect(destinazioni).toHaveLength(0);
+    });
+  });
+
+  // ============================================================================
+  // ASSICURAZIONE TESTS
+  // ============================================================================
+
+  describe('Assicurazione CRUD Operations', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+    let testFornitoreId: string;
+
+    beforeEach(async () => {
+      // Create test cliente
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente',
+        email: 'test.cliente.assicurazione@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      // Create test preventivo
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'ASS001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+
+      // Create test fornitore
+      const fornitoreResult = await testActions.createFornitore({
+        nome: 'Assicurazione Test',
+        valuta: 'EUR'
+      });
+      testFornitoreId = fornitoreResult.data.id;
+    });
+
+    test('should create a new assicurazione successfully', async () => {
+      const assicurazioneData = {
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tipo: 'Medico',
+        costo: 50.00
+      };
+
+      const result = await testActions.createAssicurazione(assicurazioneData);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.assicurazione).toBe('Medico');
+      expect(result.data.id).toBeDefined();
+    });
+
+    test('should fetch assicurazioni by preventivo id', async () => {
+      // Create test assicurazioni
+      await testActions.createAssicurazione({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tipo: 'Medico'
+      });
+      await testActions.createAssicurazione({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tipo: 'Annullamento'
+      });
+
+      const result = await testActions.fetchAssicurazioniByPreventivoId(testPreventivoId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+    });
+
+    test('should update assicurazione successfully', async () => {
+      const createResult = await testActions.createAssicurazione({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tipo: 'Medico',
+        costo: 50.00
+      });
+
+      const updateResult = await testActions.updateAssicurazione({
+        id: createResult.data.id,
+        tipo: 'Annullamento',
+        costo: 75.00
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect(updateResult.data.assicurazione).toBe('Annullamento');
+      expect(updateResult.data.netto).toBe(75.00);
+    });
+
+    test('should delete assicurazione successfully', async () => {
+      const createResult = await testActions.createAssicurazione({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tipo: 'Medico'
+      });
+
+      const deleteResult = await testActions.deleteAssicurazioneById(createResult.data.id);
+
+      expect(deleteResult.success).toBe(true);
+
+      const assicurazioni = await testActions.getAllAssicurazioni();
+      expect(assicurazioni).toHaveLength(0);
+    });
+  });
+
+  // ============================================================================
+  // VOLO TESTS
+  // ============================================================================
+
+  describe('Volo CRUD Operations', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+    let testFornitoreId: string;
+
+    beforeEach(async () => {
+      // Create test cliente
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente',
+        email: 'test.cliente.volo@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      // Create test preventivo
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'VOL001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+
+      // Create test fornitore
+      const fornitoreResult = await testActions.createFornitore({
+        nome: 'Compagnia Aerea Test',
+        valuta: 'EUR'
+      });
+      testFornitoreId = fornitoreResult.data.id;
+    });
+
+    test('should create a new volo successfully', async () => {
+      const voloData = {
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tratta: 'Roma-Milano',
+        costo: 150.00
+      };
+
+      const result = await testActions.createVolo(voloData);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.compagnia_aerea).toBe('Roma-Milano');
+      expect(result.data.id).toBeDefined();
+    });
+
+    test('should fetch voli by preventivo id', async () => {
+      // Create test voli
+      await testActions.createVolo({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tratta: 'Roma-Milano'
+      });
+      await testActions.createVolo({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tratta: 'Milano-Roma'
+      });
+
+      const result = await testActions.fetchVoliByPreventivoId(testPreventivoId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+    });
+
+    test('should update volo successfully', async () => {
+      const createResult = await testActions.createVolo({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tratta: 'Roma-Milano',
+        costo: 150.00
+      });
+
+      const updateResult = await testActions.updateVolo({
+        id: createResult.data.id,
+        tratta: 'Roma-Napoli',
+        costo: 180.00
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect(updateResult.data.compagnia_aerea).toBe('Roma-Napoli');
+      expect(updateResult.data.totale).toBe(180.00);
+    });
+
+    test('should delete volo successfully', async () => {
+      const createResult = await testActions.createVolo({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tratta: 'Roma-Milano'
+      });
+
+      const deleteResult = await testActions.deleteVoloById(createResult.data.id);
+
+      expect(deleteResult.success).toBe(true);
+
+      const voli = await testActions.getAllVoli();
+      expect(voli).toHaveLength(0);
+    });
+  });
+
+  // ============================================================================
+  // SERVIZI A TERRA TESTS
+  // ============================================================================
+
+  describe('Servizi a Terra CRUD Operations', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+    let testFornitoreId: string;
+    let testDestinazioneId: string;
+
+    beforeEach(async () => {
+      // Create test cliente
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente',
+        email: 'test.cliente.servizi@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      // Create test preventivo
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'SER001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+
+      // Create test fornitore
+      const fornitoreResult = await testActions.createFornitore({
+        nome: 'Hotel Test',
+        valuta: 'EUR'
+      });
+      testFornitoreId = fornitoreResult.data.id;
+
+      // Create test destinazione
+      const destinazioneResult = await testActions.createDestinazione({
+        nome: 'Roma Test'
+      });
+      testDestinazioneId = destinazioneResult.data.id;
+    });
+
+    test('should create a new servizio a terra successfully', async () => {
+      const servizioData = {
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        id_destinazione: testDestinazioneId,
+        tipo: 'Hotel',
+        costo: 200.00
+      };
+
+      const result = await testActions.createServizioATerra(servizioData, testPreventivoId, false);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.descrizione).toBe('Hotel');
+      expect(result.data.id).toBeDefined();
+    });
+
+    test('should fetch servizi a terra by preventivo id', async () => {
+      // Create test servizi
+      await testActions.createServizioATerra({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        id_destinazione: testDestinazioneId,
+        tipo: 'Hotel'
+      }, testPreventivoId, false);
+      
+      await testActions.createServizioATerra({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        id_destinazione: testDestinazioneId,
+        tipo: 'Transfer'
+      }, testPreventivoId, false);
+
+      const result = await testActions.fetchServiziATerraByPreventivoId(testPreventivoId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+    });
+
+    test('should delete servizio a terra successfully', async () => {
+      const createResult = await testActions.createServizioATerra({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        id_destinazione: testDestinazioneId,
+        tipo: 'Hotel'
+      }, testPreventivoId, false);
+
+      const deleteResult = await testActions.deleteServizioATerraById(createResult.data.id);
+
+      expect(deleteResult.success).toBe(true);
+
+      const servizi = await testActions.getAllServiziATerra();
+      expect(servizi).toHaveLength(0);
     });
   });
 

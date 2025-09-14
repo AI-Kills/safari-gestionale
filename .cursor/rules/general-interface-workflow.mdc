@@ -1,0 +1,316 @@
+# General Interface - Workflow e Logiche di Implementazione
+
+## Panoramica Architetturale
+
+La **General Interface** (`app/dashboard/(overview)/general-interface/page.tsx`) è il cuore del sistema di gestione preventivi. Implementa un workflow complesso che gestisce:
+
+- **Clienti** (ricerca, creazione, aggiornamento)
+- **Preventivi** con tutti i servizi correlati
+- **Servizi a Terra** e **Servizi Aggiuntivi**
+- **Voli** e **Assicurazioni**
+- **Preventivo al Cliente** con righe personalizzate
+
+## 🏗️ Architettura dei Dati
+
+### Input Groups (Classi TypeScript)
+```typescript
+// Definite in: general-interface.defs.ts
+- ClienteInputGroup
+- PreventivoInputGroup  
+- ServizioATerraInputGroup
+- VoloInputGroup
+- AssicurazioneInputGroup
+- PreventivoAlClienteInputGroup
+```
+
+### Server Actions
+```typescript
+// Definite in: app/lib/actions/
+- submitCreatePreventivoGI()    // Crea preventivo completo
+- updatePreventivoCompleto()    // Aggiorna preventivo completo
+- searchClienti()               // Ricerca clienti
+- createCliente()               // Crea cliente
+- updateCliente()               // Aggiorna cliente
+```
+
+## 🔄 Conversion Pattern - REGOLA FONDAMENTALE
+
+### ⚠️ PROBLEMA: Classes vs Plain Objects
+Next.js Server Actions **NON supportano** istanze di classi, solo plain objects.
+
+### ✅ SOLUZIONE: convertToPlainObject Utility
+```typescript
+// SEMPRE presente in ogni componente che usa Server Actions
+const convertToPlainObject = (obj: any): any => {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) return obj.map(item => convertToPlainObject(item));
+  if (typeof obj === 'object') {
+    const plainObj: any = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        plainObj[key] = convertToPlainObject(obj[key]);
+      }
+    }
+    return plainObj;
+  }
+  return obj;
+};
+```
+
+### 📋 REGOLA: Conversione Obbligatoria
+**PRIMA di ogni chiamata a Server Action:**
+```typescript
+// ❌ SBAGLIATO - Passa istanze di classi
+const result = await serverAction(clienteInputGroup);
+
+// ✅ CORRETTO - Converte in plain object
+const plainData = convertToPlainObject(clienteInputGroup);
+const result = await serverAction(plainData);
+```
+
+## 🔍 State Management Pattern
+
+### Form State Handling
+```typescript
+// Ogni entità ha il suo state e handler
+const [cliente, setCliente] = useState<ClienteInputGroup>(new ClienteInputGroup());
+const [preventivo, setPreventivo] = useState<PreventivoInputGroup>();
+const [serviziATerra, setServiziATerra] = useState<ServizioATerraInputGroup[]>([]);
+
+// Handler con conversione di tipo appropriata
+const onVCpreventivo = (e: any, name: string) => {
+  setPreventivo((prevState) => {
+    // Date fields
+    if (name === 'data_partenza') {
+      return { ...prevState, data_partenza: new Date(e.target.value) };
+    }
+    // Number fields
+    else if (name === 'percentuale_ricarico') {
+      return { ...prevState, [name]: parseFloat(e.target.value) };
+    }
+    // String fields
+    else {
+      return { ...prevState, [name]: e.target.value };
+    }
+  });
+};
+```
+
+## 🎯 CRUD Operations Workflow
+
+### CREATE (Nuovo Preventivo)
+```typescript
+const submitCreatePreventivo = async () => {
+  const data = {
+    cliente: cliente,
+    preventivo: preventivo,
+    serviziATerra: serviziATerra,
+    // ... altri servizi
+  };
+  
+  // SEMPRE convertire prima della chiamata
+  const plainData = convertToPlainObject(data);
+  const result = await submitCreatePreventivoGI(plainData);
+};
+```
+
+### UPDATE (Aggiorna Preventivo)
+```typescript
+const submitUpdatePreventivo = async () => {
+  // Stessa struttura dati del CREATE
+  const data = { /* ... */ };
+  
+  // SEMPRE convertire
+  const plainData = convertToPlainObject(data);
+  
+  // Usa la funzione di update completa
+  const results = await updatePreventivoCompleto(plainData);
+};
+```
+
+## 🛠️ Server Actions Implementation
+
+### updatePreventivoCompleto Pattern
+```typescript
+export async function updatePreventivoCompleto(data: any): Promise<ApiResponse> {
+  try {
+    // 1. Aggiorna preventivo principale
+    await updatePreventivo(data.preventivo);
+    
+    // 2. Delete & Recreate pattern per ogni servizio
+    await updateServiziATerraCompleto(preventivoId, data.serviziATerra || [], false);
+    await updateServiziATerraCompleto(preventivoId, data.serviziAggiuntivi || [], true);
+    await updateVoliCompleto(preventivoId, data.voli || []);
+    await updateAssicurazioniCompleto(preventivoId, data.assicurazioni || []);
+    
+    // 3. Gestisci preventivo al cliente
+    await updatePreventivoAlClienteCompleto(preventivoId, data.preventivoAlCliente);
+    
+    return { success: true };
+  } catch (error) {
+    return handlePrismaError(error);
+  }
+}
+```
+
+### Delete & Recreate Pattern
+```typescript
+async function updateServiziATerraCompleto(preventivoId: string, servizi: any[], isServizioAggiuntivo: boolean) {
+  // 1. Elimina tutti i servizi esistenti
+  await prisma.serviziATerra.deleteMany({
+    where: { id_preventivo: preventivoId, servizio_aggiuntivo: isServizioAggiuntivo }
+  });
+
+  // 2. Ricrea tutti i servizi con gestione errori
+  for (let i = 0; i < servizi.length; i++) {
+    const result = await createServizioATerra(servizi[i], preventivoId, isServizioAggiuntivo);
+    if (!result.success) {
+      throw new Error(`Errore nella creazione del servizio ${i + 1}: ${result.error}`);
+    }
+  }
+}
+```
+
+## 🐛 Debug & Logging Pattern
+
+### Logging Strutturato
+```typescript
+// Nel componente React
+console.log('🔄 Preventivo field change:', name, '=', e.target.value);
+console.log('💰 Converted percentuale_ricarico to number:', p[name]);
+console.log('✅ Updated preventivo state:', p);
+
+// Nelle Server Actions
+console.log('🔧 updatePreventivoCompleto called with:', data);
+console.log('📋 Servizi a terra da salvare:', data.serviziATerra?.length || 0);
+console.log(`Creating servizio ${i + 1}/${servizi.length}:`, servizio);
+```
+
+### Error Handling Pattern
+```typescript
+try {
+  const result = await serverAction(plainData);
+  if (!result.success) {
+    setErrorsList(['Errore nella operazione:', result.error]);
+  }
+} catch (error) {
+  setErrorsList(['Errore nella chiamata:', error.toString()]);
+}
+```
+
+## 📝 Form Validation & Data Errors
+
+### Validazione Pre-Submit
+```typescript
+const dataErrors = (data: Data): string[] => {
+  const errors = [];
+  if (!data.preventivo.operatore) errors.push('Operatore è obbligatorio');
+  if (!data.preventivo.brand) errors.push('Brand è obbligatorio');
+  return errors;
+};
+
+// Usage
+const errors = dataErrors(data);
+if (errors.length === 0) {
+  // Procedi con submit
+} else {
+  setErrorsList(errors);
+}
+```
+
+## 🔄 Dynamic Services Management
+
+### Add/Remove Pattern
+```typescript
+// Add
+const aggiungiServizioATerra = () => {
+  const maxId = Math.max(...serviziATerra.map(s => s.groupId)) + 5;
+  setServiziATerra([...serviziATerra, new ServizioATerraInputGroup(maxId)]);
+};
+
+// Remove
+const rimuoviServizioATerra = (groupId: number) => {
+  setServiziATerra(serviziATerra.filter(servizio => servizio.groupId !== groupId));
+};
+```
+
+## ⚠️ REGOLE CRITICHE DA SEGUIRE
+
+### 1. SEMPRE Convertire Prima delle Server Actions
+```typescript
+// ❌ MAI fare questo
+await serverAction(classInstance);
+
+// ✅ SEMPRE fare questo  
+const plainData = convertToPlainObject(classInstance);
+await serverAction(plainData);
+```
+
+### 2. Gestione Errori Completa
+```typescript
+// Ogni server action deve essere wrappata in try-catch
+// Ogni risultato deve essere controllato per success/failure
+// Gli errori devono essere mostrati all'utente
+```
+
+### 3. Logging per Debug
+```typescript
+// Usa emoji per identificare rapidamente i log
+// 🔄 = cambio state
+// 💰 = conversioni numeriche  
+// 📋 = operazioni su array
+// ✅ = successo
+// ❌ = errore
+```
+
+### 4. Type Safety
+```typescript
+// Usa i tipi appropriati per ogni campo
+// Date per date
+// number per numeri (parseInt/parseFloat)
+// string per testo
+```
+
+## 🧪 Testing Pattern
+
+### Console Debug Checklist
+1. **Field Changes**: Vedi `🔄 Preventivo field change`?
+2. **Type Conversion**: Vedi `💰 Converted percentuale_ricarico`?
+3. **Plain Object**: Vedi `🔧 Dati preventivo da aggiornare`?
+4. **Services Count**: Vedi `📋 Servizi a terra da salvare: X`?
+5. **Individual Creation**: Vedi `Creating servizio 1/3`?
+6. **Success**: Vedi `Successfully created servizio 1`?
+
+### Troubleshooting Common Issues
+- **"Classes not supported"** → Manca `convertToPlainObject`
+- **"Servizio non salvato"** → Controlla errori nella creazione individuale
+- **"Percentuale ricarico non salvata"** → Verifica conversione `parseFloat`
+- **"Secondo servizio mancante"** → Errore nell'iterazione o validazione
+
+## 📚 Files Correlati
+
+```
+app/dashboard/(overview)/general-interface/
+├── page.tsx                    # Main component
+├── general-interface.defs.ts   # Type definitions & classes
+└── helpers.ts                  # Utility functions
+
+app/lib/actions/
+├── preventivi/
+│   ├── preventivi-actions.ts           # Main preventivo operations
+│   └── preventivi-al-cliente-actions.ts # Preventivo al cliente
+├── servizi-a-terra/
+│   └── servizi-a-terra-actions.ts      # Servizi operations
+├── voli/
+│   └── voli-actions.ts                 # Voli operations
+└── assicurazioni/
+    └── assicurazioni-actions.ts        # Assicurazioni operations
+```
+
+---
+
+**Ricorda**: Questa interfaccia gestisce operazioni complesse con transazioni multiple. Ogni modifica deve essere testata accuratamente e i log devono essere monitorati per identificare rapidamente eventuali problemi.
+description:
+globs:
+alwaysApply: true
+---

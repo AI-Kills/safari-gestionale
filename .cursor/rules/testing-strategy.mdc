@@ -1,0 +1,282 @@
+# Testing Strategy - Strategia di Test
+
+Questo documento descrive la strategia di test utilizzata nel progetto Gestionale e come lavorare con i test.
+
+## 🏗️ Architettura dei Test
+
+### Struttura delle Directory
+```
+test/
+├── actions.test.ts          # Test principali per le server actions
+├── test-helpers.ts          # Helper class per i test delle actions
+├── test-db-setup.ts         # Setup del database di test SQLite
+├── utils.test.ts            # Test per le utility functions
+├── validation.test.ts       # Test per la validazione Zod
+└── pages.test.ts            # Test per le pagine (UI)
+```
+
+### Tipi di Test
+1. **Actions Tests**: Test delle server actions (CRUD operations)
+2. **Utils Tests**: Test delle funzioni di utilità
+3. **Validation Tests**: Test degli schemi Zod
+4. **Pages Tests**: Test dell'interfaccia utente
+
+## 🗄️ Database di Test
+
+### Dual Schema Approach
+- **Database Produzione**: PostgreSQL con `prisma/schema.prisma`
+- **Database Test**: SQLite con schema generato automaticamente
+- **Client Test**: Generato in `generated/prisma-test/`
+
+### Come Funziona
+1. Il test setup crea automaticamente uno schema SQLite da quello PostgreSQL
+2. Converte i tipi PostgreSQL in SQLite compatibili
+3. Rimuove le funzioni specifiche di PostgreSQL (es. `uuid_generate_v4()`)
+4. Genera un client Prisma separato per i test
+
+### Gestione dei Dati
+- **Cleanup automatico**: Ogni test pulisce i dati dopo l'esecuzione
+- **Isolamento**: Ogni test è completamente isolato
+- **Performance**: SQLite in memoria per velocità massima
+
+## 📝 Come Scrivere Nuovi Test
+
+### 1. Test per Nuove Actions
+
+Quando aggiungi una nuova server action, segui questo pattern:
+
+```typescript
+// In test/actions.test.ts
+describe('NuovaEntità CRUD Operations', () => {
+  let testClienteId: string; // Se serve un cliente di test
+
+  beforeEach(async () => {
+    // Setup dei dati necessari
+    const clienteResult = await testActions.createCliente({
+      nome: 'Test',
+      cognome: 'Cliente',
+      email: 'test@example.com'
+    });
+    testClienteId = clienteResult.data.id;
+  });
+
+  test('should create a new entity successfully', async () => {
+    const entityData = {
+      // Dati di test
+    };
+
+    const result = await testActions.createEntity(entityData);
+
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
+    expect(result.data.campo).toBe('valore_atteso');
+  });
+
+  test('should handle validation errors', async () => {
+    const invalidData = {
+      // Dati non validi
+    };
+
+    const result = await testActions.createEntity(invalidData);
+
+    expect(result.success).toBe(false);
+    expect(result.errors).toBeDefined();
+  });
+
+  // Altri test: update, delete, fetch, etc.
+});
+```
+
+### 2. Aggiornare Test Helper
+
+Per ogni nuova action, aggiungi i metodi corrispondenti in `test-helpers.ts`:
+
+```typescript
+// In test/test-helpers.ts
+async createEntity(data: any) {
+  try {
+    const entity = await testClient.entity.create({
+      data: {
+        // Mappatura dei campi secondo lo schema Prisma
+        campo_db: data.campo_input,
+        // ...
+      }
+    });
+    return {
+      success: true,
+      data: entity
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+```
+
+### 3. Mappatura Campi Database
+
+**IMPORTANTE**: I campi del database potrebbero essere diversi da quelli dell'API:
+
+```typescript
+// Esempi di mappature corrette:
+// API -> Database
+tipo -> assicurazione          // Per assicurazioni
+costo -> netto                 // Per assicurazioni  
+costo -> totale               // Per voli e servizi
+tratta -> compagnia_aerea     // Per voli
+tipo -> descrizione           // Per servizi a terra
+```
+
+## 🚀 Comandi di Test
+
+### Esecuzione Test
+```bash
+# Tutti i test
+pnpm test
+
+# Test specifici
+pnpm run test-actions         # Test delle actions
+pnpm run test-utils          # Test delle utilities  
+pnpm run test-validation     # Test di validazione
+pnpm run test-pages          # Test delle pagine
+
+# Con watch mode
+pnpm run test:watch
+
+# Con coverage
+pnpm run test:coverage
+```
+
+### Debug dei Test
+```bash
+# Esegui singolo test con debug
+pnpm vitest test/actions.test.ts --run --grep="nome del test"
+
+# Con output verbose
+pnpm vitest test/actions.test.ts --run --reporter=verbose
+```
+
+## ✅ Coverage Requirements
+
+### Standard Minimi
+- **Actions**: 100% delle operazioni CRUD
+- **Utils**: 100% delle funzioni pubbliche  
+- **Validation**: 100% degli schemi Zod
+- **Pages**: Test dei componenti principali
+
+### Tipi di Test Obbligatori
+1. **Happy Path**: Funzionamento normale
+2. **Validation**: Input non validi
+3. **Edge Cases**: Casi limite
+4. **Error Handling**: Gestione errori
+5. **Business Logic**: Logica specifica del dominio
+
+## 🔧 Troubleshooting
+
+### Problemi Comuni
+
+#### Test che Falliscono per Schema
+```
+Error: Cannot find table 'nuova_tabella'
+```
+**Soluzione**: Rigenera lo schema di test:
+```bash
+pnpm prisma generate --schema=prisma/schema.test.prisma
+```
+
+#### Errori di Validazione Inaspettati
+```
+expected true to be false
+```
+**Soluzione**: Controlla la mappatura dei campi nel test helper
+
+#### Timeout nei Test
+**Soluzione**: Aumenta il timeout in `vitest.config.mjs`:
+```typescript
+export default defineConfig({
+  test: {
+    testTimeout: 10000 // 10 secondi
+  }
+})
+```
+
+### Debug Database di Test
+```typescript
+// Aggiungi questo in un test per vedere i dati:
+const allData = await testActions.getTestClient();
+const users = await allData.user.findMany();
+console.log('Users in test DB:', users);
+```
+
+## 📊 Metriche Attuali
+
+**Coverage Completo**: 38/38 test passati ✅
+
+### Entità Testate
+- ✅ User (6 test)
+- ✅ Cliente (6 test)  
+- ✅ Preventivo (5 test)
+- ✅ Destinazione (5 test)
+- ✅ Fornitore (5 test)
+- ✅ Assicurazione (4 test) - **NUOVO**
+- ✅ Volo (4 test) - **NUOVO**
+- ✅ Servizi a Terra (3 test) - **NUOVO**
+
+### Actions Non Ancora Testate
+- `authenticate`, `signOutAction` (Auth)
+- `getCliente` (Cliente)  
+- Alcune funzioni avanzate di Preventivo
+- Preventivi Al Cliente (completo modulo)
+
+## 🎯 Best Practices
+
+### 1. Naming Convention
+```typescript
+// Test names dovrebbero essere descrittivi:
+test('should create user with valid data successfully', () => {});
+test('should fail user creation with invalid email format', () => {});
+test('should handle duplicate email error gracefully', () => {});
+```
+
+### 2. Data Setup
+```typescript
+// Usa beforeEach per setup comune:
+beforeEach(async () => {
+  // Setup dati necessari per tutti i test del gruppo
+});
+
+// Usa dati specifici per ogni test:
+test('should...', async () => {
+  const specificData = { /* dati per questo test */ };
+  // ...
+});
+```
+
+### 3. Assertions
+```typescript
+// Sii specifico nelle assertions:
+expect(result.success).toBe(true);
+expect(result.data).toBeDefined();
+expect(result.data.id).toBeDefined();
+expect(result.data.email).toBe('expected@email.com');
+
+// Per errori:
+expect(result.success).toBe(false);
+expect(result.errors).toBeDefined();
+expect(result.errors.email).toContain('Invalid email');
+```
+
+## 🔄 Continuous Integration
+
+I test vengono eseguiti automaticamente:
+- Prima di ogni commit (pre-commit hook)
+- Su ogni push al repository
+- Prima di merge delle PR
+
+**Regola**: Nessun codice può essere mergiato se i test non passano al 100%.
+description:
+globs:
+alwaysApply: true
+---

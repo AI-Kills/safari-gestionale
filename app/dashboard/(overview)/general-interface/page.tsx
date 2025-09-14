@@ -26,6 +26,7 @@ import {
   getNumberOfPreventivi,
   submitCreatePreventivoGI,
   updatePreventivo,
+  updatePreventivoCompleto,
   // Servizi a terra actions
   fetchServiziATerraByPreventivoId,
   fetchServiziAggiuntiviByPreventivoId,
@@ -276,22 +277,35 @@ export default function CreaPreventivoGeneralInterface() {
   // gestione preventivo
   const [preventivo, setPreventivo] = useState<PreventivoInputGroup>();
   const onVCpreventivo = (e: any, name: string) => {
-    //console.log('change in a value of a preventivo <event, id, name>: ', e, name);
+    console.log('🔄 Preventivo field change:', name, '=', e.target.value, 'type:', typeof e.target.value);
     setPreventivo((prevState) => {
       if (name === 'data_partenza') {
-        return { ...prevState, data_partenza: new Date(e.target.value) };
+        const newState = { ...prevState, data_partenza: new Date(e.target.value) };
+        console.log('✅ Updated preventivo state (data_partenza):', newState);
+        return newState;
       } else if (name === 'data') {
-        return { ...prevState, data: new Date(e.target.value) };
+        const newState = { ...prevState, data: new Date(e.target.value) };
+        console.log('✅ Updated preventivo state (data):', newState);
+        return newState;
       } else {
         let p = { ...prevState, [name]: e.target.value }
         switch (name) {
-          case 'adulti': p[name] = parseInt(e.target.value);
+          case 'adulti': 
+            p[name] = parseInt(e.target.value);
+            console.log('🔢 Converted adulti to number:', p[name]);
             break;
-          case 'bambini': p[name] = parseInt(e.target.value);
+          case 'bambini': 
+            p[name] = parseInt(e.target.value);
+            console.log('🔢 Converted bambini to number:', p[name]);
             break;
-          case 'percentuale_ricarico': p[name] = parseFloat(e.target.value);
+          case 'percentuale_ricarico': 
+            p[name] = parseFloat(e.target.value);
+            console.log('💰 Converted percentuale_ricarico to number:', p[name], 'from:', e.target.value);
             break;
+          default:
+            console.log('📝 String field updated:', name, '=', p[name]);
         }
+        console.log('✅ Updated preventivo state (' + name + '):', p);
         return { ...p };
       }
     });
@@ -492,11 +506,37 @@ export default function CreaPreventivoGeneralInterface() {
   const [errorsList, setErrorsList] = useState<string[]>([]);
 
   // ### API CALLS ###
+  
+  // Helper function to convert class instances to plain objects
+  const convertToPlainObject = (obj: any): any => {
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+    
+    if (Array.isArray(obj)) {
+      return obj.map(item => convertToPlainObject(item));
+    }
+    
+    if (typeof obj === 'object') {
+      const plainObj: any = {};
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          plainObj[key] = convertToPlainObject(obj[key]);
+        }
+      }
+      return plainObj;
+    }
+    
+    return obj;
+  };
+
   /** Fetch the clienti corrispondenti to the cliente input. */
   const fetchClientiCorrispondenti = async () => {
     // Chiama direttamente la server action invece dell'API route
     try {
-      const result = await searchClienti(cliente);
+      // Convert class instance to plain object before passing to server action
+      const plainCliente = convertToPlainObject(cliente);
+      const result = await searchClienti(plainCliente);
       console.log('data: ', result);
       if (result.success && result.values) {
         return result.values;
@@ -578,7 +618,9 @@ export default function CreaPreventivoGeneralInterface() {
       }
       setIsActiveSpinner(true);
       try {
-        const res = await createCliente(cliente);
+        // Convert class instance to plain object before passing to server action
+        const plainCliente = convertToPlainObject(cliente);
+        const res = await createCliente(plainCliente);
         if (res.success) { // cliente creato con successo
           const clienti = await fetchClientiCorrispondenti();
           setClientiTrovati(clienti);
@@ -612,7 +654,9 @@ export default function CreaPreventivoGeneralInterface() {
       }
       setIsActiveSpinner(true);
       try {
-        const res = await updateCliente({ ...c, id: c.id });
+        // Convert class instance to plain object before passing to server action
+        const plainCliente = convertToPlainObject({ ...c, id: c.id });
+        const res = await updateCliente(plainCliente);
         if (res.success) {
           setCliente(c);
           setShowClientiTrovati(false);
@@ -713,7 +757,9 @@ export default function CreaPreventivoGeneralInterface() {
       if (errors.length == 0) { // all required fields are filled -> CALL SERVER ACTION
         setIsActiveSpinner(true);
         try {
-          const result = await submitCreatePreventivoGI(data);
+          // Convert class instances to plain objects before passing to server action
+          const plainData = convertToPlainObject(data);
+          const result = await submitCreatePreventivoGI(plainData);
           if (result.success) {
             setFeedback({ success: true });
             setShowFormPreventivo(false);
@@ -766,14 +812,17 @@ export default function CreaPreventivoGeneralInterface() {
     if (errors.length == 0) { // all required fields are filled -> CALL SERVER ACTIONS
       setIsActiveSpinner(true);
       try {
+        // Convert class instances to plain objects before passing to server action
+        const plainData = convertToPlainObject(data);
+        console.log('🔧 Dati preventivo da aggiornare:', plainData.preventivo);
+        console.log('💰 Percentuale ricarico nel plainData:', plainData.preventivo.percentuale_ricarico);
+        console.log('📋 Servizi a terra da salvare:', plainData.serviziATerra?.length || 0);
+        console.log('➕ Servizi aggiuntivi da salvare:', plainData.serviziAggiuntivi?.length || 0);
+        console.log('✈️ Voli da salvare:', plainData.voli?.length || 0);
+        console.log('🛡️ Assicurazioni da salvare:', plainData.assicurazioni?.length || 0);
+        
         const results = await Promise.all([
-          updatePreventivo(data.preventivo),
-          // TODO: Implementare le funzioni di update per i servizi
-          // updateServiziATerraPreventivo(data),
-          // updateServiziAggiuntiviPreventivo(data),
-          // updateVoliPreventivo(data),
-          // updateAssicurazioniPreventivo(data),
-          // updatePreventivoAlCliente(data),
+          updatePreventivoCompleto(plainData),
         ]);
         setFeedback({ success: true });
         setShowFormPreventivo(false);
