@@ -74,6 +74,58 @@ export class PreventivoService {
     }
   }
 
+  static async duplicatePreventivo(data: Data) {
+    // Prima ottieni il prossimo numero preventivo
+    const numeroResult = await this.getNextPreventivoNumber();
+    if (!numeroResult.success) {
+      return {
+        success: false,
+        error: numeroResult.error || 'Errore nel recupero numero preventivo'
+      };
+    }
+
+    // Crea una copia dei dati rimuovendo gli ID esistenti e aggiornando il numero preventivo
+    const duplicatedData: Data = {
+      cliente: data.cliente,
+      preventivo: data.preventivo ? {
+        ...data.preventivo,
+        id: undefined, // Rimuove l'ID esistente per crearne uno nuovo
+        numero_preventivo: numeroResult.numeroPreventivo!
+      } : undefined,
+      serviziATerra: data.serviziATerra?.map(servizio => ({
+        ...servizio,
+        id: undefined // Rimuove gli ID esistenti
+      })),
+      serviziAggiuntivi: data.serviziAggiuntivi?.map(servizio => ({
+        ...servizio,
+        id: undefined // Rimuove gli ID esistenti
+      })),
+      voli: data.voli?.map(volo => ({
+        ...volo,
+        id: undefined // Rimuove gli ID esistenti
+      })),
+      assicurazioni: data.assicurazioni?.map(assicurazione => ({
+        ...assicurazione,
+        id: undefined // Rimuove gli ID esistenti
+      })),
+      preventivoAlCliente: data.preventivoAlCliente ? {
+        ...data.preventivoAlCliente,
+        id: undefined, // Rimuove l'ID esistente
+        righePrimoTipo: data.preventivoAlCliente.righePrimoTipo?.map(row => ({
+          ...row,
+          id: undefined // Rimuove gli ID esistenti
+        })),
+        righeSecondoTipo: data.preventivoAlCliente.righeSecondoTipo?.map(row => ({
+          ...row,
+          id: undefined // Rimuove gli ID esistenti
+        }))
+      } : undefined
+    };
+
+    // Usa il metodo createPreventivo per creare il duplicato
+    return await this.createPreventivo(duplicatedData);
+  }
+
   static async createPreventivo(data: Data) {
     // Validazione dati obbligatori
     const errors = dataErrors(data);

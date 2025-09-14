@@ -289,6 +289,42 @@ function GeneralInterfaceContent() {
     }
   };
 
+  const submitDuplicatePreventivo = async () => {
+    setErrorsList([]);
+    setIsActiveSpinner(true);
+    
+    try {
+      const data: Data = {
+        cliente: cliente,
+        preventivo: preventivo!,
+        serviziATerra: serviziATerra,
+        serviziAggiuntivi: serviziAggiuntivi,
+        voli: voli,
+        assicurazioni: assicurazioni,
+        preventivoAlCliente: preventivoAlCliente
+      };
+
+      const result = await PreventivoService.duplicatePreventivo(data);
+      if (result.success) {
+        setFeedback({ success: true });
+        setShowFormPreventivo(false);
+        // Opzionalmente, ricarica la lista dei preventivi del cliente per mostrare il nuovo preventivo
+        if (clienteDaAggiornare?.id) {
+          const preventiviResult = await ClienteService.fetchPreventiviByCliente(clienteDaAggiornare.id);
+          if (preventiviResult.success) {
+            setPreventiviClienteList(preventiviResult.data);
+          }
+        }
+      } else {
+        setErrorsList([result.error || 'Errore nella duplicazione del preventivo']);
+      }
+    } catch (error) {
+      setErrorsList(['Errore nella duplicazione del preventivo: ' + error.toString()]);
+    } finally {
+      setIsActiveSpinner(false);
+    }
+  };
+
   // Auto-clear feedback after success
   useEffect(() => {
     if (feedback?.success) {
@@ -514,19 +550,28 @@ function GeneralInterfaceContent() {
                    onUpdateRow={updatePreventivoAlClienteRow}
                  />
 
-                                   {/* Buttons */}
-                  <div className="flex flex-row items-center justify-center pt-10 gap-4">
-                    <Button size="lg" onClick={submitCreatePreventivo}>
-                      <PlusIcon className="w-4 h-4 mr-2" />
-                      Crea Preventivo
-                    </Button>
-                    {preventivo?.id && (
-                      <Button variant="secondary" size="lg" onClick={submitUpdatePreventivo}>
-                        <DocumentTextIcon className="w-4 h-4 mr-2" />
-                        Aggiorna Preventivo
-                      </Button>
-                    )}
-                  </div>
+                                                                     {/* Buttons */}
+                 <div className="flex flex-row items-center justify-center pt-10 gap-4">
+                   {preventivo?.id ? (
+                     // Se il preventivo esiste, mostra "Duplica Preventivo"
+                     <Button size="lg" onClick={submitDuplicatePreventivo}>
+                       <PlusIcon className="w-4 h-4 mr-2" />
+                       Duplica Preventivo
+                     </Button>
+                   ) : (
+                     // Se è un nuovo preventivo, mostra "Crea Preventivo"
+                     <Button size="lg" onClick={submitCreatePreventivo}>
+                       <PlusIcon className="w-4 h-4 mr-2" />
+                       Crea Preventivo
+                     </Button>
+                   )}
+                   {preventivo?.id && (
+                     <Button variant="secondary" size="lg" onClick={submitUpdatePreventivo}>
+                       <DocumentTextIcon className="w-4 h-4 mr-2" />
+                       Aggiorna Preventivo
+                     </Button>
+                   )}
+                 </div>
               </div>
             </CardContent>
           </Card>
