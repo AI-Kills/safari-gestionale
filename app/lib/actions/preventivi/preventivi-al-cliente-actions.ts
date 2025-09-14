@@ -73,7 +73,7 @@ export async function updatePreventivoAlClienteDescrizione(data: any): Promise<A
 export async function createPreventivoAlClienteRow(data: any, isPrimoTipo: boolean, preventivoAlClienteId: string): Promise<ApiResponse> {
   try {
     const parsedData = parseFormDates(data);
-    parsedData.preventivo_al_cliente_id = preventivoAlClienteId;
+    parsedData.id_preventivo_al_cliente = preventivoAlClienteId;
     parsedData.is_primo_tipo = isPrimoTipo;
 
     const validatedData = createPreventivoAlClienteRowSchema.safeParse(parsedData);
