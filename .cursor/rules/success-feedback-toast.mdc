@@ -1,0 +1,132 @@
+# Success Feedback Implementation Rule
+
+Per implementare feedback di successo in qualsiasi parte dell'applicazione, usa **SEMPRE** il componente `SuccessToast` standardizzato.
+
+## 1. **Componente Standard: SuccessToast**
+- **Posizione**: `components/ui/success-toast.tsx`
+- **Hook**: `components/ui/use-toast.tsx`
+- **Provider**: Già configurato nel layout principale
+
+## 2. **Come Implementare il Feedback di Successo**
+
+### Setup nell'hook:
+```tsx
+import { useToast } from "@/components/ui/use-toast";
+
+export default function MyComponent() {
+  const { showToast } = useToast();
+  
+  // ... resto del componente
+}
+```
+
+### Chiamata per successo:
+```tsx
+const handleSuccess = () => {
+  showToast({
+    variant: 'success',
+    title: 'Operazione completata!', // Opzionale
+    message: 'Descrizione specifica del successo',
+    duration: 4000 // Opzionale, default 4000ms
+  });
+};
+```
+
+## 3. **Varianti Disponibili**
+- `success` - Verde, per operazioni completate con successo
+- `error` - Rosso, per errori
+- `info` - Blu, per informazioni
+- `warning` - Giallo, per avvertimenti
+
+## 4. **Caratteristiche del Toast**
+- **Posizione**: Bottom-right (fisso)
+- **Animazione**: Slide-in da destra
+- **Auto-dismiss**: Dopo la durata specificata
+- **Progress bar**: Indica il tempo rimanente
+- **Pulsante chiusura**: Opzionale (default: true)
+- **Stacking**: Supporta toast multipli
+
+## 5. **Esempi di Utilizzo**
+
+### ✅ Operazione CRUD completata:
+```tsx
+showToast({
+  variant: 'success',
+  title: 'Cliente aggiunto!',
+  message: 'Il cliente "Mario Rossi" è stato aggiunto correttamente al database.',
+  duration: 4000
+});
+```
+
+### ✅ Salvataggio dati:
+```tsx
+showToast({
+  variant: 'success',
+  message: 'Modifiche salvate correttamente.',
+  duration: 3000
+});
+```
+
+### ✅ Upload completato:
+```tsx
+showToast({
+  variant: 'success',
+  title: 'Upload completato!',
+  message: 'Il file è stato caricato con successo.',
+  duration: 5000
+});
+```
+
+## 6. **❌ NON Fare Questo**
+- Non creare componenti di feedback custom per ogni pagina
+- Non usare alert() o console.log() per feedback utente
+- Non implementare toast inline senza usare il sistema standardizzato
+- Non usare il componente Feedback legacy per i successi
+
+## 7. **Quando NON Usare il Toast**
+- Per errori di validazione form (usa feedback inline)
+- Per conferme di azioni distruttive (usa dialog/modal)
+- Per informazioni permanenti (usa banner/alert)
+
+## 8. **Configurazione Avanzata**
+
+### Toast senza auto-dismiss:
+```tsx
+showToast({
+  variant: 'success',
+  message: 'Operazione critica completata',
+  duration: 0, // Non si chiude automaticamente
+  showCloseButton: true
+});
+```
+
+### Toast con callback:
+```tsx
+showToast({
+  variant: 'success',
+  message: 'Dati esportati',
+  onClose: () => {
+    // Azione da eseguire quando il toast si chiude
+    redirectToExports();
+  }
+});
+```
+
+## 9. **Testing**
+Il componente è testabile tramite:
+- Simulazione di click sul pulsante close
+- Verifica del timeout di auto-dismiss
+- Controllo del rendering condizionale
+
+## 10. **Accessibilità**
+Il componente include:
+- ARIA labels appropriati
+- Supporto per screen reader
+- Navigazione da tastiera per il pulsante close
+- Contrasti colore conformi WCAG
+
+**Ricorda**: Usa SEMPRE questo sistema per feedback di successo. Garantisce coerenza UX e facilita manutenzione del codice.
+description:
+globs:
+alwaysApply: true
+---

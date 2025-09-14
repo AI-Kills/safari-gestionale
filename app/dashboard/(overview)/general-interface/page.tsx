@@ -996,7 +996,7 @@ export default function CreaPreventivoGeneralInterface() {
                                 </Button>
 
                                 <InputSelect onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[120px]" />
-                                <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[120px]" />
+                                <InputLookup onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[100px]" />
                                 <InputText onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" className="w-[120px]" />
                                 <InputDate onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'data')} value={servizio?.data ? moment(servizio?.data).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Data Inizio' : ''} name="data" />
                                 <InputNumber onChange={(e) => onVCServizioATerra(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" className="w-[60px]" />
@@ -1068,8 +1068,8 @@ export default function CreaPreventivoGeneralInterface() {
                                   <MinusIcon className="w-4 h-4" />
                                 </Button>
 
-                                <InputSelect onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[120px]" />
-                                <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[120px]" />
+                                                               <InputSelect onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'destinazione')} value={servizio?.destinazione} label={i == 0 ? 'Destinazione' : ''} name="destinazione" options={destinazioniOptions} className="w-[120px]" />
+                               <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'fornitore')} defaultValue={servizio?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[100px]" />
                                 <InputText onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'descrizione')} value={servizio?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" className="w-[120px]" />
                                 <InputDate onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'data')} value={servizio?.data ? moment(servizio?.data).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Data' : ''} name="data" />
                                 <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'numero_notti')} value={servizio?.numero_notti?.toString()} label={i == 0 ? 'N. Notti' : ''} name="numero_notti" />
@@ -1078,24 +1078,24 @@ export default function CreaPreventivoGeneralInterface() {
                                 <InputLookup onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'valuta')} label={i == 0 ? 'Valuta' : ''} name="valuta" defaultValue={servizio?.valuta} options={valuteOptions} className='max-w-[60px]' />
                                 <InputNumber onChange={(e) => onVCServizioAggiuntivo(e, servizio.groupId, 'cambio')} value={servizio?.cambio?.toString() ?? '1'} label={i == 0 ? 'Cambio' : ''} name="cambio" />
                               </div>
-                              <div className="flex flex-row items-center pt-7 pl-2">
+                              <div className="flex flex-row items-center pt-3">
                                 <div className={`${i > 0 ? 'pb-3' : ''}`}>
                                   {i == 0 &&
-                                    <div className='flex justify-end mr-2'>
+                                    <div className='flex justify-end'>
                                       <p>ricarico:</p>
                                     </div>
                                   }
-                                  <div className="w-24 mr-2 flex justify-end">
+                                  <div className="w-20 mr-2 flex justify-end">
                                     <p>{formatNumberItalian(getRicaricoServizio(servizio.totale, servizio.cambio, preventivo?.percentuale_ricarico, servizio.numero_notti, servizio.numero_camere))}</p>
                                   </div>
                                 </div>
                                 <div className={`${i > 0 ? 'pb-3' : ''}`}>
                                   {i == 0 &&
-                                    <div className='flex justify-end mr-2'>
+                                    <div className='flex justify-end'>
                                       <p>tot euro:</p>
                                     </div>
                                   }
-                                  <div className="w-24 mr-2 flex justify-end">
+                                  <div className="w-20 flex justify-end">
                                     <p>{formatNumberItalian(getTotServizio(servizio.totale, servizio.cambio, preventivo?.percentuale_ricarico, servizio.numero_notti, servizio.numero_camere))}</p>
                                   </div>
                                 </div>
@@ -1141,7 +1141,7 @@ export default function CreaPreventivoGeneralInterface() {
                                   <MinusIcon className="w-4 h-4" />
                                 </Button>
 
-                                <InputLookup onChange={(e) => onVCVolo(e, volo.groupId, 'fornitore')} defaultValue={volo?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[120px]" />
+                                <InputLookup onChange={(e) => onVCVolo(e, volo.groupId, 'fornitore')} defaultValue={volo?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[100px]" />
                                 <InputText onChange={(e) => onVCVolo(e, volo.groupId, 'compagnia_aerea')} value={volo?.compagnia_aerea} label={i == 0 ? 'Compagnia' : ''} name="compagnia" className="w-[120px]" />
                                 <InputText onChange={(e) => onVCVolo(e, volo.groupId, 'descrizione')} value={volo?.descrizione} label={i == 0 ? 'Descrizione' : ''} name="descrizione" className="w-[120px]" />
                                 <InputDate onChange={(e) => onVCVolo(e, volo.groupId, 'data_partenza')} value={volo?.data_partenza ? moment(volo?.data_partenza).format('YYYY-MM-DD') : ''} label={i == 0 ? 'Partenza' : ''} name="data_partenza" />
@@ -1205,7 +1205,7 @@ export default function CreaPreventivoGeneralInterface() {
                                   <MinusIcon className="w-4 h-4" />
                                 </Button>
 
-                                <InputLookup onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'fornitore')} defaultValue={assicurazione?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[120px]" />
+                                <InputLookup onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'fornitore')} defaultValue={assicurazione?.fornitore} label={i == 0 ? 'Fornitore' : ''} name="fornitore" options={fornitoriOptions} className="w-[100px]" />
                                 <InputText onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'assicurazione')} value={assicurazione?.assicurazione} label={i == 0 ? 'Assicurazione' : ''} name="assicurazione" className="w-[120px]" />
                                 <InputNumber onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'netto')} value={assicurazione?.netto?.toString()} label={i == 0 ? 'Netto' : ''} name="netto" />
                                 <InputNumber onChange={(e) => onVCAssicurazione(e, assicurazione.groupId, 'ricarico')} value={assicurazione?.ricarico?.toString()} label={i == 0 ? 'Ricarico' : ''} name="ricarico" />

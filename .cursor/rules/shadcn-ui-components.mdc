@@ -1,0 +1,81 @@
+# Shadcn/UI Component Implementation Rule
+
+Quando devi implementare nuovi componenti UI nel progetto, segui sempre questa gerarchia di priorità:
+
+## 1. **Prima Scelta: Componenti Shadcn/UI Esistenti**
+- Controlla sempre prima se esiste già un componente shadcn/ui che soddisfa le tue esigenze
+- I componenti esistenti si trovano in:
+  - `components/ui/` (componenti già installati nel progetto)
+  - [Shadcn/UI Documentation](https://ui.shadcn.com/docs/components) per componenti disponibili
+
+## 2. **Seconda Scelta: Estendere Componenti Shadcn/UI**
+- Se un componente shadcn/ui esiste ma non ha tutte le funzionalità necessarie:
+  - Estendilo usando le sue varianti (`variants`)
+  - Usa `cva` (class-variance-authority) per creare nuove varianti
+  - Mantieni la struttura base del componente shadcn/ui
+
+## 3. **Terza Scelta: Creare Componenti Custom**
+- Solo quando non esiste un componente shadcn/ui appropriato
+- Segui sempre i pattern di design shadcn/ui:
+  - Usa `forwardRef` per i componenti
+  - Usa `cn()` utility per merging classi
+  - Usa `cva` per gestire varianti
+  - Mantieni consistenza con il design system
+
+## 4. **Posizionamento dei Componenti**
+- **Componenti shadcn/ui base**: `components/ui/`
+- **Componenti custom riusabili**: `components/ui/`
+- **Componenti specifici del dominio**: `components/blocks/`
+- **Componenti specifici della pagina**: nella stessa directory della pagina
+
+## 5. **Esempi di Implementazione**
+
+### ✅ Buono - Usando shadcn/ui esistente:
+```tsx
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+```
+
+### ✅ Buono - Estendendo shadcn/ui:
+```tsx
+const buttonVariants = cva(
+  "inline-flex items-center justify-center...", // base classes
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground",
+        custom: "bg-green-500 text-white" // nuova variante
+      }
+    }
+  }
+);
+```
+
+### ❌ Evita - Componenti completamente custom quando esiste alternativa shadcn:
+```tsx
+// Non fare questo se esiste Button di shadcn
+const CustomButton = () => (
+  <button className="px-4 py-2 bg-blue-500 text-white rounded">
+    Click me
+  </button>
+);
+```
+
+## 6. **Installazione Nuovi Componenti**
+Quando serve un componente shadcn/ui non ancora presente:
+```bash
+pnpm dlx shadcn@latest add [component-name]
+```
+
+## 7. **Controllo di Qualità**
+Prima di creare un componente custom, chiediti:
+- Esiste già un componente shadcn/ui per questo scopo?
+- Posso estendere un componente esistente invece di crearne uno nuovo?
+- Il mio componente segue i pattern di design del progetto?
+- È riusabile o specifico per un singolo caso d'uso?
+
+Ricorda: **Coerenza e riusabilità sono priorità assolute**.
+description:
+globs:
+alwaysApply: true
+---

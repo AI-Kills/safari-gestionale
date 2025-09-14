@@ -5,6 +5,7 @@ import Loading from './loading';
 import { CogIcon, DocumentDuplicateIcon, MagnifyingGlassIcon, PlusIcon, TableCellsIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { SpinnerContextProvider } from '@/app/context/spinner-context';
 import { SidebarProvider } from '@/app/context/sidebar-context';
+import { ToastProvider } from '@/components/ui/use-toast';
 import { SessionProvider } from 'next-auth/react';
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
@@ -23,14 +24,16 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <SpinnerContextProvider>
       <SessionProvider>
-        <SidebarProvider>
-          <div className="flex h-screen">
-            <SideNav links={links} />
-            <Suspense fallback={<Loading />}>
-              <MainContent>{children}</MainContent>
-            </Suspense>
-          </div>
-        </SidebarProvider>
+        <ToastProvider>
+          <SidebarProvider>
+            <div className="flex h-screen">
+              <SideNav links={links} />
+              <Suspense fallback={<Loading />}>
+                <MainContent>{children}</MainContent>
+              </Suspense>
+            </div>
+          </SidebarProvider>
+        </ToastProvider>
       </SessionProvider>
     </SpinnerContextProvider>
   );

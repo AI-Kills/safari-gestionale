@@ -51,7 +51,16 @@ import {
   updatePreventivoAlClienteRowSchema
 } from './entity-zod-schemas';
 
-const prisma = new PrismaClient();
+// Singleton PrismaClient for better performance
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
 
 export type ApiResponse<T = any> = {
   success: boolean
@@ -61,7 +70,7 @@ export type ApiResponse<T = any> = {
     code: string
     message: string
     path?: string[]
-  }>
+  }> | Record<string, string[]>
 }
 
 export type DBResult<T = any> = {
@@ -76,15 +85,20 @@ export type State<T = any> = {
   message?: string
 }
 
-// Helper function for validation errors
+// Helper function for consistent validation errors
 function handleValidationErrors(zodError: any): ApiResponse {
+  const errorMap: Record<string, string[]> = {};
+  zodError.issues.forEach((issue: any) => {
+    const key = issue.path.join('.');
+    if (!errorMap[key]) {
+      errorMap[key] = [];
+    }
+    errorMap[key].push(issue.message);
+  });
+  
   return {
     success: false,
-    errors: zodError.issues.map((issue: any) => ({
-      code: issue.code,
-      message: issue.message,
-      path: issue.path.map(String).map(String)
-    }))
+    errors: errorMap
   };
 }
 
@@ -110,6 +124,33 @@ function handlePrismaError(error: any): ApiResponse {
     success: false,
     error: 'Errore del database'
   };
+}
+
+// Helper function to parse dates from form data
+function parseFormDates(data: any): any {
+  const parsed = { ...data };
+  
+  // List of date fields that might come as strings from forms
+  const dateFields = [
+    'data_di_nascita', 
+    'data_scadenza_passaporto', 
+    'data',
+    'data_partenza', 
+    'data_arrivo'
+  ];
+  
+  dateFields.forEach(field => {
+    if (parsed[field] && typeof parsed[field] === 'string') {
+      const date = new Date(parsed[field]);
+      if (!isNaN(date.getTime())) {
+        parsed[field] = date;
+      } else {
+        delete parsed[field]; // Remove invalid dates
+      }
+    }
+  });
+  
+  return parsed;
 }
 
 // ============================================================================
@@ -231,32 +272,20 @@ export async function deleteUser(id: string): Promise<ApiResponse> {
 // CLIENT ACTIONS
 // ============================================================================
 
-export async function createCliente(data: any): Promise<ApiResponse> {
+export async function createCliente(data: any): Promise<ApiResponse<ClienteType>> {
   try {
-    const validatedData = createClienteSchema.safeParse(data);
+    const parsedData = parseFormDates(data);
+    const validatedData = createClienteSchema.safeParse(parsedData);
     if (!validatedData.success) {
-      // Creo un oggetto con chiavi-valori per gli errori
-      const errorMap: { [key: string]: string[] } = {};
-      validatedData.error.issues.forEach(issue => {
-        const key = issue.path.join('.');
-        if (!errorMap[key]) {
-          errorMap[key] = [];
-        }
-        errorMap[key].push(issue.message);
-      });
-      
-      return {
-        success: false,
-        errors: errorMap
-      };
+      return handleValidationErrors(validatedData.error);
     }
 
     const cliente = await prisma.cliente.create({
-      data: validatedData.data as any
+      data: validatedData.data
     });
 
     revalidatePath('/dashboard/clienti-table');
-    return { success: true, data: cliente as any };
+    return { success: true, data: cliente as ClienteType };
   } catch (error) {
     return handlePrismaError(error);
   }
@@ -291,25 +320,13 @@ export async function getCliente(id: string): Promise<any | null> {
 
 export async function updateCliente(data: any): Promise<ApiResponse<ClienteType>> {
   try {
-    const validatedData = updateClienteSchema.safeParse(data);
+    const parsedData = parseFormDates(data);
+    const validatedData = updateClienteSchema.safeParse(parsedData);
     if (!validatedData.success) {
-      // Creo un oggetto con chiavi-valori per gli errori
-      const errorMap: { [key: string]: string[] } = {};
-      validatedData.error.issues.forEach(issue => {
-        const key = issue.path.join('.');
-        if (!errorMap[key]) {
-          errorMap[key] = [];
-        }
-        errorMap[key].push(issue.message);
-      });
-      
-      return {
-        success: false,
-        errors: errorMap
-      };
+      return handleValidationErrors(validatedData.error);
     }
 
-    const updateData: any = { ...validatedData.data };
+    const updateData = { ...validatedData.data };
     delete updateData.id;
 
     const cliente = await prisma.cliente.update({
@@ -318,7 +335,7 @@ export async function updateCliente(data: any): Promise<ApiResponse<ClienteType>
     });
 
     revalidatePath('/dashboard/clienti-table');
-    return { success: true, data: cliente as any as any };
+    return { success: true, data: cliente as ClienteType };
   } catch (error) {
     return handlePrismaError(error);
   }
@@ -592,24 +609,26 @@ export async function deleteBanca(id: string): Promise<ApiResponse> {
 
 export async function createPreventivo(data: any): Promise<ApiResponse<PreventivoType>> {
   try {
-    const validatedData = createPreventivoSchema.safeParse(data);
+    const parsedData = parseFormDates(data);
+    // Set current date if not provided
+    if (!parsedData.data) {
+      parsedData.data = new Date();
+    }
+    
+    const validatedData = createPreventivoSchema.safeParse(parsedData);
     if (!validatedData.success) {
-      return {
-        success: false,
-        errors: validatedData.error.issues.map(issue => ({
-          code: issue.code,
-          message: issue.message,
-          path: issue.path.map(String)
-        }))
-      };
+      return handleValidationErrors(validatedData.error);
     }
 
     const preventivo = await prisma.preventivo.create({
-      data: validatedData.data as any
+      data: {
+        ...validatedData.data,
+        data: new Date() // Always set current date for creation
+      }
     });
 
     revalidatePath('/dashboard/preventivi-table');
-    return { success: true, data: preventivo as any };
+    return { success: true, data: preventivo as PreventivoType };
   } catch (error) {
     return handlePrismaError(error);
   }
@@ -1494,16 +1513,23 @@ export async function submitCreatePreventivoGI(data: any): Promise<ApiResponse> 
   }
 }
 
-export async function addFundamentalEntity(entityType: string, data: any): Promise<ApiResponse> {
+export async function addFundamentalEntity(entityType: string, value: string): Promise<ApiResponse> {
   try {
     // Gestisce l'aggiunta di entità fondamentali (destinazioni, fornitori, banche)
+    // Trasforma il valore stringa in un oggetto con la proprietà 'nome'
+    const entityData = { nome: value };
+    
+    // Mappa i nomi plurali ai singolari e chiama la funzione appropriata
     switch (entityType.toLowerCase()) {
+      case 'destinazioni':
       case 'destinazione':
-        return await createDestinazione(data);
+        return await createDestinazione(entityData);
+      case 'fornitori':
       case 'fornitore':
-        return await createFornitore(data);
+        return await createFornitore(entityData);
+      case 'banche':
       case 'banca':
-        return await createBanca(data);
+        return await createBanca(entityData);
       default:
         return {
           success: false,
