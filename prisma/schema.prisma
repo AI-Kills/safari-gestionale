@@ -241,6 +241,7 @@ model pagamenti_servizi_a_terra {
   id_servizio_a_terra String        @db.Uuid
   id_banca            String?       @db.Uuid
   importo             Float?
+  importo_in_valuta   Float?
   data_scadenza       DateTime?     @db.Date
   data_incasso        DateTime?     @db.Date
   banche              Banca?        @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -248,14 +249,15 @@ model pagamenti_servizi_a_terra {
 }
 
 model pagamenti_voli {
-  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  id_volo       String    @db.Uuid
-  id_banca      String?   @db.Uuid
-  importo       Float?
-  data_scadenza DateTime? @db.Date
-  data_incasso  DateTime? @db.Date
-  banche        Banca?    @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  voli          Volo      @relation(fields: [id_volo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_volo           String    @db.Uuid
+  id_banca          String?   @db.Uuid
+  importo           Float?
+  importo_in_valuta Float?
+  data_scadenza     DateTime? @db.Date
+  data_incasso      DateTime? @db.Date
+  banche            Banca?    @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  voli              Volo      @relation(fields: [id_volo], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model partecipanti {

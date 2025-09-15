@@ -79,6 +79,9 @@ export interface GeneralInterfaceActions {
     updateItem: (groupId: number, field: string, value: any) => void;
     setAllItems: (items: ServizioATerraInputGroup[]) => void;
     clearItems: () => void;
+    addPagamentoToItem: (groupId: number, pagamento: any) => void;
+    updatePagamentoInItem: (groupId: number, pagamentoIndex: number, updatedPagamento: any) => void;
+    removePagamentoFromItem: (groupId: number, pagamentoIndex: number) => void;
   };
   
   serviziAggiuntiviActions: {
@@ -87,6 +90,9 @@ export interface GeneralInterfaceActions {
     updateItem: (groupId: number, field: string, value: any) => void;
     setAllItems: (items: ServizioATerraInputGroup[]) => void;
     clearItems: () => void;
+    addPagamentoToItem: (groupId: number, pagamento: any) => void;
+    updatePagamentoInItem: (groupId: number, pagamentoIndex: number, updatedPagamento: any) => void;
+    removePagamentoFromItem: (groupId: number, pagamentoIndex: number) => void;
   };
   
   voliActions: {
@@ -95,6 +101,9 @@ export interface GeneralInterfaceActions {
     updateItem: (groupId: number, field: string, value: any) => void;
     setAllItems: (items: VoloInputGroup[]) => void;
     clearItems: () => void;
+    addPagamentoToItem: (groupId: number, pagamento: any) => void;
+    updatePagamentoInItem: (groupId: number, pagamentoIndex: number, updatedPagamento: any) => void;
+    removePagamentoFromItem: (groupId: number, pagamentoIndex: number) => void;
   };
   
   assicurazioniActions: {
@@ -301,6 +310,9 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
       updateItem: serviziATerraManager.updateItem,
       setAllItems: serviziATerraManager.setAllItems,
       clearItems: serviziATerraManager.clearItems,
+      addPagamentoToItem: serviziATerraManager.addPagamentoToItem,
+      updatePagamentoInItem: serviziATerraManager.updatePagamentoInItem,
+      removePagamentoFromItem: serviziATerraManager.removePagamentoFromItem,
     },
     
     serviziAggiuntiviActions: {
@@ -309,6 +321,9 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
       updateItem: serviziAggiuntiviManager.updateItem,
       setAllItems: serviziAggiuntiviManager.setAllItems,
       clearItems: serviziAggiuntiviManager.clearItems,
+      addPagamentoToItem: serviziAggiuntiviManager.addPagamentoToItem,
+      updatePagamentoInItem: serviziAggiuntiviManager.updatePagamentoInItem,
+      removePagamentoFromItem: serviziAggiuntiviManager.removePagamentoFromItem,
     },
     
     voliActions: {
@@ -317,6 +332,9 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
       updateItem: voliManager.updateItem,
       setAllItems: voliManager.setAllItems,
       clearItems: voliManager.clearItems,
+      addPagamentoToItem: voliManager.addPagamentoToItem,
+      updatePagamentoInItem: voliManager.updatePagamentoInItem,
+      removePagamentoFromItem: voliManager.removePagamentoFromItem,
     },
     
     assicurazioniActions: {

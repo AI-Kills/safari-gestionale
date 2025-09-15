@@ -12,6 +12,7 @@ import { formatNumberItalian } from '../../helpers';
 export interface DynamicListItem {
   groupId: number;
   id?: string;
+  pagamenti?: any[];
 }
 
 export interface FieldConfig {
@@ -41,6 +42,10 @@ export interface DynamicServiceListProps<T extends DynamicListItem> {
   totalLabel?: string;
   className?: string;
   calculationArgs?: any[];
+  // Pagamenti props
+  onAddPagamento?: (groupId: number) => void;
+  onEditPagamento?: (groupId: number, pagamentoIndex: number) => void;
+  onDeletePagamento?: (groupId: number, pagamentoIndex: number) => void;
 }
 
 export function DynamicServiceList<T extends DynamicListItem>({
@@ -54,7 +59,10 @@ export function DynamicServiceList<T extends DynamicListItem>({
   calculateTotal,
   totalLabel = "Totale",
   className = "",
-  calculationArgs = []
+  calculationArgs = [],
+  onAddPagamento,
+  onEditPagamento,
+  onDeletePagamento
 }: DynamicServiceListProps<T>) {
 
   const handleFieldChange = (groupId: number, fieldName: string) => (
@@ -112,7 +120,7 @@ export function DynamicServiceList<T extends DynamicListItem>({
           <InputLookup 
             {...commonProps}
             options={config.options as string[] || []}
-            defaultValue={value || ''}
+            value={value || ''}
           />
         );
       
@@ -146,21 +154,53 @@ export function DynamicServiceList<T extends DynamicListItem>({
           <div key={item.groupId}>
             <div className="flex flex-row justify-between">
               {/* Campi input */}
-              <div className="input-group-row flex items-center space-x-2">
+              <div className="input-group-row flex items-end space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-8 h-8 rounded-full p-0 flex items-center justify-center"
+                  className="w-8 h-8 rounded-full p-0 flex items-center justify-center mb-1"
                   onClick={() => onRemoveItem(item.groupId)}
                 >
                   <MinusIcon className="w-4 h-4" />
                 </Button>
+
+                {/* Pulsante Aggiungi Pagamento */}
+                {onAddPagamento && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-3 flex items-center justify-center gap-1 mb-1 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-green-200 hover:border-green-300 text-green-700 hover:text-green-800 transition-all duration-200 hover:shadow-sm"
+                    onClick={() => onAddPagamento(item.groupId)}
+                    title="Aggiungi pagamento"
+                  >
+                    <PlusIcon className="w-3 h-3" />
+                    <span className="text-xs font-medium">💰</span>
+                  </Button>
+                )}
 
                 {fieldConfigs.map((config, configIndex) => (
                   <React.Fragment key={`${item.groupId}-${config.name}`}>
                     {renderField(item, config, index)}
                   </React.Fragment>
                 ))}
+
+                {/* Pulsanti Pagamenti */}
+                {item.pagamenti && item.pagamenti.length > 0 && (
+                  <div className="flex items-end space-x-1 ml-2">
+                    {item.pagamenti.map((pagamento, pagamentoIndex) => (
+                      <Button
+                        key={`${item.groupId}-pagamento-${pagamentoIndex}`}
+                        variant="outline"
+                        size="sm"
+                        className="h-8 px-2 flex items-center justify-center mb-1 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 hover:shadow-sm"
+                        onClick={() => onEditPagamento?.(item.groupId, pagamentoIndex)}
+                        title={`Modifica pagamento ${pagamentoIndex + 1}`}
+                      >
+                        <span className="text-sm">💰</span>
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Calcoli */}

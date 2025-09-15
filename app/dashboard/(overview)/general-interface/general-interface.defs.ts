@@ -185,7 +185,8 @@ export class VoloInputGroup {
     public numero?: number,
     public valuta?: string,
     public cambio?: number,
-    public id?: string
+    public id?: string,
+    public pagamenti?: Pagamento[]
   ) {
     this.id = id ?? undefined;
     this.fornitore = fornitore ?? undefined;
@@ -198,6 +199,7 @@ export class VoloInputGroup {
     this.numero = numero ?? 0;
     this.valuta = valuta ?? undefined;
     this.cambio = cambio ?? 1;
+    this.pagamenti = pagamenti ?? [];
   }
 }
 // assicurazioni interface for storing input group values
@@ -264,7 +266,7 @@ export const ERRORMESSAGE = "Operazione fallita 😢";
 
 export class Pagamento {
   constructor(
-    public id: number,
+    public id: string,
     public banca?: string,
     public data_scadenza?: Date,
     public data_pagamento?: Date,

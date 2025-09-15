@@ -19,6 +19,13 @@ export async function createVolo(data: any): Promise<ApiResponse<VoloType>> {
       delete parsedData.fornitore;
     }
 
+    // Salva i pagamenti prima di rimuoverli
+    const pagamentiVolo = parsedData.pagamenti || [];
+
+    // Rimuovi campi che non servono per il database
+    delete parsedData.groupId;
+    delete parsedData.pagamenti;
+
     const validatedData = createVoloSchema.safeParse(parsedData);
     if (!validatedData.success) {
       return handleValidationErrors(validatedData.error);
@@ -39,6 +46,35 @@ export async function createVolo(data: any): Promise<ApiResponse<VoloType>> {
         cambio: validatedData.data.cambio
       }
     });
+
+    // Crea i pagamenti per questo volo
+    if (pagamentiVolo.length > 0) {
+      console.log('💰 Creating pagamenti for volo:', pagamentiVolo.length);
+      for (const pagamento of pagamentiVolo) {
+        if (pagamento.banca || pagamento.importo_in_euro || pagamento.importo_in_valuta) {
+          // Trova l'ID della banca se specificata
+          let id_banca = null;
+          if (pagamento.banca) {
+            const banca = await prisma.banca.findFirst({
+              where: { nome: pagamento.banca }
+            });
+            id_banca = banca?.id;
+          }
+
+          await prisma.pagamenti_voli.create({
+            data: {
+              id_volo: volo.id,
+              id_banca: id_banca,
+              importo: pagamento.importo_in_euro,
+              importo_in_valuta: pagamento.importo_in_valuta,
+              data_scadenza: pagamento.data_scadenza,
+              data_incasso: pagamento.data_pagamento
+            }
+          });
+          console.log('💰 Pagamento volo created successfully');
+        }
+      }
+    }
 
     revalidatePath('/dashboard/preventivi-table');
     return { success: true, data: volo as VoloType };
@@ -68,7 +104,12 @@ export async function fetchVoliByPreventivoId(preventivoId: string): Promise<DBR
     const voli = await prisma.volo.findMany({
       where: { id_preventivo: preventivoId },
       include: {
-        fornitore: true
+        fornitore: true,
+        pagamenti_voli: {
+          include: {
+            banche: true
+          }
+        }
       }
     });
     return { success: true, values: voli as VoloType[] };

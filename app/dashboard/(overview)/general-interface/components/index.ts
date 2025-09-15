@@ -29,3 +29,10 @@ export type { ClientiTrovatiListProps } from './display/ClientiTrovatiList';
 
 // Main Page Component
 export { default as GeneralInterfacePage } from './GeneralInterfacePage';
+
+// Modals
+export { PagamentoModal } from './modals/PagamentoModal';
+export type { PagamentoModalProps } from './modals/PagamentoModal';
+
+// UI Components
+export { LoadingText } from './ui/LoadingText';

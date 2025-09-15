@@ -19,6 +19,10 @@ export async function createAssicurazione(data: any): Promise<ApiResponse<Assicu
       delete parsedData.fornitore;
     }
 
+    // Rimuovi campi che non servono per il database
+    delete parsedData.groupId;
+    delete parsedData.pagamenti;
+
     const validatedData = createAssicurazioneSchema.safeParse(parsedData);
     if (!validatedData.success) {
       return handleValidationErrors(validatedData.error);

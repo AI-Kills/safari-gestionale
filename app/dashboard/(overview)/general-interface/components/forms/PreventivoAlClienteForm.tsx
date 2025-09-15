@@ -83,7 +83,7 @@ export function PreventivoAlClienteForm({
                   name={`destinazione-${row.groupId}`}
                   options={destinazioniOptions}
                   onChange={handleRowFieldChange(tipo, row.groupId, 'destinazione')}
-                  defaultValue={row.destinazione || ''}
+                  value={row.destinazione || ''}
                   className="w-[120px]"
                 />
                 <InputText

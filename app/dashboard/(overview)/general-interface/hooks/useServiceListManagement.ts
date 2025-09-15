@@ -58,11 +58,62 @@ export function useServiziATerraManagement(initialItems: ServizioATerraInputGrou
     return updatedItem;
   };
 
-  return useDynamicList({
+  const dynamicList = useDynamicList({
     initialItems,
     createNewItem: createNewServizio,
     updateItemField: updateServizioField
   });
+
+  // Funzioni specifiche per pagamenti
+  const addPagamentoToItem = (groupId: number, pagamento: any) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        return {
+          ...item,
+          pagamenti: [...(item.pagamenti || []), pagamento]
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  const updatePagamentoInItem = (groupId: number, pagamentoIndex: number, updatedPagamento: any) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        const newPagamenti = [...(item.pagamenti || [])];
+        newPagamenti[pagamentoIndex] = updatedPagamento;
+        return {
+          ...item,
+          pagamenti: newPagamenti
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  const removePagamentoFromItem = (groupId: number, pagamentoIndex: number) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        const newPagamenti = [...(item.pagamenti || [])];
+        newPagamenti.splice(pagamentoIndex, 1);
+        return {
+          ...item,
+          pagamenti: newPagamenti
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  return {
+    ...dynamicList,
+    addPagamentoToItem,
+    updatePagamentoInItem,
+    removePagamentoFromItem
+  };
 }
 
 // Hook per gestione voli
@@ -76,11 +127,62 @@ export function useVoliManagement(initialItems: VoloInputGroup[] = []) {
     return updatedItem;
   };
 
-  return useDynamicList({
+  const dynamicList = useDynamicList({
     initialItems,
     createNewItem: createNewVolo,
     updateItemField: updateVoloField
   });
+
+  // Funzioni specifiche per pagamenti
+  const addPagamentoToItem = (groupId: number, pagamento: any) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        return {
+          ...item,
+          pagamenti: [...(item.pagamenti || []), pagamento]
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  const updatePagamentoInItem = (groupId: number, pagamentoIndex: number, updatedPagamento: any) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        const newPagamenti = [...(item.pagamenti || [])];
+        newPagamenti[pagamentoIndex] = updatedPagamento;
+        return {
+          ...item,
+          pagamenti: newPagamenti
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  const removePagamentoFromItem = (groupId: number, pagamentoIndex: number) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        const newPagamenti = [...(item.pagamenti || [])];
+        newPagamenti.splice(pagamentoIndex, 1);
+        return {
+          ...item,
+          pagamenti: newPagamenti
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  return {
+    ...dynamicList,
+    addPagamentoToItem,
+    updatePagamentoInItem,
+    removePagamentoFromItem
+  };
 }
 
 // Hook per gestione assicurazioni
@@ -113,9 +215,60 @@ export function useServiziAggiuntiviManagement(initialItems: ServizioATerraInput
     return updatedItem;
   };
 
-  return useDynamicList({
+  const dynamicList = useDynamicList({
     initialItems,
     createNewItem: createNewServizioAggiuntivo,
     updateItemField: updateServizioAggiuntivoField
   });
+
+  // Funzioni specifiche per pagamenti
+  const addPagamentoToItem = (groupId: number, pagamento: any) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        return {
+          ...item,
+          pagamenti: [...(item.pagamenti || []), pagamento]
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  const updatePagamentoInItem = (groupId: number, pagamentoIndex: number, updatedPagamento: any) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        const newPagamenti = [...(item.pagamenti || [])];
+        newPagamenti[pagamentoIndex] = updatedPagamento;
+        return {
+          ...item,
+          pagamenti: newPagamenti
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  const removePagamentoFromItem = (groupId: number, pagamentoIndex: number) => {
+    const updatedItems = dynamicList.items.map(item => {
+      if (item.groupId === groupId) {
+        const newPagamenti = [...(item.pagamenti || [])];
+        newPagamenti.splice(pagamentoIndex, 1);
+        return {
+          ...item,
+          pagamenti: newPagamenti
+        };
+      }
+      return item;
+    });
+    dynamicList.setAllItems(updatedItems);
+  };
+
+  return {
+    ...dynamicList,
+    addPagamentoToItem,
+    updatePagamentoInItem,
+    removePagamentoFromItem
+  };
 }

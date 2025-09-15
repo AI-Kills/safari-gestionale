@@ -260,191 +260,73 @@ export async function submitCreatePreventivoGI(data: any): Promise<ApiResponse> 
         }
       });
 
-      // 2. Crea i servizi a terra
-      if (data.serviziATerra && data.serviziATerra.length > 0) {
-        for (const servizio of data.serviziATerra) {
-          const parsedServizioData = parseFormDates(servizio);
-          parsedServizioData.id_preventivo = preventivo.id;
-          
-          // Trova gli ID delle entità correlate
-          if (parsedServizioData.destinazione) {
-            const destinazione = await tx.destinazione.findFirst({
-              where: { nome: parsedServizioData.destinazione }
-            });
-            parsedServizioData.id_destinazione = destinazione?.id;
-          }
-          
-          if (parsedServizioData.fornitore) {
-            const fornitore = await tx.fornitore.findFirst({
-              where: { nome: parsedServizioData.fornitore }
-            });
-            parsedServizioData.id_fornitore = fornitore?.id;
-          }
 
-          // Rimuovi i campi nome che non servono per il database
-          delete parsedServizioData.destinazione;
-          delete parsedServizioData.fornitore;
-          delete parsedServizioData.groupId;
-          delete parsedServizioData.pagamenti;
 
-          const validatedServizioData = createServiziATerraSchema.safeParse(parsedServizioData);
-          if (validatedServizioData.success) {
-            await tx.serviziATerra.create({
-              data: validatedServizioData.data
-            });
-          }
-        }
-      }
 
-      // 3. Crea i servizi aggiuntivi
-      if (data.serviziAggiuntivi && data.serviziAggiuntivi.length > 0) {
-        for (const servizio of data.serviziAggiuntivi) {
-          const parsedServizioData = parseFormDates(servizio);
-          parsedServizioData.id_preventivo = preventivo.id;
-          parsedServizioData.servizio_aggiuntivo = true;
-          
-          // Trova gli ID delle entità correlate
-          if (parsedServizioData.destinazione) {
-            const destinazione = await tx.destinazione.findFirst({
-              where: { nome: parsedServizioData.destinazione }
-            });
-            parsedServizioData.id_destinazione = destinazione?.id;
-          }
-          
-          if (parsedServizioData.fornitore) {
-            const fornitore = await tx.fornitore.findFirst({
-              where: { nome: parsedServizioData.fornitore }
-            });
-            parsedServizioData.id_fornitore = fornitore?.id;
-          }
-
-          // Rimuovi i campi nome che non servono per il database
-          delete parsedServizioData.destinazione;
-          delete parsedServizioData.fornitore;
-          delete parsedServizioData.groupId;
-          delete parsedServizioData.pagamenti;
-
-          const validatedServizioData = createServiziATerraSchema.safeParse(parsedServizioData);
-          if (validatedServizioData.success) {
-            await tx.serviziATerra.create({
-              data: validatedServizioData.data
-            });
-          }
-        }
-      }
-
-      // 4. Crea i voli
-      if (data.voli && data.voli.length > 0) {
-        for (const volo of data.voli) {
-          const parsedVoloData = parseFormDates(volo);
-          parsedVoloData.id_preventivo = preventivo.id;
-          
-          // Trova l'ID del fornitore
-          if (parsedVoloData.fornitore) {
-            const fornitore = await tx.fornitore.findFirst({
-              where: { nome: parsedVoloData.fornitore }
-            });
-            parsedVoloData.id_fornitore = fornitore?.id;
-          }
-
-          // Rimuovi i campi che non servono per il database
-          delete parsedVoloData.fornitore;
-          delete parsedVoloData.groupId;
-
-          const validatedVoloData = createVoloSchema.safeParse(parsedVoloData);
-          if (validatedVoloData.success) {
-            await tx.volo.create({
-              data: validatedVoloData.data
-            });
-          }
-        }
-      }
-
-      // 5. Crea le assicurazioni
-      if (data.assicurazioni && data.assicurazioni.length > 0) {
-        for (const assicurazione of data.assicurazioni) {
-          const parsedAssicurazioneData = { ...assicurazione };
-          parsedAssicurazioneData.id_preventivo = preventivo.id;
-          
-          // Trova l'ID del fornitore
-          if (parsedAssicurazioneData.fornitore) {
-            const fornitore = await tx.fornitore.findFirst({
-              where: { nome: parsedAssicurazioneData.fornitore }
-            });
-            parsedAssicurazioneData.id_fornitore = fornitore?.id;
-          }
-
-          // Rimuovi i campi che non servono per il database
-          delete parsedAssicurazioneData.fornitore;
-          delete parsedAssicurazioneData.groupId;
-
-          const validatedAssicurazioneData = createAssicurazioneSchema.safeParse(parsedAssicurazioneData);
-          if (validatedAssicurazioneData.success) {
-            await tx.assicurazione.create({
-              data: validatedAssicurazioneData.data
-            });
-          }
-        }
-      }
-
-      // 6. Crea il preventivo al cliente
-      if (data.preventivoAlCliente) {
-        const preventivoAlClienteData = {
-          id_preventivo: preventivo.id,
-          descrizione_viaggio: data.preventivoAlCliente.descrizione_viaggio
-        };
-
-        const validatedPreventivoAlClienteData = createPreventivoAlClienteSchema.safeParse(preventivoAlClienteData);
-        if (validatedPreventivoAlClienteData.success) {
-          const preventivoAlCliente = await tx.preventivoAlCliente.create({
-            data: validatedPreventivoAlClienteData.data
-          });
-
-          // Crea le righe del preventivo al cliente
-          if (data.preventivoAlCliente.righePrimoTipo) {
-            for (const row of data.preventivoAlCliente.righePrimoTipo) {
-              const rowData = {
-                preventivo_al_cliente_id: preventivoAlCliente.id,
-                destinazione: row.destinazione,
-                descrizione: row.descrizione,
-                individuale: row.individuale,
-                numero: row.numero,
-                is_primo_tipo: true
-              };
-
-              const validatedRowData = createPreventivoAlClienteRowSchema.safeParse(rowData);
-              if (validatedRowData.success) {
-                await tx.preventivoAlClienteRow.create({
-                  data: validatedRowData.data
-                });
-              }
-            }
-          }
-
-          if (data.preventivoAlCliente.righeSecondoTipo) {
-            for (const row of data.preventivoAlCliente.righeSecondoTipo) {
-              const rowData = {
-                preventivo_al_cliente_id: preventivoAlCliente.id,
-                destinazione: row.destinazione,
-                descrizione: row.descrizione,
-                individuale: row.individuale,
-                numero: row.numero,
-                is_primo_tipo: false
-              };
-
-              const validatedRowData = createPreventivoAlClienteRowSchema.safeParse(rowData);
-              if (validatedRowData.success) {
-                await tx.preventivoAlClienteRow.create({
-                  data: validatedRowData.data
-                });
-              }
-            }
-          }
-        }
-      }
 
       return preventivo;
     });
+
+    // 2. Ora crea i servizi (fuori dalla transazione, dopo che il preventivo esiste)
+    // Crea i servizi a terra
+    console.log('🏗️ Creating servizi a terra:', data.serviziATerra?.length || 0);
+    if (data.serviziATerra && data.serviziATerra.length > 0) {
+      for (const servizio of data.serviziATerra) {
+        console.log(`Creating servizio a terra:`, servizio);
+        const servizioResult = await createServizioATerra(servizio, result.id, false);
+        if (!servizioResult.success) {
+          console.error(`Failed to create servizio a terra:`, servizioResult);
+          throw new Error(`Errore nella creazione del servizio a terra: ${servizioResult.error || 'Errore sconosciuto'}`);
+        }
+      }
+    }
+
+    // 3. Crea i servizi aggiuntivi
+    console.log('🏗️ Creating servizi aggiuntivi:', data.serviziAggiuntivi?.length || 0);
+    if (data.serviziAggiuntivi && data.serviziAggiuntivi.length > 0) {
+      for (const servizio of data.serviziAggiuntivi) {
+        console.log(`Creating servizio aggiuntivo:`, servizio);
+        const servizioResult = await createServizioATerra(servizio, result.id, true);
+        if (!servizioResult.success) {
+          console.error(`Failed to create servizio aggiuntivo:`, servizioResult);
+          throw new Error(`Errore nella creazione del servizio aggiuntivo: ${servizioResult.error || 'Errore sconosciuto'}`);
+        }
+      }
+    }
+
+    // 4. Crea i voli
+    console.log('🏗️ Creating voli:', data.voli?.length || 0);
+    if (data.voli && data.voli.length > 0) {
+      for (const volo of data.voli) {
+        console.log(`Creating volo:`, volo);
+        const voloData = { ...volo, id_preventivo: result.id };
+        const voloResult = await createVolo(voloData);
+        if (!voloResult.success) {
+          console.error(`Failed to create volo:`, voloResult);
+          throw new Error(`Errore nella creazione del volo: ${voloResult.error || 'Errore sconosciuto'}`);
+        }
+      }
+    }
+
+    // 5. Crea le assicurazioni
+    console.log('🏗️ Creating assicurazioni:', data.assicurazioni?.length || 0);
+    if (data.assicurazioni && data.assicurazioni.length > 0) {
+      for (const assicurazione of data.assicurazioni) {
+        console.log(`Creating assicurazione:`, assicurazione);
+        const assicurazioneData = { ...assicurazione, id_preventivo: result.id };
+        const assicurazioneResult = await createAssicurazione(assicurazioneData);
+        if (!assicurazioneResult.success) {
+          console.error(`Failed to create assicurazione:`, assicurazioneResult);
+          throw new Error(`Errore nella creazione dell'assicurazione: ${assicurazioneResult.error || 'Errore sconosciuto'}`);
+        }
+      }
+    }
+
+    // 6. Crea il preventivo al cliente
+    console.log('🏗️ Creating preventivo al cliente');
+    if (data.preventivoAlCliente) {
+      await updatePreventivoAlClienteCompleto(result.id, data.preventivoAlCliente);
+    }
 
     // Revalida le pagine che potrebbero essere cambiate
     revalidatePath('/dashboard/preventivi-table');
@@ -501,7 +383,27 @@ export async function updatePreventivoCompleto(data: any): Promise<ApiResponse> 
 async function updateServiziATerraCompleto(preventivoId: string, servizi: any[], isServizioAggiuntivo: boolean): Promise<void> {
   console.log(`Updating servizi a terra: ${servizi.length} servizi, isServizioAggiuntivo: ${isServizioAggiuntivo}`);
   
-  // Elimina tutti i servizi esistenti del tipo specificato
+  // Prima trova tutti i servizi esistenti per eliminare i pagamenti
+  const existingServizi = await prisma.serviziATerra.findMany({
+    where: { 
+      id_preventivo: preventivoId,
+      servizio_aggiuntivo: isServizioAggiuntivo
+    },
+    select: { id: true }
+  });
+
+  // Elimina tutti i pagamenti dei servizi esistenti
+  if (existingServizi.length > 0) {
+    await prisma.pagamenti_servizi_a_terra.deleteMany({
+      where: {
+        id_servizio_a_terra: {
+          in: existingServizi.map(s => s.id)
+        }
+      }
+    });
+  }
+
+  // Ora elimina tutti i servizi esistenti del tipo specificato
   await prisma.serviziATerra.deleteMany({
     where: { 
       id_preventivo: preventivoId,
@@ -531,7 +433,24 @@ async function updateServiziATerraCompleto(preventivoId: string, servizi: any[],
 async function updateVoliCompleto(preventivoId: string, voli: any[]): Promise<void> {
   console.log(`Updating voli: ${voli.length} voli`);
   
-  // Elimina tutti i voli esistenti
+  // Prima trova tutti i voli esistenti per eliminare i pagamenti
+  const existingVoli = await prisma.volo.findMany({
+    where: { id_preventivo: preventivoId },
+    select: { id: true }
+  });
+
+  // Elimina tutti i pagamenti dei voli esistenti
+  if (existingVoli.length > 0) {
+    await prisma.pagamenti_voli.deleteMany({
+      where: {
+        id_volo: {
+          in: existingVoli.map(v => v.id)
+        }
+      }
+    });
+  }
+
+  // Ora elimina tutti i voli esistenti
   await prisma.volo.deleteMany({
     where: { id_preventivo: preventivoId }
   });

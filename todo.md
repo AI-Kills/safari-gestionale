@@ -1,5 +1,11 @@
 ### Safari
 
+done: 
+general refactoring interfaccia grafica
+feature: duplica preventivo
+feature: modifica cliente dalla tabella clienti
+
+
 
 Per fine giugno 
 

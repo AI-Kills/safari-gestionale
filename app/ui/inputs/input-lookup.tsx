@@ -2,7 +2,7 @@
 import { InputInterface } from "./input-interface";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import React, { useState, ChangeEvent, MouseEvent } from 'react';
+import React, { useState, ChangeEvent, MouseEvent, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 
 
@@ -25,9 +25,17 @@ export function InputLookup({
   options,
   onChange,
   className,
+  value
 }: InputLookupProps) {
   const [inputValue, setInputValue] = useState(defaultValue ?? "");
   const [showDropdown, setShowDropdown] = useState(false);
+
+  // Aggiorna lo stato interno quando cambia value dall'esterno
+  useEffect(() => {
+    if (value !== undefined) {
+      setInputValue(value);
+    }
+  }, [value]);
 
   // Filter the options based on current input value
   const filteredOptions = options.filter((option) =>

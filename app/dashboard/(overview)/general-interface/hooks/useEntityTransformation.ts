@@ -39,6 +39,19 @@ export function useEntityTransformation() {
         }
       }
       
+      // Trasforma i pagamenti se presenti
+      let pagamenti = [];
+      if (servizio?.pagamenti_servizi_a_terra) {
+        pagamenti = servizio.pagamenti_servizi_a_terra.map((pagamento: any) => ({
+          id: pagamento.id,
+          banca: pagamento.banche?.nome || '',
+          data_scadenza: pagamento.data_scadenza,
+          data_pagamento: pagamento.data_incasso,
+          importo_in_euro: pagamento.importo,
+          importo_in_valuta: pagamento.importo_in_valuta
+        }));
+      }
+
       // Crea InputGroup
       const inputGroup = new ServizioATerraInputGroup(
         i,
@@ -52,7 +65,8 @@ export function useEntityTransformation() {
         servizio?.totale,
         servizio?.cambio,
         servizio?.servizio_aggiuntivo,
-        servizio?.id
+        servizio?.id,
+        pagamenti
       );
       
       res.push(inputGroup);
@@ -77,6 +91,19 @@ export function useEntityTransformation() {
         }
       }
       
+      // Trasforma i pagamenti se presenti
+      let pagamenti = [];
+      if (volo?.pagamenti_voli) {
+        pagamenti = volo.pagamenti_voli.map((pagamento: any) => ({
+          id: pagamento.id,
+          banca: pagamento.banche?.nome || '',
+          data_scadenza: pagamento.data_scadenza,
+          data_pagamento: pagamento.data_incasso,
+          importo_in_euro: pagamento.importo,
+          importo_in_valuta: pagamento.importo_in_valuta
+        }));
+      }
+      
       // Crea InputGroup
       const inputGroup = new VoloInputGroup(
         i,
@@ -90,7 +117,8 @@ export function useEntityTransformation() {
         volo?.numero,
         volo?.valuta,
         volo?.cambio,
-        volo?.id
+        volo?.id,
+        pagamenti
       );
       
       res.push(inputGroup);

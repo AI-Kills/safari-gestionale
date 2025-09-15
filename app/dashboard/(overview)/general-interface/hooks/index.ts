@@ -18,3 +18,5 @@ export {
 } from './useServiceListManagement';
 
 export { usePreventivoAlClienteManagement } from './usePreventivoAlClienteManagement';
+
+export { usePagamentiManagement } from './usePagamentiManagement';

@@ -84,6 +84,9 @@ export async function createServizioATerra(data: any, preventivoId: string, isSe
       delete parsedData.fornitore;
     }
 
+    // Salva i pagamenti prima di rimuoverli
+    const pagamentiServizio = parsedData.pagamenti || [];
+
     // Rimuovi campi che non servono per il database
     delete parsedData.groupId;
     delete parsedData.pagamenti;
@@ -117,6 +120,35 @@ export async function createServizioATerra(data: any, preventivoId: string, isSe
     });
 
     console.log('🎉 Servizio created successfully:', servizio.id);
+
+    // Crea i pagamenti per questo servizio
+    if (pagamentiServizio.length > 0) {
+      console.log('💰 Creating pagamenti for servizio:', pagamentiServizio.length);
+      for (const pagamento of pagamentiServizio) {
+        if (pagamento.banca || pagamento.importo_in_euro || pagamento.importo_in_valuta) {
+          // Trova l'ID della banca se specificata
+          let id_banca = null;
+          if (pagamento.banca) {
+            const banca = await prisma.banca.findFirst({
+              where: { nome: pagamento.banca }
+            });
+            id_banca = banca?.id;
+          }
+
+          await prisma.pagamenti_servizi_a_terra.create({
+            data: {
+              id_servizio_a_terra: servizio.id,
+              id_banca: id_banca,
+              importo: pagamento.importo_in_euro,
+              importo_in_valuta: pagamento.importo_in_valuta,
+              data_scadenza: pagamento.data_scadenza,
+              data_incasso: pagamento.data_pagamento
+            }
+          });
+          console.log('💰 Pagamento created successfully');
+        }
+      }
+    }
     revalidatePath('/dashboard/preventivi-table');
     return { success: true, data: servizio as ServiziATerraType };
   } catch (error) {
@@ -151,7 +183,12 @@ export async function fetchServiziATerraByPreventivoId(preventivoId: string): Pr
       },
       include: {
         destinazione: true,
-        fornitore: true
+        fornitore: true,
+        pagamenti_servizi_a_terra: {
+          include: {
+            banche: true
+          }
+        }
       }
     });
     return { success: true, values: servizi as ServiziATerraType[] };
@@ -170,7 +207,12 @@ export async function fetchServiziAggiuntiviByPreventivoId(preventivoId: string)
       },
       include: {
         destinazione: true,
-        fornitore: true
+        fornitore: true,
+        pagamenti_servizi_a_terra: {
+          include: {
+            banche: true
+          }
+        }
       }
     });
     return { success: true, values: servizi as ServiziATerraType[] };

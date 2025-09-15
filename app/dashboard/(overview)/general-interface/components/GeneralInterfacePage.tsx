@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DocumentTextIcon, PlusIcon, UserIcon } from "@heroicons/react/24/outline";
@@ -8,18 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import Feedback from '@/app/ui/feedback/feedback';
 
 import { GeneralInterfaceProvider, useGeneralInterface } from '../contexts/GeneralInterfaceContext';
-import { ClienteForm, PreventivoForm, DynamicServiceList, ClientiTrovatiList, PreventivoAlClienteForm } from './index';
+import { ClienteForm, PreventivoForm, DynamicServiceList, ClientiTrovatiList, PreventivoAlClienteForm, PagamentoModal, LoadingText } from './index';
 import { getServiziATerraConfigs, getVoliConfigs, getAssicurazioniConfigs } from './lists/ServiceListConfigs';
 import { getSommaTuttiTotEuro, formatNumberItalian } from '../helpers';
 import { ClienteService, PreventivoService } from '../services';
 import { useSpinnerContext } from '@/app/context/spinner-context';
 import { useDebouncedCallback } from 'use-debounce';
-import { PreventivoInputGroup, Data } from '../general-interface.defs';
+import { PreventivoInputGroup, Data, Pagamento } from '../general-interface.defs';
 import { useEntityTransformation } from '../hooks';
 
 // Import data
 import fornitoriData from '@/app/lib/fundamental-entities-json/fornitori.json';
 import destinazioniData from '@/app/lib/fundamental-entities-json/destinazioni.json';
+import bancheData from '@/app/lib/fundamental-entities-json/banche.json';
 import valuteValues from '@/app/seed/valute.json';
 import brandValues from "@/app/seed/brands.json";
 import operatoriValues from "@/app/seed/operatori.json";
@@ -27,6 +28,7 @@ import operatoriValues from "@/app/seed/operatori.json";
 // Options
 const fornitoriOptions = fornitoriData.map(fornitore => fornitore.nome);
 const destinazioniOptions = destinazioniData.map(destinazione => destinazione.nome);
+const bancheOptions = bancheData.map(banca => banca.nome);
 const brandOptions = brandValues.brand;
 const operatoreOptions = operatoriValues.operatori;
 const valuteOptions = valuteValues.valute;
@@ -34,6 +36,13 @@ const valuteOptions = valuteValues.valute;
 function GeneralInterfaceContent() {
   const { setIsActiveSpinner } = useSpinnerContext();
   const { transformPreventivoCompleto } = useEntityTransformation();
+  
+  // Stati per modale pagamenti
+  const [isPagamentoModalOpen, setIsPagamentoModalOpen] = useState(false);
+  const [currentPagamento, setCurrentPagamento] = useState<Pagamento | undefined>();
+  const [currentServiceGroupId, setCurrentServiceGroupId] = useState<number | null>(null);
+  const [currentPagamentoIndex, setCurrentPagamentoIndex] = useState<number | null>(null);
+  const [currentServiceType, setCurrentServiceType] = useState<'serviziATerra' | 'serviziAggiuntivi' | 'voli' | null>(null);
   
   const {
     // State
@@ -165,11 +174,19 @@ function GeneralInterfaceContent() {
     try {
       const result = await PreventivoService.getNextPreventivoNumber();
       if (result.success) {
-        // Pulisci tutto e imposta nuovo preventivo
-        clearAll();
+        // Pulisci solo i dati del preventivo, mantieni il cliente
+        serviziATerraActions.clearItems();
+        serviziAggiuntiviActions.clearItems();
+        voliActions.clearItems();
+        assicurazioniActions.clearItems();
         setClienteDaAggiornare(c);
         setPreventivo(new PreventivoInputGroup(result.numeroPreventivo));
         setShowFormPreventivo(true);
+        setShowFormAggiornaCliente(false);
+        setShowPreventiviClienteList(false);
+        setShowClientiTrovati(false);
+        setErrorsList([]);
+        setFeedback(null);
       } else {
         setErrorsList([result.error || 'Errore nel recupero numero preventivo']);
       }
@@ -211,6 +228,9 @@ function GeneralInterfaceContent() {
         // Transform data using entity transformation
         const transformedData = await transformPreventivoCompleto(result.data);
         
+        // Assicurati che il cliente sia impostato correttamente
+        setClienteDaAggiornare(c);
+        
         // Load all data into context
         loadPreventivoData({
           cliente: c,
@@ -236,8 +256,16 @@ function GeneralInterfaceContent() {
     setIsActiveSpinner(true);
     
     try {
+      // Per la creazione di un nuovo preventivo, usa clienteDaAggiornare invece di cliente
+      const clienteToUse = clienteDaAggiornare.id ? clienteDaAggiornare : cliente;
+      
+      if (!clienteToUse.id) {
+        setErrorsList(['Errore: Nessun cliente selezionato per il preventivo']);
+        return;
+      }
+
       const data: Data = {
-        cliente: cliente,
+        cliente: clienteToUse,
         preventivo: preventivo!,
         serviziATerra: serviziATerra,
         serviziAggiuntivi: serviziAggiuntivi,
@@ -265,8 +293,16 @@ function GeneralInterfaceContent() {
     setIsActiveSpinner(true);
     
     try {
+      // Per l'aggiornamento, usa clienteDaAggiornare se disponibile
+      const clienteToUse = clienteDaAggiornare.id ? clienteDaAggiornare : cliente;
+      
+      if (!clienteToUse.id) {
+        setErrorsList(['Errore: Nessun cliente selezionato per il preventivo']);
+        return;
+      }
+
       const data: Data = {
-        cliente: cliente,
+        cliente: clienteToUse,
         preventivo: preventivo!,
         serviziATerra: serviziATerra,
         serviziAggiuntivi: serviziAggiuntivi,
@@ -294,8 +330,16 @@ function GeneralInterfaceContent() {
     setIsActiveSpinner(true);
     
     try {
+      // Per la duplicazione, usa clienteDaAggiornare
+      const clienteToUse = clienteDaAggiornare.id ? clienteDaAggiornare : cliente;
+      
+      if (!clienteToUse.id) {
+        setErrorsList(['Errore: Nessun cliente selezionato per il preventivo']);
+        return;
+      }
+
       const data: Data = {
-        cliente: cliente,
+        cliente: clienteToUse,
         preventivo: preventivo!,
         serviziATerra: serviziATerra,
         serviziAggiuntivi: serviziAggiuntivi,
@@ -322,6 +366,73 @@ function GeneralInterfaceContent() {
       setErrorsList(['Errore nella duplicazione del preventivo: ' + error.toString()]);
     } finally {
       setIsActiveSpinner(false);
+    }
+  };
+
+  // Funzioni per gestione pagamenti
+  const handleAddPagamento = (serviceType: 'serviziATerra' | 'serviziAggiuntivi' | 'voli', groupId: number) => {
+    setCurrentServiceType(serviceType);
+    setCurrentServiceGroupId(groupId);
+    setCurrentPagamento(undefined);
+    setCurrentPagamentoIndex(null);
+    setIsPagamentoModalOpen(true);
+  };
+
+  const handleEditPagamento = (serviceType: 'serviziATerra' | 'serviziAggiuntivi' | 'voli', groupId: number, pagamentoIndex: number) => {
+    setCurrentServiceType(serviceType);
+    setCurrentServiceGroupId(groupId);
+    setCurrentPagamentoIndex(pagamentoIndex);
+    
+    // Trova il pagamento da modificare
+    let targetService;
+    if (serviceType === 'serviziATerra') {
+      targetService = serviziATerra.find(s => s.groupId === groupId);
+    } else if (serviceType === 'serviziAggiuntivi') {
+      targetService = serviziAggiuntivi.find(s => s.groupId === groupId);
+    } else if (serviceType === 'voli') {
+      targetService = voli.find(s => s.groupId === groupId);
+    }
+    
+    if (targetService && targetService.pagamenti && targetService.pagamenti[pagamentoIndex]) {
+      setCurrentPagamento(targetService.pagamenti[pagamentoIndex]);
+    }
+    
+    setIsPagamentoModalOpen(true);
+  };
+
+  const handleSavePagamento = (pagamento: Pagamento) => {
+    if (!currentServiceType || currentServiceGroupId === null) return;
+
+    if (currentPagamentoIndex !== null) {
+      // Modifica pagamento esistente
+      if (currentServiceType === 'serviziATerra') {
+        serviziATerraActions.updatePagamentoInItem(currentServiceGroupId, currentPagamentoIndex, pagamento);
+      } else if (currentServiceType === 'serviziAggiuntivi') {
+        serviziAggiuntiviActions.updatePagamentoInItem(currentServiceGroupId, currentPagamentoIndex, pagamento);
+      } else if (currentServiceType === 'voli') {
+        voliActions.updatePagamentoInItem(currentServiceGroupId, currentPagamentoIndex, pagamento);
+      }
+    } else {
+      // Nuovo pagamento
+      if (currentServiceType === 'serviziATerra') {
+        serviziATerraActions.addPagamentoToItem(currentServiceGroupId, pagamento);
+      } else if (currentServiceType === 'serviziAggiuntivi') {
+        serviziAggiuntiviActions.addPagamentoToItem(currentServiceGroupId, pagamento);
+      } else if (currentServiceType === 'voli') {
+        voliActions.addPagamentoToItem(currentServiceGroupId, pagamento);
+      }
+    }
+  };
+
+  const handleDeletePagamento = () => {
+    if (!currentServiceType || currentServiceGroupId === null || currentPagamentoIndex === null) return;
+
+    if (currentServiceType === 'serviziATerra') {
+      serviziATerraActions.removePagamentoFromItem(currentServiceGroupId, currentPagamentoIndex);
+    } else if (currentServiceType === 'serviziAggiuntivi') {
+      serviziAggiuntiviActions.removePagamentoFromItem(currentServiceGroupId, currentPagamentoIndex);
+    } else if (currentServiceType === 'voli') {
+      voliActions.removePagamentoFromItem(currentServiceGroupId, currentPagamentoIndex);
     }
   };
 
@@ -392,8 +503,8 @@ function GeneralInterfaceContent() {
             />
 
             {isSearchingClienti && !showClientiTrovati && (
-              <div className="flex flex-col">
-                <p>Ricerca clienti...</p>
+              <div className="flex flex-col py-4">
+                <LoadingText text="Ricerca clienti" className="text-lg" />
               </div>
             )}
 
@@ -465,6 +576,8 @@ function GeneralInterfaceContent() {
                       calculateTotal={calculateTotal}
                       totalLabel="somma tot euro"
                       calculationArgs={[preventivo?.percentuale_ricarico]}
+                      onAddPagamento={(groupId) => handleAddPagamento('serviziATerra', groupId)}
+                      onEditPagamento={(groupId, pagamentoIndex) => handleEditPagamento('serviziATerra', groupId, pagamentoIndex)}
                     />
                   );
                 })()}
@@ -488,6 +601,8 @@ function GeneralInterfaceContent() {
                       calculateTotal={calculateTotal}
                       totalLabel="somma tot euro"
                       calculationArgs={[preventivo?.percentuale_ricarico]}
+                      onAddPagamento={(groupId) => handleAddPagamento('serviziAggiuntivi', groupId)}
+                      onEditPagamento={(groupId, pagamentoIndex) => handleEditPagamento('serviziAggiuntivi', groupId, pagamentoIndex)}
                     />
                   );
                 })()}
@@ -509,6 +624,8 @@ function GeneralInterfaceContent() {
                       onUpdateItem={voliActions.updateItem}
                       calculateTotal={calculateTotal}
                       totalLabel="somma tot euro"
+                      onAddPagamento={(groupId) => handleAddPagamento('voli', groupId)}
+                      onEditPagamento={(groupId, pagamentoIndex) => handleEditPagamento('voli', groupId, pagamentoIndex)}
                     />
                   );
                 })()}
@@ -597,6 +714,17 @@ function GeneralInterfaceContent() {
           </Card>
         )}
       </div>
+
+      {/* Modale Pagamenti */}
+      <PagamentoModal
+        isOpen={isPagamentoModalOpen}
+        onClose={() => setIsPagamentoModalOpen(false)}
+        onSave={handleSavePagamento}
+        onDelete={currentPagamentoIndex !== null ? handleDeletePagamento : undefined}
+        pagamento={currentPagamento}
+        bancheOptions={bancheOptions}
+        title={currentPagamentoIndex !== null ? "Modifica Pagamento" : "Nuovo Pagamento"}
+      />
     </div>
   );
 }
