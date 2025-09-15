@@ -64,7 +64,7 @@ function PreventiviData({ searchTerm }: { searchTerm?: string }) {
   }
 
   try {
-    // Processa i dati anche se l'array è vuoto
+    // Processa i dati
     const rows = preventivi.map((p: PreventivoWithCliente) => {
       const { cliente, ...preventivo } = p;
       const flattenedObject = {
@@ -99,7 +99,7 @@ function PreventiviData({ searchTerm }: { searchTerm?: string }) {
             if (value instanceof Date) {
               return [key, value.toLocaleDateString()];
             }
-            return [key, value];
+            return [key, value || '-'];
           })
       );
     });

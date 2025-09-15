@@ -68,24 +68,24 @@ const multiColumnFilterFn: FilterFn<Cliente> = (row, columnId, filterValue) => {
 };
 
 
-export default function STable<R extends Record<string, any>>({ 
-  data, 
-  columnsSize, 
-  onRowClick 
-}: { 
-  data: R[], 
+export default function STable<R extends Record<string, any>>({
+  data,
+  columnsSize,
+  onRowClick
+}: {
+  data: R[],
   columnsSize?: number,
-  onRowClick?: (row: R) => void 
+  onRowClick?: (row: R) => void
 }) {
   console.log("data ricevuti: ", data)
-  
+
   // Genera le colonne dai dati disponibili o usa un array vuoto se non ci sono dati
-  const columns: ColumnDef<R>[] = data.length > 0 
+  const columns: ColumnDef<R>[] = data.length > 0
     ? Object.keys(data[0]).map((key) => ({
-        header: key as string,
-        accessorKey: key as keyof R,
-        size: columnsSize ?? 250,
-      }))
+      header: key as string,
+      accessorKey: key as keyof R,
+      size: columnsSize ?? 250,
+    }))
     : []; // Array vuoto quando non ci sono dati
 
   const id = useId();
@@ -346,8 +346,8 @@ export default function STable<R extends Record<string, any>>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow 
-                  key={row.id} 
+                <TableRow
+                  key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => onRowClick?.(row.original)}
                   onKeyDown={(e) => {
@@ -483,17 +483,6 @@ export default function STable<R extends Record<string, any>>({
           </Pagination>
         </div>
       </div>
-      <p className="mt-4 text-center text-sm text-muted-foreground">
-        Example of a more complex table made with{" "}
-        <a
-          className="underline hover:text-foreground"
-          href="https://tanstack.com/table"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          TanStack Table
-        </a>
-      </p>
     </div>
   );
 }
