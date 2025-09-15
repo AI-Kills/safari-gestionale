@@ -178,15 +178,15 @@ jobs:
           
           # Verifica credenziali prima dell'upload
           echo "🔍 Verificando credenziali per upload..."
-          gcloud auth list --filter=status:ACTIVE --format="value(account)"
+          gcloud auth list --format="value(account)"
           
           echo "☁️ Uploading to Google Cloud Storage..."
-          if gsutil cp "$BACKUP_FILE" "gs://safari-backups/"; then
+          if gcloud storage cp "$BACKUP_FILE" "gs://safari-backups/"; then
             echo "✅ Upload completed successfully"
           else
             echo "❌ Upload failed!"
-            echo "Trying alternative upload method..."
-            gcloud storage cp "$BACKUP_FILE" "gs://safari-backups/" && echo "✅ Alternative upload successful" || exit 1
+            echo "Trying gsutil as fallback..."
+            gsutil cp "$BACKUP_FILE" "gs://safari-backups/" && echo "✅ Fallback upload successful" || exit 1
           fi
           
           echo "✅ Backup completed: gs://safari-backups/$BACKUP_FILE"
