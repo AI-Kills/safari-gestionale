@@ -207,14 +207,15 @@ model customers {
 }
 
 model incassi_partecipanti {
-  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  id_partecipante String       @db.Uuid
-  id_banca        String?      @db.Uuid
-  importo         Float?
-  data_scadenza   DateTime?    @db.Date
-  data_incasso    DateTime?    @db.Date
-  banche          Banca?       @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  partecipanti    partecipanti @relation(fields: [id_partecipante], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id_partecipante   String       @db.Uuid
+  id_banca          String?      @db.Uuid
+  importo           Float?
+  importo_in_valuta Float?
+  data_scadenza     DateTime?    @db.Date
+  data_incasso      DateTime?    @db.Date
+  banche            Banca?       @relation(fields: [id_banca], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  partecipanti      partecipanti @relation(fields: [id_partecipante], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model invoices {

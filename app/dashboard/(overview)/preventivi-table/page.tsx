@@ -1,8 +1,11 @@
+"use client";
+
 import { getAllPreventivi } from "@/app/lib/actions";
 import { Preventivo } from "@/app/lib/definitions";
 import { Cliente } from "@/app/lib/definitions";
 import { STable } from "@/app/ui/table/table";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 type PreventivoWithCliente = Preventivo & { cliente: Cliente };
 
@@ -12,10 +15,55 @@ interface PageProps {
   };
 }
 
-async function PreventiviData({ searchTerm }: { searchTerm?: string }) {
-  try {
-    const preventivi = await getAllPreventivi();
+function PreventiviData({ searchTerm }: { searchTerm?: string }) {
+  const router = useRouter();
+  const [preventivi, setPreventivi] = useState<PreventivoWithCliente[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleRowClick = (row: any) => {
+    // Naviga alla general interface con il numero del preventivo come parametro
+    const numeroPreventivo = row.numero_preventivo;
+    if (numeroPreventivo) {
+      router.push(`/dashboard/general-interface?preventivo=${numeroPreventivo}`);
+    }
+  };
+
+  useEffect(() => {
+    const loadPreventivi = async () => {
+      try {
+        setLoading(true);
+        const result = await getAllPreventivi();
+        setPreventivi(result);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Errore sconosciuto');
+      } finally {
+        setLoading(false);
+      }
+    };
     
+    loadPreventivi();
+  }, []);
+
+  if (loading) {
+    return <PreventiviLoading />;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600">
+          Errore nel caricamento dei preventivi: {error}
+        </p>
+        <p className="text-sm text-gray-500 mt-2">
+          Riprova a ricaricare la pagina
+        </p>
+      </div>
+    );
+  }
+
+  try {
     // Processa i dati anche se l'array è vuoto
     const rows = preventivi.map((p: PreventivoWithCliente) => {
       const { cliente, ...preventivo } = p;
@@ -56,7 +104,7 @@ async function PreventiviData({ searchTerm }: { searchTerm?: string }) {
       );
     });
 
-    return <STable data={rows} columnsSize={200} />;
+    return <STable data={rows} columnsSize={200} onRowClick={handleRowClick} />;
   } catch (error) {
     console.error('Errore nel caricamento preventivi:', error);
     return (

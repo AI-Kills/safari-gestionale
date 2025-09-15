@@ -20,3 +20,5 @@ export {
 export { usePreventivoAlClienteManagement } from './usePreventivoAlClienteManagement';
 
 export { usePagamentiManagement } from './usePagamentiManagement';
+
+export { usePartecipantiManagement, PARTECIPANTE_FIELD_TYPES } from './usePartecipantiManagement';

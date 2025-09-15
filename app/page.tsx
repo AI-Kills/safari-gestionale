@@ -20,7 +20,7 @@ export default function Page() {
               priority
             />
             <Badge variant="secondary" className="hidden md:flex">
-              v2.5.0
+              v3.0.0
             </Badge>
           </div>
         </div>

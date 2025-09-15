@@ -20,7 +20,8 @@ export type {
 export { 
   getServiziATerraConfigs,
   getVoliConfigs,
-  getAssicurazioniConfigs
+  getAssicurazioniConfigs,
+  getPartecipantiConfigs
 } from './lists/ServiceListConfigs';
 
 // Display

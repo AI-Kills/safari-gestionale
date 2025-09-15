@@ -1,9 +1,12 @@
 ### Safari
 
 done: 
-general refactoring interfaccia grafica
-feature: duplica preventivo
-feature: modifica cliente dalla tabella clienti
+v3.0.0
+feat: refactoring generale interfaccia grafica
+feat: duplica preventivo
+feat: modifica o visualizza dati cliente dalla tabella clienti
+feat: pagamenti per i fornitori 
+feat: apertura preventivo cliccando su una riga della tabella preventivi 
 
 
 

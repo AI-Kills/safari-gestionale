@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button";
 import { DocumentTextIcon, PlusIcon, UserIcon } from "@heroicons/react/24/outline";
 import { Badge } from "@/components/ui/badge";
 import Feedback from '@/app/ui/feedback/feedback';
+import { useSearchParams } from 'next/navigation';
 
 import { GeneralInterfaceProvider, useGeneralInterface } from '../contexts/GeneralInterfaceContext';
 import { ClienteForm, PreventivoForm, DynamicServiceList, ClientiTrovatiList, PreventivoAlClienteForm, PagamentoModal, LoadingText } from './index';
-import { getServiziATerraConfigs, getVoliConfigs, getAssicurazioniConfigs } from './lists/ServiceListConfigs';
+import { getServiziATerraConfigs, getVoliConfigs, getAssicurazioniConfigs, getPartecipantiConfigs } from './lists/ServiceListConfigs';
 import { getSommaTuttiTotEuro, formatNumberItalian } from '../helpers';
 import { ClienteService, PreventivoService } from '../services';
 import { useSpinnerContext } from '@/app/context/spinner-context';
 import { useDebouncedCallback } from 'use-debounce';
-import { PreventivoInputGroup, Data, Pagamento } from '../general-interface.defs';
+import { PreventivoInputGroup, Data, Pagamento, ClienteInputGroup } from '../general-interface.defs';
 import { useEntityTransformation } from '../hooks';
 
 // Import data
@@ -36,13 +37,15 @@ const valuteOptions = valuteValues.valute;
 function GeneralInterfaceContent() {
   const { setIsActiveSpinner } = useSpinnerContext();
   const { transformPreventivoCompleto } = useEntityTransformation();
+  const searchParams = useSearchParams();
+  const [hasAutoLoaded, setHasAutoLoaded] = useState(false);
   
   // Stati per modale pagamenti
   const [isPagamentoModalOpen, setIsPagamentoModalOpen] = useState(false);
   const [currentPagamento, setCurrentPagamento] = useState<Pagamento | undefined>();
   const [currentServiceGroupId, setCurrentServiceGroupId] = useState<number | null>(null);
   const [currentPagamentoIndex, setCurrentPagamentoIndex] = useState<number | null>(null);
-  const [currentServiceType, setCurrentServiceType] = useState<'serviziATerra' | 'serviziAggiuntivi' | 'voli' | null>(null);
+  const [currentServiceType, setCurrentServiceType] = useState<'serviziATerra' | 'serviziAggiuntivi' | 'voli' | 'partecipanti' | null>(null);
   
   const {
     // State
@@ -60,6 +63,7 @@ function GeneralInterfaceContent() {
     serviziAggiuntivi,
     voli,
     assicurazioni,
+    partecipanti,
     preventivoAlCliente,
     feedback,
     errorsList,
@@ -82,6 +86,7 @@ function GeneralInterfaceContent() {
     serviziAggiuntiviActions,
     voliActions,
     assicurazioniActions,
+    partecipantiActions,
     updatePreventivoAlClienteDescrizioneViaggio,
     addPreventivoAlClienteRow,
     removePreventivoAlClienteRow,
@@ -91,6 +96,80 @@ function GeneralInterfaceContent() {
     clearAll,
     loadPreventivoData
   } = useGeneralInterface();
+
+  // Auto-carica preventivo da URL parametri
+  useEffect(() => {
+    const numeroPreventivo = searchParams.get('preventivo');
+    
+    // Solo se c'è un parametro URL, non abbiamo già caricato automaticamente, 
+    // e non c'è già un preventivo caricato (per evitare conflitti con flusso normale)
+    if (numeroPreventivo && !hasAutoLoaded && !preventivo?.id) {
+      setHasAutoLoaded(true);
+      
+      const loadPreventivoFromUrl = async () => {
+        setIsActiveSpinner(true);
+        try {
+          const result = await PreventivoService.fetchPreventivoCompletoByNumero(numeroPreventivo);
+          
+          if (result.success && result.data) {
+            // Transform data using entity transformation
+            const transformedData = await transformPreventivoCompleto(result.data);
+            
+            // Crea oggetti InputGroup dal preventivo e cliente
+            const clienteInputGroup = new ClienteInputGroup(
+              result.data.preventivo.cliente.nome,           // nome
+              result.data.preventivo.cliente.cognome,        // cognome
+              undefined,                                      // note
+              result.data.preventivo.cliente.citta,          // citta
+              undefined,                                      // collegato
+              undefined,                                      // tipo
+              result.data.preventivo.cliente.data_di_nascita, // data_di_nascita
+              result.data.preventivo.cliente.tel,            // tel
+              result.data.preventivo.cliente.email,          // email
+              undefined,                                      // provenienza
+              result.data.preventivo.cliente.indirizzo,      // indirizzo
+              result.data.preventivo.cliente.cap,            // cap
+              result.data.preventivo.cliente.codice_fiscale, // cf
+              result.data.preventivo.cliente.luogo_di_nascita, // luogo_nascita
+              undefined,                                      // provincia_nascita
+              result.data.preventivo.cliente.numero_passaporto, // numero_passaporto
+              result.data.preventivo.cliente.data_scadenza_passaporto, // data_scadenza_passaporto
+              undefined,                                      // nazionalita
+              undefined,                                      // provincia
+              undefined,                                      // sesso
+              result.data.preventivo.cliente.id              // id (ultimo parametro)
+            );
+            
+            // Usiamo il costruttore che accetta direttamente l'oggetto Preventivo
+            const preventivoInputGroup = new PreventivoInputGroup(result.data.preventivo);
+            
+            // Load all data into context
+            loadPreventivoData({
+              cliente: clienteInputGroup,
+              preventivo: preventivoInputGroup,
+              serviziATerra: transformedData.serviziATerra,
+              serviziAggiuntivi: transformedData.serviziAggiuntivi,
+              voli: transformedData.voli,
+              assicurazioni: transformedData.assicurazioni,
+              partecipanti: [], // Per ora array vuoto, da implementare se necessario
+              preventivoAlCliente: transformedData.preventivoAlCliente
+            });
+            
+            setClienteDaAggiornare(clienteInputGroup);
+            setFeedback({ success: true });
+          } else {
+            setErrorsList([result.error || 'Errore nel caricamento preventivo']);
+          }
+        } catch (error) {
+          setErrorsList(['Errore nel caricamento preventivo: ' + error.toString()]);
+        } finally {
+          setIsActiveSpinner(false);
+        }
+      };
+      
+      loadPreventivoFromUrl();
+    }
+  }, [searchParams, hasAutoLoaded, preventivo?.id, setIsActiveSpinner, transformPreventivoCompleto, loadPreventivoData, setClienteDaAggiornare, setFeedback, setErrorsList]);
 
   // Handlers
   const onVCCliente = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, fieldName: string) => {
@@ -239,6 +318,7 @@ function GeneralInterfaceContent() {
           serviziAggiuntivi: transformedData.serviziAggiuntivi,
           voli: transformedData.voli,
           assicurazioni: transformedData.assicurazioni,
+          partecipanti: [], // Per ora array vuoto, da implementare se necessario
           preventivoAlCliente: transformedData.preventivoAlCliente
         });
       } else {
@@ -271,6 +351,7 @@ function GeneralInterfaceContent() {
         serviziAggiuntivi: serviziAggiuntivi,
         voli: voli,
         assicurazioni: assicurazioni,
+        partecipanti: partecipanti,
         preventivoAlCliente: preventivoAlCliente
       };
 
@@ -308,6 +389,7 @@ function GeneralInterfaceContent() {
         serviziAggiuntivi: serviziAggiuntivi,
         voli: voli,
         assicurazioni: assicurazioni,
+        partecipanti: partecipanti,
         preventivoAlCliente: preventivoAlCliente
       };
 
@@ -370,7 +452,7 @@ function GeneralInterfaceContent() {
   };
 
   // Funzioni per gestione pagamenti
-  const handleAddPagamento = (serviceType: 'serviziATerra' | 'serviziAggiuntivi' | 'voli', groupId: number) => {
+  const handleAddPagamento = (serviceType: 'serviziATerra' | 'serviziAggiuntivi' | 'voli' | 'partecipanti', groupId: number) => {
     setCurrentServiceType(serviceType);
     setCurrentServiceGroupId(groupId);
     setCurrentPagamento(undefined);
@@ -378,7 +460,7 @@ function GeneralInterfaceContent() {
     setIsPagamentoModalOpen(true);
   };
 
-  const handleEditPagamento = (serviceType: 'serviziATerra' | 'serviziAggiuntivi' | 'voli', groupId: number, pagamentoIndex: number) => {
+  const handleEditPagamento = (serviceType: 'serviziATerra' | 'serviziAggiuntivi' | 'voli' | 'partecipanti', groupId: number, pagamentoIndex: number) => {
     setCurrentServiceType(serviceType);
     setCurrentServiceGroupId(groupId);
     setCurrentPagamentoIndex(pagamentoIndex);
@@ -391,10 +473,21 @@ function GeneralInterfaceContent() {
       targetService = serviziAggiuntivi.find(s => s.groupId === groupId);
     } else if (serviceType === 'voli') {
       targetService = voli.find(s => s.groupId === groupId);
+    } else if (serviceType === 'partecipanti') {
+      targetService = partecipanti.find(s => s.groupId === groupId);
     }
     
-    if (targetService && targetService.pagamenti && targetService.pagamenti[pagamentoIndex]) {
-      setCurrentPagamento(targetService.pagamenti[pagamentoIndex]);
+    if (targetService) {
+      let pagamenti;
+      if (serviceType === 'partecipanti') {
+        pagamenti = targetService.incassi;
+      } else {
+        pagamenti = targetService.pagamenti;
+      }
+      
+      if (pagamenti && pagamenti[pagamentoIndex]) {
+        setCurrentPagamento(pagamenti[pagamentoIndex]);
+      }
     }
     
     setIsPagamentoModalOpen(true);
@@ -411,6 +504,8 @@ function GeneralInterfaceContent() {
         serviziAggiuntiviActions.updatePagamentoInItem(currentServiceGroupId, currentPagamentoIndex, pagamento);
       } else if (currentServiceType === 'voli') {
         voliActions.updatePagamentoInItem(currentServiceGroupId, currentPagamentoIndex, pagamento);
+      } else if (currentServiceType === 'partecipanti') {
+        partecipantiActions.updateIncassoInItem(currentServiceGroupId, currentPagamentoIndex, pagamento);
       }
     } else {
       // Nuovo pagamento
@@ -420,6 +515,8 @@ function GeneralInterfaceContent() {
         serviziAggiuntiviActions.addPagamentoToItem(currentServiceGroupId, pagamento);
       } else if (currentServiceType === 'voli') {
         voliActions.addPagamentoToItem(currentServiceGroupId, pagamento);
+      } else if (currentServiceType === 'partecipanti') {
+        partecipantiActions.addIncassoToItem(currentServiceGroupId, pagamento);
       }
     }
   };
@@ -433,6 +530,8 @@ function GeneralInterfaceContent() {
       serviziAggiuntiviActions.removePagamentoFromItem(currentServiceGroupId, currentPagamentoIndex);
     } else if (currentServiceType === 'voli') {
       voliActions.removePagamentoFromItem(currentServiceGroupId, currentPagamentoIndex);
+    } else if (currentServiceType === 'partecipanti') {
+      partecipantiActions.removeIncassoFromItem(currentServiceGroupId, currentPagamentoIndex);
     }
   };
 
@@ -647,6 +746,36 @@ function GeneralInterfaceContent() {
                       calculateTotal={calculateTotal}
                       totalLabel="somma tot euro"
                     />
+                  );
+                })()}
+
+                {/* Partecipanti */}
+                {(() => {
+                  const { fieldConfigs, calculationConfigs, calculateTotaleQuote, calculateTotaleDifferenze } = getPartecipantiConfigs();
+                  return (
+                    <div>
+                      <DynamicServiceList
+                        title="Partecipanti"
+                        items={partecipanti}
+                        fieldConfigs={fieldConfigs}
+                        calculationConfigs={calculationConfigs}
+                        onAddItem={partecipantiActions.addItem}
+                        onRemoveItem={partecipantiActions.removeItem}
+                        onUpdateItem={partecipantiActions.updateItem}
+                        onAddPagamento={(groupId) => handleAddPagamento('partecipanti', groupId)}
+                        onEditPagamento={(groupId, incassoIndex) => handleEditPagamento('partecipanti', groupId, incassoIndex)}
+                      />
+                      
+                      {/* Totali Partecipanti */}
+                      <div className="flex flex-row justify-end pt-4 pr-11 space-x-8">
+                        <div className="text-right">
+                          <p className="font-semibold">Totale Quote: {formatNumberItalian(calculateTotaleQuote(partecipanti))}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">Totale Differenze: {formatNumberItalian(calculateTotaleDifferenze(partecipanti))}</p>
+                        </div>
+                      </div>
+                    </div>
                   );
                 })()}
 

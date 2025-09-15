@@ -185,22 +185,27 @@ export function DynamicServiceList<T extends DynamicListItem>({
                 ))}
 
                 {/* Pulsanti Pagamenti */}
-                {item.pagamenti && item.pagamenti.length > 0 && (
-                  <div className="flex items-end space-x-1 ml-2">
-                    {item.pagamenti.map((pagamento, pagamentoIndex) => (
-                      <Button
-                        key={`${item.groupId}-pagamento-${pagamentoIndex}`}
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-2 flex items-center justify-center mb-1 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 hover:shadow-sm"
-                        onClick={() => onEditPagamento?.(item.groupId, pagamentoIndex)}
-                        title={`Modifica pagamento ${pagamentoIndex + 1}`}
-                      >
-                        <span className="text-sm">💰</span>
-                      </Button>
-                    ))}
-                  </div>
-                )}
+                {(() => {
+                  // Per i partecipanti usa 'incassi', per gli altri usa 'pagamenti'
+                  const pagamentiArray = (item as any).incassi || item.pagamenti || [];
+                  
+                  return pagamentiArray.length > 0 && (
+                    <div className="flex items-end space-x-1 ml-2">
+                      {pagamentiArray.map((pagamento: any, pagamentoIndex: number) => (
+                        <Button
+                          key={`${item.groupId}-pagamento-${pagamentoIndex}`}
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2 flex items-center justify-center mb-1 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 hover:shadow-sm"
+                          onClick={() => onEditPagamento?.(item.groupId, pagamentoIndex)}
+                          title={`Modifica ${(item as any).incassi ? 'incasso' : 'pagamento'} ${pagamentoIndex + 1}`}
+                        >
+                          <span className="text-sm">💰</span>
+                        </Button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Calcoli */}

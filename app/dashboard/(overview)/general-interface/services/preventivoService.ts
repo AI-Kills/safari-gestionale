@@ -6,7 +6,8 @@ import {
   fetchServiziAggiuntiviByPreventivoId,
   fetchVoliByPreventivoId,
   fetchAssicurazioniByPreventivoId,
-  fetchPreventivoAlClienteByPreventivoId
+  fetchPreventivoAlClienteByPreventivoId,
+  getPreventivoByNumero
 } from '@/app/lib/actions';
 import { 
   Data, 
@@ -231,6 +232,62 @@ export class PreventivoService {
       return {
         success: true,
         data: {
+          serviziATerra: serviziATerra.values,
+          serviziAggiuntivi: serviziAggiuntivi.values,
+          voli: voli.values,
+          assicurazioni: assicurazioni.values,
+          preventivoAlCliente: preventivoAlCliente.values
+        },
+        error: null
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: null,
+        error: error.toString()
+      };
+    }
+  }
+
+  static async fetchPreventivoCompletoByNumero(numeroPreventivo: string) {
+    try {
+      // Prima cerca il preventivo per numero
+      const preventivo = await getPreventivoByNumero(numeroPreventivo);
+      
+      if (!preventivo) {
+        return {
+          success: false,
+          data: null,
+          error: `Preventivo con numero ${numeroPreventivo} non trovato`
+        };
+      }
+
+      // Poi carica tutti i dati correlati
+      const [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente] = await Promise.all([
+        fetchServiziATerraByPreventivoId(preventivo.id),
+        fetchServiziAggiuntiviByPreventivoId(preventivo.id),
+        fetchVoliByPreventivoId(preventivo.id),
+        fetchAssicurazioniByPreventivoId(preventivo.id),
+        fetchPreventivoAlClienteByPreventivoId(preventivo.id)
+      ]);
+
+      // Verifica che tutte le chiamate siano andate a buon fine
+      const allResults = [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente];
+      const failedResults = allResults.filter(r => !r.success);
+      
+      if (failedResults.length > 0) {
+        const errorMessage = failedResults.map(r => r.errorsMessage).join('\n');
+        return {
+          success: false,
+          data: null,
+          error: errorMessage
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          preventivo,
           serviziATerra: serviziATerra.values,
           serviziAggiuntivi: serviziAggiuntivi.values,
           voli: voli.values,

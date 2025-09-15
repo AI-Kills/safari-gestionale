@@ -758,4 +758,454 @@ describe('CRUD Operations with Test Database', () => {
       expect(fornitori).toHaveLength(0);
     });
   });
+
+  // ============================================================================
+  // PAGAMENTI TESTS
+  // ============================================================================
+
+  describe('Pagamenti Assicurazioni CRUD Operations', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+    let testFornitoreId: string;
+    let testAssicurazioneId: string;
+    let testBancaId: string;
+
+    beforeEach(async () => {
+      // Create test cliente
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente',
+        email: 'test.cliente.pagamenti.assicurazione@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      // Create test preventivo
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'PAG_ASS001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+
+      // Create test fornitore
+      const fornitoreResult = await testActions.createFornitore({
+        nome: 'Assicurazione Pagamenti Test',
+        valuta: 'EUR'
+      });
+      testFornitoreId = fornitoreResult.data.id;
+
+      // Create test assicurazione
+      const assicurazioneResult = await testActions.createAssicurazione({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tipo: 'Medico'
+      });
+      testAssicurazioneId = assicurazioneResult.data.id;
+
+      // Create test banca
+      const bancaResult = await testActions.createBanca({
+        nome: 'Banca Test Pagamenti'
+      });
+      testBancaId = bancaResult.data.id;
+    });
+
+    test('should create a new pagamento assicurazione successfully', async () => {
+      const pagamentoData = {
+        id_assicurazione: testAssicurazioneId,
+        id_banca: testBancaId,
+        importo: 150.00,
+        data_scadenza: new Date('2024-12-31'),
+        data_incasso: new Date('2024-12-15')
+      };
+
+      const result = await testActions.createPagamentoAssicurazione(pagamentoData);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.importo).toBe(150.00);
+      expect(result.data.id_assicurazione).toBe(testAssicurazioneId);
+      expect(result.data.id).toBeDefined();
+    });
+
+    test('should update pagamento assicurazione successfully', async () => {
+      const createResult = await testActions.createPagamentoAssicurazione({
+        id_assicurazione: testAssicurazioneId,
+        id_banca: testBancaId,
+        importo: 100.00
+      });
+
+      const updateResult = await testActions.updatePagamentoAssicurazione({
+        id: createResult.data.id,
+        importo: 200.00,
+        data_incasso: new Date('2024-12-20')
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect(updateResult.data.importo).toBe(200.00);
+    });
+
+    test('should delete pagamento assicurazione successfully', async () => {
+      const createResult = await testActions.createPagamentoAssicurazione({
+        id_assicurazione: testAssicurazioneId,
+        id_banca: testBancaId,
+        importo: 100.00
+      });
+
+      const deleteResult = await testActions.deletePagamentoAssicurazione(createResult.data.id);
+
+      expect(deleteResult.success).toBe(true);
+
+      const pagamenti = await testActions.getAllPagamentiAssicurazioni();
+      expect(pagamenti).toHaveLength(0);
+    });
+
+    test('should fetch pagamenti by assicurazione id', async () => {
+      await testActions.createPagamentoAssicurazione({
+        id_assicurazione: testAssicurazioneId,
+        id_banca: testBancaId,
+        importo: 100.00
+      });
+      await testActions.createPagamentoAssicurazione({
+        id_assicurazione: testAssicurazioneId,
+        id_banca: testBancaId,
+        importo: 150.00
+      });
+
+      const result = await testActions.fetchPagamentiAssicurazioniByAssicurazioneId(testAssicurazioneId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+    });
+  });
+
+  describe('Pagamenti Servizi a Terra CRUD Operations', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+    let testFornitoreId: string;
+    let testDestinazioneId: string;
+    let testServizioATerraId: string;
+    let testBancaId: string;
+
+    beforeEach(async () => {
+      // Create test cliente
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente',
+        email: 'test.cliente.pagamenti.servizi@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      // Create test preventivo
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'PAG_SER001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+
+      // Create test fornitore
+      const fornitoreResult = await testActions.createFornitore({
+        nome: 'Hotel Pagamenti Test',
+        valuta: 'EUR'
+      });
+      testFornitoreId = fornitoreResult.data.id;
+
+      // Create test destinazione
+      const destinazioneResult = await testActions.createDestinazione({
+        nome: 'Roma Pagamenti Test'
+      });
+      testDestinazioneId = destinazioneResult.data.id;
+
+      // Create test servizio a terra
+      const servizioResult = await testActions.createServizioATerra({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        id_destinazione: testDestinazioneId,
+        tipo: 'Hotel'
+      }, testPreventivoId, false);
+      testServizioATerraId = servizioResult.data.id;
+
+      // Create test banca
+      const bancaResult = await testActions.createBanca({
+        nome: 'Banca Test Servizi'
+      });
+      testBancaId = bancaResult.data.id;
+    });
+
+    test('should create a new pagamento servizio a terra successfully', async () => {
+      const pagamentoData = {
+        id_servizio_a_terra: testServizioATerraId,
+        id_banca: testBancaId,
+        importo: 300.00,
+        data_scadenza: new Date('2024-12-31'),
+        data_incasso: new Date('2024-12-15')
+      };
+
+      const result = await testActions.createPagamentoServizioATerra(pagamentoData);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.importo).toBe(300.00);
+      expect(result.data.id_servizio_a_terra).toBe(testServizioATerraId);
+      expect(result.data.id).toBeDefined();
+    });
+
+    test('should update pagamento servizio a terra successfully', async () => {
+      const createResult = await testActions.createPagamentoServizioATerra({
+        id_servizio_a_terra: testServizioATerraId,
+        id_banca: testBancaId,
+        importo: 250.00
+      });
+
+      const updateResult = await testActions.updatePagamentoServizioATerra({
+        id: createResult.data.id,
+        importo: 350.00,
+        data_incasso: new Date('2024-12-20')
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect(updateResult.data.importo).toBe(350.00);
+    });
+
+    test('should delete pagamento servizio a terra successfully', async () => {
+      const createResult = await testActions.createPagamentoServizioATerra({
+        id_servizio_a_terra: testServizioATerraId,
+        id_banca: testBancaId,
+        importo: 250.00
+      });
+
+      const deleteResult = await testActions.deletePagamentoServizioATerra(createResult.data.id);
+
+      expect(deleteResult.success).toBe(true);
+
+      const pagamenti = await testActions.getAllPagamentiServiziATerra();
+      expect(pagamenti).toHaveLength(0);
+    });
+
+    test('should fetch pagamenti by servizio a terra id', async () => {
+      await testActions.createPagamentoServizioATerra({
+        id_servizio_a_terra: testServizioATerraId,
+        id_banca: testBancaId,
+        importo: 200.00
+      });
+      await testActions.createPagamentoServizioATerra({
+        id_servizio_a_terra: testServizioATerraId,
+        id_banca: testBancaId,
+        importo: 300.00
+      });
+
+      const result = await testActions.fetchPagamentiServiziATerraByServizioId(testServizioATerraId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+    });
+  });
+
+  describe('Pagamenti Voli CRUD Operations', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+    let testFornitoreId: string;
+    let testVoloId: string;
+    let testBancaId: string;
+
+    beforeEach(async () => {
+      // Create test cliente
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente',
+        email: 'test.cliente.pagamenti.voli@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      // Create test preventivo
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'PAG_VOL001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+
+      // Create test fornitore
+      const fornitoreResult = await testActions.createFornitore({
+        nome: 'Compagnia Aerea Pagamenti Test',
+        valuta: 'EUR'
+      });
+      testFornitoreId = fornitoreResult.data.id;
+
+      // Create test volo
+      const voloResult = await testActions.createVolo({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tratta: 'Roma-Milano'
+      });
+      testVoloId = voloResult.data.id;
+
+      // Create test banca
+      const bancaResult = await testActions.createBanca({
+        nome: 'Banca Test Voli'
+      });
+      testBancaId = bancaResult.data.id;
+    });
+
+    test('should create a new pagamento volo successfully', async () => {
+      const pagamentoData = {
+        id_volo: testVoloId,
+        id_banca: testBancaId,
+        importo: 450.00,
+        data_scadenza: new Date('2024-12-31'),
+        data_incasso: new Date('2024-12-15')
+      };
+
+      const result = await testActions.createPagamentoVolo(pagamentoData);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.importo).toBe(450.00);
+      expect(result.data.id_volo).toBe(testVoloId);
+      expect(result.data.id).toBeDefined();
+    });
+
+    test('should update pagamento volo successfully', async () => {
+      const createResult = await testActions.createPagamentoVolo({
+        id_volo: testVoloId,
+        id_banca: testBancaId,
+        importo: 400.00
+      });
+
+      const updateResult = await testActions.updatePagamentoVolo({
+        id: createResult.data.id,
+        importo: 500.00,
+        data_incasso: new Date('2024-12-20')
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect(updateResult.data.importo).toBe(500.00);
+    });
+
+    test('should delete pagamento volo successfully', async () => {
+      const createResult = await testActions.createPagamentoVolo({
+        id_volo: testVoloId,
+        id_banca: testBancaId,
+        importo: 400.00
+      });
+
+      const deleteResult = await testActions.deletePagamentoVolo(createResult.data.id);
+
+      expect(deleteResult.success).toBe(true);
+
+      const pagamenti = await testActions.getAllPagamentiVoli();
+      expect(pagamenti).toHaveLength(0);
+    });
+
+    test('should fetch pagamenti by volo id', async () => {
+      await testActions.createPagamentoVolo({
+        id_volo: testVoloId,
+        id_banca: testBancaId,
+        importo: 350.00
+      });
+      await testActions.createPagamentoVolo({
+        id_volo: testVoloId,
+        id_banca: testBancaId,
+        importo: 450.00
+      });
+
+      const result = await testActions.fetchPagamentiVoliByVoloId(testVoloId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+    });
+  });
+
+  describe('Pagamenti Business Logic Tests', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+    let testFornitoreId: string;
+    let testBancaId: string;
+
+    beforeEach(async () => {
+      // Create test data
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente Business Logic',
+        email: 'test.business.logic@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'BL001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+
+      const fornitoreResult = await testActions.createFornitore({
+        nome: 'Fornitore Business Logic',
+        valuta: 'EUR'
+      });
+      testFornitoreId = fornitoreResult.data.id;
+
+      const bancaResult = await testActions.createBanca({
+        nome: 'Banca Business Logic'
+      });
+      testBancaId = bancaResult.data.id;
+    });
+
+    test('should handle multiple pagamenti for same entity', async () => {
+      // Create assicurazione
+      const assicurazioneResult = await testActions.createAssicurazione({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tipo: 'Medico'
+      });
+
+      // Create multiple pagamenti for the same assicurazione
+      await testActions.createPagamentoAssicurazione({
+        id_assicurazione: assicurazioneResult.data.id,
+        id_banca: testBancaId,
+        importo: 100.00,
+        data_scadenza: new Date('2024-11-30')
+      });
+
+      await testActions.createPagamentoAssicurazione({
+        id_assicurazione: assicurazioneResult.data.id,
+        id_banca: testBancaId,
+        importo: 150.00,
+        data_scadenza: new Date('2024-12-31')
+      });
+
+      const pagamenti = await testActions.fetchPagamentiAssicurazioniByAssicurazioneId(assicurazioneResult.data.id);
+
+      expect(pagamenti.success).toBe(true);
+      expect(pagamenti.values).toHaveLength(2);
+      
+      // Verify total amount
+      const totalImporto = pagamenti.values.reduce((sum: number, p: any) => sum + (p.importo || 0), 0);
+      expect(totalImporto).toBe(250.00);
+    });
+
+    test('should handle pagamenti without banca', async () => {
+      const assicurazioneResult = await testActions.createAssicurazione({
+        id_preventivo: testPreventivoId,
+        id_fornitore: testFornitoreId,
+        tipo: 'Annullamento'
+      });
+
+      const result = await testActions.createPagamentoAssicurazione({
+        id_assicurazione: assicurazioneResult.data.id,
+        importo: 75.00,
+        data_scadenza: new Date('2024-12-31')
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.data.id_banca).toBeNull();
+      expect(result.data.importo).toBe(75.00);
+    });
+
+    test('should validate required fields', async () => {
+      const result = await testActions.createPagamentoAssicurazione({
+        // Missing id_assicurazione
+        id_banca: testBancaId,
+        importo: 100.00
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+  });
 }); 

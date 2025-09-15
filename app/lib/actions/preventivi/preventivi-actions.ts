@@ -111,6 +111,42 @@ export async function getPreventivo(id: string): Promise<any | null> {
   }
 }
 
+export async function getPreventivoByNumero(numeroPreventivo: string): Promise<any | null> {
+  try {
+    const preventivo = await prisma.preventivo.findFirst({
+      where: { numero_preventivo: numeroPreventivo },
+      include: {
+        cliente: true,
+        serviziATerra: {
+          include: {
+            fornitore: true,
+            destinazione: true
+          }
+        },
+        voli: {
+          include: {
+            fornitore: true
+          }
+        },
+        assicurazioni: {
+          include: {
+            fornitore: true
+          }
+        },
+        preventiviAlCliente: {
+          include: {
+            rows: true
+          }
+        }
+      }
+    });
+    return preventivo;
+  } catch (error) {
+    console.error('Error fetching preventivo by numero:', error);
+    return null;
+  }
+}
+
 export async function updatePreventivo(data: any): Promise<ApiResponse<PreventivoType>> {
   try {
     console.log('🔧 updatePreventivo called with:', data);

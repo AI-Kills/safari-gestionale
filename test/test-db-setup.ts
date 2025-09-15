@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma-test';
+import { PrismaClient } from '@prisma/client';
 import { execSync } from 'child_process';
 import { join } from 'path';
 import fs from 'fs';

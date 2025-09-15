@@ -204,6 +204,57 @@ export const updatePreventivoAlClienteRowSchema = preventivoAlClienteRowSchema.p
   id: z.string().min(1, { message: "L'ID è obbligatorio" })
 });
 
+// Pagamenti schemas
+export const pagamentiAssicurazioniSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_assicurazione: z.string().min(1, { message: "ID assicurazione è obbligatorio" }),
+  id_banca: z.string().optional().nullable(),
+  importo: z.number().min(0, { message: "Importo deve essere positivo" }).optional().nullable(),
+  data_scadenza: z.date({ message: "Data scadenza non valida" }).optional().nullable(),
+  data_incasso: z.date({ message: "Data incasso non valida" }).optional().nullable()
+});
+
+export const createPagamentiAssicurazioniSchema = pagamentiAssicurazioniSchema.omit({ id: true }).extend({
+  id_assicurazione: z.string().min(1, { message: "ID assicurazione è obbligatorio" })
+});
+export const updatePagamentiAssicurazioniSchema = pagamentiAssicurazioniSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
+export const pagamentiServiziATerraSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_servizio_a_terra: z.string().min(1, { message: "ID servizio a terra è obbligatorio" }),
+  id_banca: z.string().optional().nullable(),
+  importo: z.number().min(0, { message: "Importo deve essere positivo" }).optional().nullable(),
+  importo_in_valuta: z.number().min(0, { message: "Importo in valuta deve essere positivo" }).optional().nullable(),
+  data_scadenza: z.date({ message: "Data scadenza non valida" }).optional().nullable(),
+  data_incasso: z.date({ message: "Data incasso non valida" }).optional().nullable()
+});
+
+export const createPagamentiServiziATerraSchema = pagamentiServiziATerraSchema.omit({ id: true }).extend({
+  id_servizio_a_terra: z.string().min(1, { message: "ID servizio a terra è obbligatorio" })
+});
+export const updatePagamentiServiziATerraSchema = pagamentiServiziATerraSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
+export const pagamentiVoliSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_volo: z.string().min(1, { message: "ID volo è obbligatorio" }),
+  id_banca: z.string().optional().nullable(),
+  importo: z.number().min(0, { message: "Importo deve essere positivo" }).optional().nullable(),
+  importo_in_valuta: z.number().min(0, { message: "Importo in valuta deve essere positivo" }).optional().nullable(),
+  data_scadenza: z.date({ message: "Data scadenza non valida" }).optional().nullable(),
+  data_incasso: z.date({ message: "Data incasso non valida" }).optional().nullable()
+});
+
+export const createPagamentiVoliSchema = pagamentiVoliSchema.omit({ id: true }).extend({
+  id_volo: z.string().min(1, { message: "ID volo è obbligatorio" })
+});
+export const updatePagamentiVoliSchema = pagamentiVoliSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
 // Combined schemas for complex operations
 export const preventivoCompletoSchema = preventivoSchema.extend({
   cliente: clienteSchema,

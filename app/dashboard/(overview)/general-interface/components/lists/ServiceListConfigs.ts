@@ -251,3 +251,65 @@ export const getAssicurazioniConfigs = (fornitoriOptions: string[]) => {
 
   return { fieldConfigs, calculationConfigs, calculateTotal };
 };
+
+// Configurazioni per Partecipanti
+export const getPartecipantiConfigs = () => {
+  const fieldConfigs: FieldConfig[] = [
+    {
+      name: 'nome',
+      label: 'Nome',
+      type: 'text',
+      className: 'w-[120px]',
+      showOnlyOnFirst: true
+    },
+    {
+      name: 'cognome',
+      label: 'Cognome',
+      type: 'text',
+      className: 'w-[120px]',
+      showOnlyOnFirst: true
+    },
+    {
+      name: 'tot_quota',
+      label: 'Totale Quota',
+      type: 'number',
+      className: 'w-[100px]',
+      showOnlyOnFirst: true
+    }
+  ];
+
+  const calculationConfigs: CalculationConfig[] = [
+    {
+      label: 'tot incassi',
+      calculate: (partecipante: any) => {
+        return partecipante.incassi?.reduce((acc: number, incasso: any) => acc + (incasso.importo_in_euro || 0), 0) || 0;
+      },
+      className: 'w-24'
+    },
+    {
+      label: 'differenza',
+      calculate: (partecipante: any) => {
+        const totaleIncassi = partecipante.incassi?.reduce((acc: number, incasso: any) => acc + (incasso.importo_in_euro || 0), 0) || 0;
+        return (partecipante.tot_quota || 0) - totaleIncassi;
+      },
+      className: 'w-24 font-semibold'
+    }
+  ];
+
+  const calculateTotaleQuote = (partecipanti: any[]) =>
+    partecipanti.reduce((acc, partecipante) => acc + (partecipante.tot_quota || 0), 0);
+
+  const calculateTotaleDifferenze = (partecipanti: any[]) =>
+    partecipanti.reduce((acc, partecipante) => {
+      const totaleIncassi = partecipante.incassi?.reduce((accIncassi: number, incasso: any) => accIncassi + (incasso.importo_in_euro || 0), 0) || 0;
+      const differenza = (partecipante.tot_quota || 0) - totaleIncassi;
+      return acc + differenza;
+    }, 0);
+
+  return { 
+    fieldConfigs, 
+    calculationConfigs, 
+    calculateTotaleQuote,
+    calculateTotaleDifferenze
+  };
+};

@@ -4,7 +4,7 @@ export default async function ChangelogPage() {
       <h1 className={`mb-4 text-xl md:text-2xl`}>CHANGELOG</h1>
 
       <p><i>In questa pagina è possibile vedere le modifiche apportate ad ogni versione del progetto, distinte in 'Features' e 'Fix'. </i></p>
-      <p className='version-paragraph'>v3.1.0</p>
+      <p className='version-paragraph'>v3.0.0</p>
       <ul>
         <li>Feat: implementazione sistema di test completo con Jest e Vitest per server actions, utility functions e validazioni Zod.</li>
         <li>Feat: aggiunta test coverage obbligatoria per tutte le nuove entità, server actions e funzioni utility.</li>
@@ -16,11 +16,6 @@ export default async function ChangelogPage() {
         <li>Fix: uniformazione spacing dei totali (ricarico/tot euro) tra servizi a terra e servizi aggiuntivi.</li>
         <li>Fix: miglioramento indentazione e spacing nella sezione Gestione Preventivo per coerenza con sezione Cliente.</li>
         <li>Fix: riduzione spazio verticale tra header card e gruppi di input nel form preventivo.</li>
-      </ul>
-
-      <p className='version-paragraph'>v3.0.0</p>
-      <ul>
-        <li>Fix: miglioramento generale della UI.</li>
       </ul>
 
       <p className='version-paragraph'>v2.6.0</p>

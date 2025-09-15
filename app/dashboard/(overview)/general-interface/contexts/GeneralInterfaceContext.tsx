@@ -8,6 +8,7 @@ import {
   VoloInputGroup, 
   AssicurazioneInputGroup,
   PreventivoAlClienteInputGroup,
+  PartecipanteInputGroup,
   Data
 } from '../general-interface.defs';
 import { 
@@ -16,6 +17,7 @@ import {
   useServiziAggiuntiviManagement,
   useVoliManagement,
   useAssicurazioniManagement,
+  usePartecipantiManagement,
   useEntityTransformation
 } from '../hooks';
 import { usePreventivoAlClienteManagement } from '../hooks/usePreventivoAlClienteManagement';
@@ -43,6 +45,7 @@ export interface GeneralInterfaceState {
   serviziAggiuntivi: ServizioATerraInputGroup[];
   voli: VoloInputGroup[];
   assicurazioni: AssicurazioneInputGroup[];
+  partecipanti: PartecipanteInputGroup[];
   
   // Preventivo al cliente
   preventivoAlCliente: PreventivoAlClienteInputGroup;
@@ -114,6 +117,19 @@ export interface GeneralInterfaceActions {
     clearItems: () => void;
   };
   
+  partecipantiActions: {
+    addItem: () => void;
+    removeItem: (groupId: number) => void;
+    updateItem: (groupId: number, field: string, value: any) => void;
+    setAllItems: (items: PartecipanteInputGroup[]) => void;
+    clearItems: () => void;
+    addIncassoToItem: (groupId: number, incasso: any) => void;
+    updateIncassoInItem: (groupId: number, incassoIndex: number, updatedIncasso: any) => void;
+    removeIncassoFromItem: (groupId: number, incassoIndex: number) => void;
+    getTotaleQuote: () => number;
+    getTotaleDifferenze: () => number;
+  };
+  
   // Preventivo al cliente actions
   setPreventivoAlCliente: (preventivo: PreventivoAlClienteInputGroup) => void;
   updatePreventivoAlClienteDescrizioneViaggio: (descrizione: string) => void;
@@ -134,6 +150,7 @@ export interface GeneralInterfaceActions {
     serviziAggiuntivi: ServizioATerraInputGroup[];
     voli: VoloInputGroup[];
     assicurazioni: AssicurazioneInputGroup[];
+    partecipanti: PartecipanteInputGroup[];
     preventivoAlCliente: PreventivoAlClienteInputGroup;
   }) => void;
 }
@@ -175,6 +192,7 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
   const serviziAggiuntiviManager = useServiziAggiuntiviManagement();
   const voliManager = useVoliManagement();
   const assicurazioniManager = useAssicurazioniManagement();
+  const partecipantiManager = usePartecipantiManagement();
   
   // Entity transformation
   const { transformPreventivoCompleto } = useEntityTransformation();
@@ -241,6 +259,7 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
     serviziAggiuntiviManager.clearItems();
     voliManager.clearItems();
     assicurazioniManager.clearItems();
+    partecipantiManager.clearItems();
     preventivoAlClienteManager.reset();
     setShowFormPreventivo(false);
     setShowFormAggiornaCliente(false);
@@ -248,7 +267,7 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
     setShowClientiTrovati(false);
     setErrorsList([]);
     setFeedback(null);
-  }, [clienteForm, clienteDaAggiornareForm, serviziATerraManager, serviziAggiuntiviManager, voliManager, assicurazioniManager]);
+  }, [clienteForm, clienteDaAggiornareForm, serviziATerraManager, serviziAggiuntiviManager, voliManager, assicurazioniManager, partecipantiManager]);
   
   const loadPreventivoData = useCallback((data: {
     cliente: ClienteInputGroup;
@@ -257,6 +276,7 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
     serviziAggiuntivi: ServizioATerraInputGroup[];
     voli: VoloInputGroup[];
     assicurazioni: AssicurazioneInputGroup[];
+    partecipanti: PartecipanteInputGroup[];
     preventivoAlCliente: PreventivoAlClienteInputGroup;
   }) => {
     clienteForm.setFullState(data.cliente);
@@ -265,9 +285,10 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
     serviziAggiuntiviManager.setAllItems(data.serviziAggiuntivi);
     voliManager.setAllItems(data.voli);
     assicurazioniManager.setAllItems(data.assicurazioni);
+    partecipantiManager.setAllItems(data.partecipanti);
     preventivoAlClienteManager.setFullState(data.preventivoAlCliente);
     setShowFormPreventivo(true);
-  }, [clienteForm, serviziATerraManager, serviziAggiuntiviManager, voliManager, assicurazioniManager]);
+  }, [clienteForm, serviziATerraManager, serviziAggiuntiviManager, voliManager, assicurazioniManager, partecipantiManager]);
   
   const contextValue: GeneralInterfaceContextType = {
     // State
@@ -285,6 +306,7 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
     serviziAggiuntivi: serviziAggiuntiviManager.items,
     voli: voliManager.items,
     assicurazioni: assicurazioniManager.items,
+    partecipanti: partecipantiManager.items,
     preventivoAlCliente: preventivoAlClienteManager.preventivoAlCliente,
     feedback,
     errorsList,
@@ -343,6 +365,19 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
       updateItem: assicurazioniManager.updateItem,
       setAllItems: assicurazioniManager.setAllItems,
       clearItems: assicurazioniManager.clearItems,
+    },
+    
+    partecipantiActions: {
+      addItem: partecipantiManager.addItem,
+      removeItem: partecipantiManager.removeItem,
+      updateItem: partecipantiManager.updateItem,
+      setAllItems: partecipantiManager.setAllItems,
+      clearItems: partecipantiManager.clearItems,
+      addIncassoToItem: partecipantiManager.addIncassoToItem,
+      updateIncassoInItem: partecipantiManager.updateIncassoInItem,
+      removeIncassoFromItem: partecipantiManager.removeIncassoFromItem,
+      getTotaleQuote: partecipantiManager.getTotaleQuote,
+      getTotaleDifferenze: partecipantiManager.getTotaleDifferenze,
     },
     
     setPreventivoAlCliente: preventivoAlClienteManager.setFullState,

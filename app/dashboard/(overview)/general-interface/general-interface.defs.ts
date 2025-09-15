@@ -260,6 +260,7 @@ export interface Data {
   voli?: VoloInputGroup[];
   assicurazioni?: AssicurazioneInputGroup[];
   preventivoAlCliente?: PreventivoAlClienteInputGroup;
+  partecipanti?: PartecipanteInputGroup[];
 }
 export const SUCCESSMESSAGE = "Operazione effettuata con successo 🥳";
 export const ERRORMESSAGE = "Operazione fallita 😢";
@@ -279,5 +280,29 @@ export class Pagamento {
     this.data_pagamento = data_pagamento ?? undefined;
     this.importo_in_valuta = importo_in_valuta ?? undefined;
     this.importo_in_euro = importo_in_euro ?? undefined;
+  }
+}
+
+// Partecipante interface for storing input group values
+export class PartecipanteInputGroup {
+  constructor(
+    public groupId: number,
+    public nome?: string,
+    public cognome?: string,
+    public tot_quota?: number,
+    public id?: string,
+    public incassi?: Pagamento[]
+  ) {
+    this.id = id ?? undefined;
+    this.nome = nome ?? undefined;
+    this.cognome = cognome ?? undefined;
+    this.tot_quota = tot_quota ?? 0;
+    this.incassi = incassi ?? [];
+  }
+
+  // Calcola la differenza tra tot_quota e somma degli incassi
+  get differenza(): number {
+    const totaleIncassi = this.incassi?.reduce((acc, incasso) => acc + (incasso.importo_in_euro || 0), 0) || 0;
+    return (this.tot_quota || 0) - totaleIncassi;
   }
 }

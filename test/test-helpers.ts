@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma-test';
+import { PrismaClient } from '@prisma/client';
 
 // Mock del client Prisma per i test
 let testClient: PrismaClient;
@@ -846,5 +846,347 @@ export class TestActionsHelper {
   }
 
   async getAllPreventiviAlCliente() { return []; }
+
+  // ============================================================================
+  // BANCA METHODS
+  // ============================================================================
+
+  async createBanca(data: any) {
+    try {
+      const banca = await testClient.banca.create({
+        data: {
+          nome: data.nome
+        }
+      });
+      return {
+        success: true,
+        data: banca
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async updateBanca(data: any) {
+    try {
+      const banca = await testClient.banca.update({
+        where: { id: data.id },
+        data: {
+          nome: data.nome
+        }
+      });
+      return {
+        success: true,
+        data: banca
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async deleteBanca(id: string) {
+    try {
+      await testClient.banca.delete({
+        where: { id }
+      });
+      return {
+        success: true,
+        data: { id }
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async getAllBanche() {
+    return await testClient.banca.findMany();
+  }
+
+  // ============================================================================
+  // PAGAMENTI METHODS
+  // ============================================================================
+
+  // PAGAMENTI ASSICURAZIONI
+  async createPagamentoAssicurazione(data: any) {
+    try {
+      const pagamento = await testClient.pagamenti_assicurazioni.create({
+        data: {
+          id_assicurazione: data.id_assicurazione,
+          id_banca: data.id_banca || null,
+          importo: data.importo || null,
+          data_scadenza: data.data_scadenza || null,
+          data_incasso: data.data_incasso || null
+        }
+      });
+      return {
+        success: true,
+        data: pagamento
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async updatePagamentoAssicurazione(data: any) {
+    try {
+      const pagamento = await testClient.pagamenti_assicurazioni.update({
+        where: { id: data.id },
+        data: {
+          id_banca: data.id_banca,
+          importo: data.importo,
+          data_scadenza: data.data_scadenza,
+          data_incasso: data.data_incasso
+        }
+      });
+      return {
+        success: true,
+        data: pagamento
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async deletePagamentoAssicurazione(id: string) {
+    try {
+      await testClient.pagamenti_assicurazioni.delete({
+        where: { id }
+      });
+      return {
+        success: true,
+        data: { id }
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async fetchPagamentiAssicurazioniByAssicurazioneId(id_assicurazione: string) {
+    try {
+      const pagamenti = await testClient.pagamenti_assicurazioni.findMany({
+        where: { id_assicurazione },
+        include: { banche: true }
+      });
+      return {
+        success: true,
+        values: pagamenti
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // PAGAMENTI SERVIZI A TERRA
+  async createPagamentoServizioATerra(data: any) {
+    try {
+      const pagamento = await testClient.pagamenti_servizi_a_terra.create({
+        data: {
+          id_servizio_a_terra: data.id_servizio_a_terra,
+          id_banca: data.id_banca || null,
+          importo: data.importo || null,
+          data_scadenza: data.data_scadenza || null,
+          data_incasso: data.data_incasso || null
+        }
+      });
+      return {
+        success: true,
+        data: pagamento
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async updatePagamentoServizioATerra(data: any) {
+    try {
+      const pagamento = await testClient.pagamenti_servizi_a_terra.update({
+        where: { id: data.id },
+        data: {
+          id_banca: data.id_banca,
+          importo: data.importo,
+          data_scadenza: data.data_scadenza,
+          data_incasso: data.data_incasso
+        }
+      });
+      return {
+        success: true,
+        data: pagamento
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async deletePagamentoServizioATerra(id: string) {
+    try {
+      await testClient.pagamenti_servizi_a_terra.delete({
+        where: { id }
+      });
+      return {
+        success: true,
+        data: { id }
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async fetchPagamentiServiziATerraByServizioId(id_servizio_a_terra: string) {
+    try {
+      const pagamenti = await testClient.pagamenti_servizi_a_terra.findMany({
+        where: { id_servizio_a_terra },
+        include: { banche: true }
+      });
+      return {
+        success: true,
+        values: pagamenti
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // PAGAMENTI VOLI
+  async createPagamentoVolo(data: any) {
+    try {
+      const pagamento = await testClient.pagamenti_voli.create({
+        data: {
+          id_volo: data.id_volo,
+          id_banca: data.id_banca || null,
+          importo: data.importo || null,
+          data_scadenza: data.data_scadenza || null,
+          data_incasso: data.data_incasso || null
+        }
+      });
+      return {
+        success: true,
+        data: pagamento
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async updatePagamentoVolo(data: any) {
+    try {
+      const pagamento = await testClient.pagamenti_voli.update({
+        where: { id: data.id },
+        data: {
+          id_banca: data.id_banca,
+          importo: data.importo,
+          data_scadenza: data.data_scadenza,
+          data_incasso: data.data_incasso
+        }
+      });
+      return {
+        success: true,
+        data: pagamento
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async deletePagamentoVolo(id: string) {
+    try {
+      await testClient.pagamenti_voli.delete({
+        where: { id }
+      });
+      return {
+        success: true,
+        data: { id }
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async fetchPagamentiVoliByVoloId(id_volo: string) {
+    try {
+      const pagamenti = await testClient.pagamenti_voli.findMany({
+        where: { id_volo },
+        include: { banche: true }
+      });
+      return {
+        success: true,
+        values: pagamenti
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // HELPER METHODS FOR PAGAMENTI
+  async getAllPagamentiAssicurazioni() {
+    return await testClient.pagamenti_assicurazioni.findMany({
+      include: {
+        assicurazioni: true,
+        banche: true
+      }
+    });
+  }
+
+  async getAllPagamentiServiziATerra() {
+    return await testClient.pagamenti_servizi_a_terra.findMany({
+      include: {
+        servizi_a_terra: true,
+        banche: true
+      }
+    });
+  }
+
+  async getAllPagamentiVoli() {
+    return await testClient.pagamenti_voli.findMany({
+      include: {
+        voli: true,
+        banche: true
+      }
+    });
+  }
 }
 

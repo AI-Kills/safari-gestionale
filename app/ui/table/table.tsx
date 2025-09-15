@@ -68,7 +68,15 @@ const multiColumnFilterFn: FilterFn<Cliente> = (row, columnId, filterValue) => {
 };
 
 
-export default function STable<R extends Record<string, any>>({ data, columnsSize }: { data: R[], columnsSize?: number }) {
+export default function STable<R extends Record<string, any>>({ 
+  data, 
+  columnsSize, 
+  onRowClick 
+}: { 
+  data: R[], 
+  columnsSize?: number,
+  onRowClick?: (row: R) => void 
+}) {
   console.log("data ricevuti: ", data)
   
   // Genera le colonne dai dati disponibili o usa un array vuoto se non ci sono dati
@@ -338,7 +346,19 @@ export default function STable<R extends Record<string, any>>({ data, columnsSiz
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow 
+                  key={row.id} 
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick?.(row.original)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onRowClick?.(row.original);
+                    }
+                  }}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  className={onRowClick ? "cursor-pointer hover:bg-muted/50 focus:bg-muted/50" : undefined}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="last:py-0">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
