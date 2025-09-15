@@ -65,9 +65,23 @@ jobs:
         with:
           workload_identity_provider: projects/38695026311/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: db-backup-agent@impronte-safari.iam.gserviceaccount.com
+          create_credentials_file: false
           
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+        
+      - name: Enable required APIs
+        run: |
+          echo "🔧 === ABILITAZIONE API NECESSARIE ==="
+          
+          # Abilita IAM Service Account Credentials API
+          gcloud services enable iamcredentials.googleapis.com --project=impronte-safari
+          
+          # Abilita Cloud Storage API (se non già abilitata)
+          gcloud services enable storage.googleapis.com --project=impronte-safari
+          
+          echo "✅ API abilitate con successo"
+          echo "=================================="
         
       - name: Configure gcloud and test access
         run: |
@@ -80,16 +94,8 @@ jobs:
           echo "Current auth account:"
           gcloud auth list --filter=status:ACTIVE --format="value(account)"
           
-          # Test accesso al progetto
-          echo "Testing project access..."
-          gcloud projects describe impronte-safari --format="value(projectId)"
-          
           # Configura gsutil per usare gcloud auth
           gcloud config set pass_credentials_to_gsutil true
-          
-          # Test accesso bucket
-          echo "Testing bucket access..."
-          gsutil ls gs://safari-backups/ || echo "Bucket access test failed"
           
           echo "✅ gcloud configuration completed"
           echo "=================================="
