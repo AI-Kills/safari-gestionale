@@ -14,9 +14,12 @@ export default defineConfig({
     include: ['./test/*.test.{js,ts,tsx}'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/generated/**'],
     testTimeout: 30000,
+    hookTimeout: 30000,
+    pool: 'forks',     // Usa forks invece di threads per SQLite
     poolOptions: {
-      threads: false,    // Importante per database condiviso
-      isolate: true      // Isolamento tra test
+      forks: {
+        singleFork: true  // Un solo fork per evitare conflitti SQLite
+      }
     }
   },
 }); 

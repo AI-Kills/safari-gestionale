@@ -1,33 +1,18 @@
 import { testDb } from './test-db-setup';
-import fs from 'fs';
 import '@testing-library/jest-dom';
 
 // Setup globale per tutti i test
 beforeAll(async () => {
   // Inizializza database con schema e tabelle
   await testDb.initialize();
-});
+}, 30000); // Timeout più lungo per inizializzazione
 
 beforeEach(async () => {
   // Pulisce dati prima di ogni test senza ricreare tabelle
   await testDb.cleanup();
-});
+}, 10000);
 
 afterAll(async () => {
-  // Chiude connessione dopo tutti i test
+  // Chiude connessione e pulisce file
   await testDb.close();
-  
-  // Rimuove file SQLite di test
-  try {
-    fs.unlinkSync('prisma/test.sqlite');
-  } catch (e) {
-    // Ignora se file non esiste
-  }
-  
-  // Rimuove schema test
-  try {
-    fs.unlinkSync('prisma/schema.test.prisma');
-  } catch (e) {
-    // Ignora se file non esiste
-  }
-}); 
+}, 10000); 

@@ -35,7 +35,12 @@
     "db:fresh": "pnpm db:reset && pnpm db:seed",
     "db:quick-seed": "pnpm db:seed",
     "db:setup": "pnpm db:migrate && pnpm db:seed",
-    "clean-cache": "rm -rf .next && pnpm next build --no-lint"
+    "clean-cache": "rm -rf .next && pnpm next build --no-lint",
+    "pre-push": "pnpm test:stable && pnpm build",
+    "test:all": "vitest run --reporter=verbose",
+    "test:stable": "vitest run test/validation.test.ts test/utils.test.ts test/preventivi-list-display.test.ts --reporter=verbose",
+    "test:db": "vitest run test/crud-operations.test.ts test/actions.test.ts --reporter=verbose",
+    "test:integration": "vitest run test/cliente-search.test.ts test/pagamenti-integration.test.ts --reporter=verbose"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.4",

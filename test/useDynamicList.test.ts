@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import { vi } from 'vitest';
 import { useDynamicList, DynamicListItem } from '../app/dashboard/(overview)/general-interface/hooks/useDynamicList';
 
 interface TestItem extends DynamicListItem {
@@ -118,7 +119,7 @@ describe('useDynamicList', () => {
   });
 
   test('should call onItemsChange callback', () => {
-    const onItemsChange = jest.fn();
+    const onItemsChange = vi.fn();
     
     const { result } = renderHook(() =>
       useDynamicList({

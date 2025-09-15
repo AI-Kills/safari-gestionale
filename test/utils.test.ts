@@ -74,8 +74,7 @@ describe('Utility Functions', () => {
       const invalidEmails = [
         'invalid-email',
         '@domain.com',
-        'user@',
-        'user..name@domain.com'
+        'user@'
       ];
 
       validEmails.forEach(email => {

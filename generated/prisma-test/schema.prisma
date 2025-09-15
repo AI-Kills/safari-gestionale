@@ -1,0 +1,281 @@
+generator testClient {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma-test"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./test.sqlite"
+}
+
+model User {
+  id       String  @id @default(uuid())
+  name     String?
+  email    String  @unique
+  password String
+
+  @@map("users")
+}
+
+model Destinazione {
+  id            String          @id @default(uuid())
+  nome          String          @unique
+  serviziATerra ServiziATerra[]
+
+  @@map("destinazioni")
+}
+
+model Banca {
+  id                        String                      @id @default(uuid())
+  nome                      String                      @unique
+  incassi_partecipanti      incassi_partecipanti[]
+  pagamenti_assicurazioni   pagamenti_assicurazioni[]
+  pagamenti_servizi_a_terra pagamenti_servizi_a_terra[]
+  pagamenti_voli            pagamenti_voli[]
+
+  @@map("banche")
+}
+
+model Cliente {
+  id                       String         @id @default(uuid())
+  nome                     String?
+  cognome                  String?
+  tel                      String?
+  indirizzo                String?
+  cap                      String?
+  citta                    String?
+  cf                       String?
+  email                    String         @unique
+  tipo                     String?
+  provenienza              String?
+  collegato                String?
+  data_di_nascita          DateTime?
+  luogo_nascita            String?
+  provincia_nascita        String?
+  nazionalita              String?
+  sesso                    String?
+  numero_passaporto        String?
+  data_scadenza_passaporto DateTime?
+  provincia                String?
+  note                     String?
+  preventivi               Preventivo[]
+  partecipanti             Partecipanti[]
+
+  @@map("clienti")
+}
+
+model Fornitore {
+  id            String          @id @default(uuid())
+  nome          String          @unique
+  valuta        String?
+  assicurazioni Assicurazione[]
+  serviziATerra ServiziATerra[]
+  voli          Volo[]
+
+  @@map("fornitori")
+}
+
+model Preventivo {
+  id                        String                      @id @default(uuid())
+  id_cliente                String
+  data                      DateTime                    @default(now())
+  destinazione              String?
+  data_partenza             DateTime?
+  adulti                    Int?
+  bambini                   Int?
+  tipo_viaggio              String?
+  numero_preventivo         String?
+  operatore                 String?
+  riferimento               String?
+  note                      String?
+  note_operative            String?
+  stato                     String?
+  brand                     String?
+  feedback                  String?
+  percentuale_ricarico      Decimal?
+  cliente                   Cliente                     @relation(fields: [id_cliente], references: [id], onDelete: Cascade)
+  assicurazioni             Assicurazione[]
+  incassi_partecipanti      incassi_partecipanti[]
+  pagamenti_assicurazioni   pagamenti_assicurazioni[]
+  pagamenti_servizi_a_terra pagamenti_servizi_a_terra[]
+  pagamenti_voli            pagamenti_voli[]
+  partecipanti              Partecipanti[]
+  pratiche                  Pratiche[]
+  preventivoAlCliente       PreventivoAlCliente[]
+  preventivoAlClienteRow    PreventivoAlClienteRow[]
+  serviziATerra             ServiziATerra[]
+  voli                      Volo[]
+
+  @@map("preventivi")
+}
+
+model Assicurazione {
+  id                      String                    @id @default(uuid())
+  id_preventivo           String
+  id_fornitore            String
+  tipo                    String?
+  premio                  Decimal?
+  commissione             Decimal?
+  data_inizio_copertura   DateTime?
+  data_fine_copertura     DateTime?
+  numero_polizza          String?
+  note                    String?
+  fornitore               Fornitore                 @relation(fields: [id_fornitore], references: [id], onDelete: Cascade)
+  preventivo              Preventivo                @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+  pagamenti_assicurazioni pagamenti_assicurazioni[]
+
+  @@map("assicurazioni")
+}
+
+model ServiziATerra {
+  id                        String                      @id @default(uuid())
+  id_preventivo             String
+  id_destinazione           String
+  id_fornitore              String
+  tipo                      String?
+  descrizione               String?
+  costo                     Decimal?
+  commissione               Decimal?
+  data_servizio             DateTime?
+  note                      String?
+  destinazione              Destinazione                @relation(fields: [id_destinazione], references: [id], onDelete: Cascade)
+  fornitore                 Fornitore                   @relation(fields: [id_fornitore], references: [id], onDelete: Cascade)
+  preventivo                Preventivo                  @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+  pagamenti_servizi_a_terra pagamenti_servizi_a_terra[]
+
+  @@map("servizi_a_terra")
+}
+
+model Volo {
+  id             String           @id @default(uuid())
+  id_preventivo  String
+  id_fornitore   String
+  tratta         String?
+  data_partenza  DateTime?
+  data_ritorno   DateTime?
+  compagnia      String?
+  costo          Decimal?
+  commissione    Decimal?
+  note           String?
+  fornitore      Fornitore        @relation(fields: [id_fornitore], references: [id], onDelete: Cascade)
+  preventivo     Preventivo       @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+  pagamenti_voli pagamenti_voli[]
+
+  @@map("voli")
+}
+
+model Partecipanti {
+  id                   String                 @id @default(uuid())
+  id_cliente           String
+  id_preventivo        String
+  nome                 String?
+  cognome              String?
+  data_di_nascita      DateTime?
+  luogo_nascita        String?
+  provincia_nascita    String?
+  nazionalita          String?
+  sesso                String?
+  numero_passaporto    String?
+  data_scadenza        DateTime?
+  note                 String?
+  cliente              Cliente                @relation(fields: [id_cliente], references: [id], onDelete: Cascade)
+  preventivo           Preventivo             @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+  incassi_partecipanti incassi_partecipanti[]
+
+  @@map("partecipanti")
+}
+
+model Pratiche {
+  id            String     @id @default(uuid())
+  id_preventivo String
+  tipo          String?
+  descrizione   String?
+  stato         String?
+  data_apertura DateTime?
+  data_chiusura DateTime?
+  note          String?
+  preventivo    Preventivo @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+
+  @@map("pratiche")
+}
+
+model PreventivoAlCliente {
+  id            String     @id @default(uuid())
+  id_preventivo String
+  campo         String?
+  valore        String?
+  preventivo    Preventivo @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+
+  @@map("preventivo_al_cliente")
+}
+
+model PreventivoAlClienteRow {
+  id            String     @id @default(uuid())
+  id_preventivo String
+  riga          Int?
+  colonna       String?
+  valore        String?
+  preventivo    Preventivo @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+
+  @@map("preventivo_al_cliente_row")
+}
+
+model incassi_partecipanti {
+  id              String       @id @default(uuid())
+  id_preventivo   String
+  id_partecipante String
+  id_banca        String
+  importo         Decimal?
+  data_incasso    DateTime?
+  note            String?
+  banca           Banca        @relation(fields: [id_banca], references: [id], onDelete: Cascade)
+  partecipante    Partecipanti @relation(fields: [id_partecipante], references: [id], onDelete: Cascade)
+  preventivo      Preventivo   @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+
+  @@map("incassi_partecipanti")
+}
+
+model pagamenti_assicurazioni {
+  id               String        @id @default(uuid())
+  id_preventivo    String
+  id_assicurazione String
+  id_banca         String
+  importo          Decimal?
+  data_pagamento   DateTime?
+  note             String?
+  assicurazione    Assicurazione @relation(fields: [id_assicurazione], references: [id], onDelete: Cascade)
+  banca            Banca         @relation(fields: [id_banca], references: [id], onDelete: Cascade)
+  preventivo       Preventivo    @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+
+  @@map("pagamenti_assicurazioni")
+}
+
+model pagamenti_servizi_a_terra {
+  id               String        @id @default(uuid())
+  id_preventivo    String
+  id_servizio      String
+  id_banca         String
+  importo          Decimal?
+  data_pagamento   DateTime?
+  note             String?
+  banca            Banca         @relation(fields: [id_banca], references: [id], onDelete: Cascade)
+  preventivo       Preventivo    @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+  servizio_a_terra ServiziATerra @relation(fields: [id_servizio], references: [id], onDelete: Cascade)
+
+  @@map("pagamenti_servizi_a_terra")
+}
+
+model pagamenti_voli {
+  id             String     @id @default(uuid())
+  id_preventivo  String
+  id_volo        String
+  id_banca       String
+  importo        Decimal?
+  data_pagamento DateTime?
+  note           String?
+  banca          Banca      @relation(fields: [id_banca], references: [id], onDelete: Cascade)
+  preventivo     Preventivo @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+  volo           Volo       @relation(fields: [id_volo], references: [id], onDelete: Cascade)
+
+  @@map("pagamenti_voli")
+}

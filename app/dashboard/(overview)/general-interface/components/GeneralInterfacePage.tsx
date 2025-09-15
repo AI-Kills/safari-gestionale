@@ -200,15 +200,23 @@ function GeneralInterfaceContent() {
     
     try {
       const result = await ClienteService.searchClienti(cliente);
-      setClientiTrovati(result.data);
-      if (!result.success) {
-        setErrorsList([result.error || 'Errore nella ricerca clienti']);
+      
+      // Mostra sempre i risultati, anche se vuoti
+      setClientiTrovati(result.data || []);
+      setShowClientiTrovati(true);
+      
+      // Gestisci gli errori separatamente
+      if (!result.success && result.error) {
+        setErrorsList([result.error]);
+      } else {
+        setErrorsList([]); // Pulisci eventuali errori precedenti
       }
     } catch (error) {
       setErrorsList(['Errore nella ricerca clienti: ' + error.toString()]);
+      setClientiTrovati([]);
+      setShowClientiTrovati(true); // Mostra comunque la sezione vuota
     } finally {
       setIsSearchingClienti(false);
-      setShowClientiTrovati(true);
     }
   }, 500);
 

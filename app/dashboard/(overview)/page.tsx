@@ -7,8 +7,14 @@ export default async function ChangelogPage() {
       <p className='version-paragraph'>v3.0.0</p>
       <ul>
         <li>Feat: implementazione sistema di test completo con Jest e Vitest per server actions, utility functions e validazioni Zod.</li>
+        <li>Feat: refactoring generale interfaccia grafica </li>
+        <li>Feat: duplica preventivo </li>
+        <li>Feat: duplica preventivo </li>
+        <li>Feat: modifica o visualizza dati cliente dalla tabella clienti </li>
+        <li>Feat: implementazione pagamenti per i fornitori nel preventivo  </li>
+        <li>Feat: implementazione sezione "partecipanti" del preventivo  </li>
+        <li>Feat: apertura preventivo cliccando su una riga della tabella preventivi </li>
         <li>Feat: aggiunta test coverage obbligatoria per tutte le nuove entità, server actions e funzioni utility.</li>
-        <li>Fix: risoluzione errore "errors[key].join is not a function" nella gestione errori di validazione.</li>
         <li>Fix: correzione funzione searchClienti per accettare oggetti cliente completi invece di stringhe semplici.</li>
         <li>Fix: uniformazione layout pulsanti + e - con design circolare e dimensioni consistenti in tutti i gruppi di input.</li>
         <li>Fix: ottimizzazione spacing orizzontale per far stare i gruppi di input nella viewport dell'utente.</li>
