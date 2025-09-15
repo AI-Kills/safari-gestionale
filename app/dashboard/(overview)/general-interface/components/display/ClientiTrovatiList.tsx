@@ -99,19 +99,29 @@ export function ClientiTrovatiList({
               {/* Lista Preventivi del Cliente */}
               {showPreventiviClienteList && cliente.id === clienteDaAggiornare.id && (
                 <div key={cliente.id + 'preventiviClienteList'} className="ml-[400px] flex flex-col pt-0">
-                  {preventiviClienteList.length > 0 && preventiviClienteList.map((preventivo, i) => (
-                    <div key={preventivo.id} className="flex flex-row gap-2 pt-2 justify-between text-sm text-brown-500">
-                      <div>
-                        {i + 1}. {formatDate(preventivo.data_partenza)} - {preventivo.riferimento} - {preventivo.operatore}
+                  {preventiviClienteList.length > 0 && preventiviClienteList.map((preventivo, i) => {
+                    // Formatta il numero preventivo con brand (es: INO0011, IMS0013)
+                    const numeroFormattato = `${preventivo.brand || ''}${preventivo.numero_preventivo || ''}`;
+                    
+                    return (
+                      <div key={preventivo.id} className="flex flex-row gap-2 pt-2 justify-between text-sm text-brown-500">
+                        <div className="flex flex-col">
+                          <div className="font-medium">
+                            {numeroFormattato} {preventivo.destinazione && `- ${preventivo.destinazione}`}
+                          </div>
+                          <div className="text-xs opacity-75">
+                            {formatDate(preventivo.data_partenza)} • {preventivo.riferimento} • {preventivo.operatore}
+                          </div>
+                        </div>
+                        <Button
+                          className="bg-white text-brown-500 hover:text-white"
+                          onClick={() => onShowFormAggiornaPreventivo(cliente, preventivo)}
+                        >
+                          VEDI PREVENTIVO
+                        </Button>
                       </div>
-                      <Button
-                        className="bg-white text-brown-500 hover:text-white"
-                        onClick={() => onShowFormAggiornaPreventivo(cliente, preventivo)}
-                      >
-                        VEDI PREVENTIVO
-                      </Button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
