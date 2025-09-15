@@ -70,20 +70,7 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         
-      - name: Enable required APIs
-        run: |
-          echo "🔧 === ABILITAZIONE API NECESSARIE ==="
-          
-          # Abilita IAM Service Account Credentials API
-          gcloud services enable iamcredentials.googleapis.com --project=impronte-safari
-          
-          # Abilita Cloud Storage API (se non già abilitata)
-          gcloud services enable storage.googleapis.com --project=impronte-safari
-          
-          echo "✅ API abilitate con successo"
-          echo "=================================="
-        
-      - name: Configure gcloud and test access
+      - name: Configure gcloud and enable APIs
         run: |
           echo "🔧 === CONFIGURAZIONE GCLOUD ==="
           
@@ -98,6 +85,16 @@ jobs:
           gcloud config set pass_credentials_to_gsutil true
           
           echo "✅ gcloud configuration completed"
+          
+          echo "🔧 === ABILITAZIONE API NECESSARIE ==="
+          
+          # Abilita IAM Service Account Credentials API
+          gcloud services enable iamcredentials.googleapis.com --project=impronte-safari
+          
+          # Abilita Cloud Storage API (se non già abilitata)
+          gcloud services enable storage.googleapis.com --project=impronte-safari
+          
+          echo "✅ API abilitate con successo"
           echo "=================================="
           
       - name: Debug - After Authentication
