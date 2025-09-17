@@ -447,6 +447,18 @@ function GeneralInterfaceContent() {
         return;
       }
 
+      console.log('🚨 DUPLICATE UI: Preparing data for duplication');
+      console.log('🚨 DUPLICATE UI: partecipanti state count:', partecipanti?.length || 0);
+      console.log('🚨 DUPLICATE UI: partecipanti state data:', JSON.stringify(partecipanti?.map(p => ({
+        nome: p.nome,
+        cognome: p.cognome,
+        tot_quota: p.tot_quota,
+        incassiCount: p.incassi?.length || 0,
+        id: p.id,
+        groupId: p.groupId,
+        constructor: p.constructor.name
+      })), null, 2));
+
       const data: Data = {
         cliente: clienteToUse,
         preventivo: preventivo!,
@@ -454,8 +466,13 @@ function GeneralInterfaceContent() {
         serviziAggiuntivi: serviziAggiuntivi,
         voli: voli,
         assicurazioni: assicurazioni,
+        partecipanti: partecipanti,
         preventivoAlCliente: preventivoAlCliente
       };
+
+      console.log('🚨 DUPLICATE UI: Final data object partecipanti count:', data.partecipanti?.length || 0);
+      console.log('🚨 DUPLICATE UI: Final data object keys:', Object.keys(data));
+      console.log('🚨 DUPLICATE UI: About to call PreventivoService.duplicatePreventivo');
 
       const result = await PreventivoService.duplicatePreventivo(data);
       if (result.success) {

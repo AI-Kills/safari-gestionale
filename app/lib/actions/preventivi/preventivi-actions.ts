@@ -418,6 +418,16 @@ export async function submitCreatePreventivoGI(data: any): Promise<ApiResponse> 
 
     // 6. Crea i partecipanti
     console.log('🏗️ Creating partecipanti:', data.partecipanti?.length || 0);
+    console.log('🔥 SERVER: partecipanti data structure:', JSON.stringify(data.partecipanti?.map((p: any) => ({
+      nome: p.nome,
+      cognome: p.cognome,
+      tot_quota: p.tot_quota,
+      id: p.id,
+      incassiCount: p.incassi?.length || 0,
+      keys: Object.keys(p)
+    })), null, 2));
+
+    
     if (data.partecipanti && data.partecipanti.length > 0) {
       for (const partecipante of data.partecipanti) {
         console.log(`Creating partecipante:`, partecipante);

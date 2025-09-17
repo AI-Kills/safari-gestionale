@@ -17,7 +17,9 @@ import {
   ServizioATerraInputGroup,
   VoloInputGroup,
   AssicurazioneInputGroup,
-  PreventivoAlClienteInputGroup
+  PreventivoAlClienteInputGroup,
+  PartecipanteInputGroup,
+  Pagamento
 } from '../general-interface.defs';
 import { dataErrors, validationErrorsToString, numberToExcelFormat } from '../helpers';
 import { debugDataConversion, validateDateFields } from './debugUtils';
@@ -77,6 +79,16 @@ export class PreventivoService {
   }
 
   static async duplicatePreventivo(data: Data) {
+    console.log('🔥 DUPLICATE: Starting with partecipanti count:', data.partecipanti?.length || 0);
+    if (data.partecipanti && data.partecipanti.length > 0) {
+      console.log('🔥 DUPLICATE: First partecipante:', {
+        nome: data.partecipanti[0].nome,
+        cognome: data.partecipanti[0].cognome,
+        tot_quota: data.partecipanti[0].tot_quota,
+        incassiCount: data.partecipanti[0].incassi?.length || 0
+      });
+    }
+    
     // Prima ottieni il prossimo numero preventivo
     const numeroResult = await this.getNextPreventivoNumber();
     if (!numeroResult.success) {
@@ -110,10 +122,27 @@ export class PreventivoService {
         ...assicurazione,
         id: undefined // Rimuove gli ID esistenti
       })),
-      partecipanti: data.partecipanti?.map(partecipante => ({
-        ...partecipante,
-        id: undefined // Rimuove gli ID esistenti
-      })),
+      partecipanti: data.partecipanti?.map(partecipante => {
+        const duplicatedIncassi = partecipante.incassi?.map(incasso => 
+          new Pagamento(
+            undefined, // Rimuove l'ID dell'incasso
+            incasso.banca,
+            incasso.data_scadenza,
+            incasso.data_pagamento,
+            incasso.importo_in_valuta,
+            incasso.importo_in_euro
+          )
+        ) || [];
+        
+        return new PartecipanteInputGroup(
+          partecipante.groupId,
+          partecipante.nome,
+          partecipante.cognome,
+          partecipante.tot_quota,
+          undefined, // Rimuove l'ID del partecipante
+          duplicatedIncassi
+        );
+      }),
       preventivoAlCliente: data.preventivoAlCliente ? {
         ...data.preventivoAlCliente,
         id: undefined, // Rimuove l'ID esistente
@@ -128,11 +157,35 @@ export class PreventivoService {
       } : undefined
     };
 
+    console.log('🔥 DUPLICATE: After processing, partecipanti count:', duplicatedData.partecipanti?.length || 0);
+    if (duplicatedData.partecipanti && duplicatedData.partecipanti.length > 0) {
+      console.log('🔥 DUPLICATE: First duplicated partecipante:', {
+        nome: duplicatedData.partecipanti[0].nome,
+        cognome: duplicatedData.partecipanti[0].cognome,
+        tot_quota: duplicatedData.partecipanti[0].tot_quota,
+        incassiCount: duplicatedData.partecipanti[0].incassi?.length || 0,
+        hasId: !!duplicatedData.partecipanti[0].id,
+        constructor: duplicatedData.partecipanti[0].constructor.name
+      });
+    }
+
     // Usa il metodo createPreventivo per creare il duplicato
     return await this.createPreventivo(duplicatedData);
   }
 
   static async createPreventivo(data: Data) {
+    console.log('🔥 CREATE: Received partecipanti count:', data.partecipanti?.length || 0);
+    if (data.partecipanti && data.partecipanti.length > 0) {
+      console.log('🔥 CREATE: First partecipante before conversion:', {
+        nome: data.partecipanti[0].nome,
+        cognome: data.partecipanti[0].cognome,
+        tot_quota: data.partecipanti[0].tot_quota,
+        incassiCount: data.partecipanti[0].incassi?.length || 0,
+        hasId: !!data.partecipanti[0].id,
+        constructor: data.partecipanti[0].constructor.name
+      });
+    }
+
     // Validazione dati obbligatori
     const errors = dataErrors(data);
     if (errors.length > 0) {
@@ -154,6 +207,17 @@ export class PreventivoService {
       
       const plainData = PreventivoService.convertToPlainObject(data);
       
+      console.log('🔥 CREATE: After conversion, partecipanti count:', plainData.partecipanti?.length || 0);
+      if (plainData.partecipanti && plainData.partecipanti.length > 0) {
+        console.log('🔥 CREATE: First partecipante after conversion:', {
+          nome: plainData.partecipanti[0].nome,
+          cognome: plainData.partecipanti[0].cognome,
+          tot_quota: plainData.partecipanti[0].tot_quota,
+          incassiCount: plainData.partecipanti[0].incassi?.length || 0,
+          hasId: !!plainData.partecipanti[0].id
+        });
+      }
+      
       console.log('🎯 PreventivoService.createPreventivo - Partecipanti after conversion:', 
         JSON.stringify(plainData.partecipanti?.map((p: any) => ({
           nome: p.nome,
@@ -163,6 +227,7 @@ export class PreventivoService {
         })), null, 2)
       );
       
+      console.log('🔥 CREATE: About to send to server, full data keys:', Object.keys(plainData));
       const result = await submitCreatePreventivoGI(plainData);
       
       if (result.success) {

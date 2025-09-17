@@ -279,13 +279,35 @@ export function GeneralInterfaceProvider({ children }: { children: React.ReactNo
     partecipanti: PartecipanteInputGroup[];
     preventivoAlCliente: PreventivoAlClienteInputGroup;
   }) => {
+    console.log('🔥 CONTEXT: loadPreventivoData called with partecipanti:', data.partecipanti?.length || 0);
+    console.log('🔥 CONTEXT: partecipanti data:', JSON.stringify(data.partecipanti?.map(p => ({
+      nome: p.nome,
+      cognome: p.cognome,
+      tot_quota: p.tot_quota,
+      incassiCount: p.incassi?.length || 0,
+      constructor: p.constructor.name
+    })), null, 2));
+    
     clienteForm.setFullState(data.cliente);
     setPreventivo(data.preventivo);
     serviziATerraManager.setAllItems(data.serviziATerra);
     serviziAggiuntiviManager.setAllItems(data.serviziAggiuntivi);
     voliManager.setAllItems(data.voli);
     assicurazioniManager.setAllItems(data.assicurazioni);
+    
+    console.log('🔥 CONTEXT: About to call partecipantiManager.setAllItems with:', data.partecipanti?.length || 0, 'partecipanti');
     partecipantiManager.setAllItems(data.partecipanti);
+    
+    // Verifica immediata dello stato dopo il set
+    console.log('🔥 CONTEXT: After setAllItems, partecipantiManager.items count:', partecipantiManager.items.length);
+    console.log('🔥 CONTEXT: partecipantiManager.items:', JSON.stringify(partecipantiManager.items.map(p => ({
+      nome: p.nome,
+      cognome: p.cognome,
+      tot_quota: p.tot_quota,
+      incassiCount: p.incassi?.length || 0,
+      constructor: p.constructor.name
+    })), null, 2));
+    
     preventivoAlClienteManager.setFullState(data.preventivoAlCliente);
     setShowFormPreventivo(true);
   }, [clienteForm, serviziATerraManager, serviziAggiuntiviManager, voliManager, assicurazioniManager, partecipantiManager]);

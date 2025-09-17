@@ -101,6 +101,14 @@ export async function deletePartecipante(id: string): Promise<ApiResponse> {
 
 export async function getPartecipantiByPreventivo(preventivoId: string): Promise<DBResult<Partecipante[]>> {
   try {
+    console.log('🔍 DEBUG: getPartecipantiByPreventivo called with preventivoId:', preventivoId);
+    
+    // Prima verifica se esistono partecipanti per questo preventivo
+    const count = await prisma.partecipanti.count({
+      where: { id_preventivo: preventivoId }
+    });
+    console.log('🔍 DEBUG: Found', count, 'partecipanti for preventivo', preventivoId);
+    
     const partecipanti = await prisma.partecipanti.findMany({
       where: { id_preventivo: preventivoId },
       orderBy: [{ cognome: 'asc' }, { nome: 'asc' }],
@@ -112,6 +120,8 @@ export async function getPartecipantiByPreventivo(preventivoId: string): Promise
         }
       }
     });
+    
+    console.log('🔍 DEBUG: getPartecipantiByPreventivo returning', partecipanti.length, 'partecipanti');
     return { success: true, values: partecipanti as any };
   } catch (error) {
     console.error('Error fetching partecipanti by preventivo:', error);

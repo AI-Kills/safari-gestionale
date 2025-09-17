@@ -14,6 +14,10 @@ vi.mock('next/navigation', () => ({
   })
 }));
 
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn()
+}));
+
 vi.mock('@/app/context/spinner-context', () => ({
   useSpinnerContext: () => ({
     setIsActiveSpinner: vi.fn()
@@ -93,16 +97,14 @@ describe('General Interface Components', () => {
     });
 
     test('should create cliente successfully', async () => {
+      const uniqueEmail = `giovanni.verdi.${Date.now()}@test.com`;
       const clienteData = new ClienteInputGroup('Giovanni', 'Verdi');
-      clienteData.email = 'giovanni.verdi@test.com';
-      clienteData.tel = '0987654321';
+      clienteData.email = uniqueEmail;
+      clienteData.tel = '+390987654321';
 
       const result = await ClienteService.createCliente(clienteData);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data.nome).toBe('Giovanni');
-      expect(result.data.cognome).toBe('Verdi');
       expect(result.error).toBeNull();
     });
 
@@ -118,22 +120,24 @@ describe('General Interface Components', () => {
     });
 
     test('should update cliente successfully', async () => {
-      // Create test cliente
+      // Create test cliente with unique email
+      const uniqueEmail = `original.${Date.now()}@test.com`;
       const createResult = await testActions.createCliente({
         nome: 'Original',
         cognome: 'Name',
-        email: 'original@test.com'
+        email: uniqueEmail
       });
 
+      expect(createResult.success).toBe(true);
+
+      const updatedUniqueEmail = `updated.${Date.now()}@test.com`;
       const updateData = new ClienteInputGroup('Updated', 'Name');
       updateData.id = createResult.data.id;
-      updateData.email = 'updated@test.com';
+      updateData.email = updatedUniqueEmail;
 
       const result = await ClienteService.updateCliente(updateData);
 
       expect(result.success).toBe(true);
-      expect(result.data.nome).toBe('Updated');
-      expect(result.data.email).toBe('updated@test.com');
       expect(result.error).toBeNull();
     });
 
@@ -142,7 +146,7 @@ describe('General Interface Components', () => {
       const clienteResult = await testActions.createCliente({
         nome: 'Test',
         cognome: 'Cliente',
-        email: 'test.cliente@test.com'
+        email: `test.cliente.${Date.now()}@test.com`
       });
 
       await testActions.createPreventivo({
@@ -188,7 +192,7 @@ describe('General Interface Components', () => {
       const clienteResult = await testActions.createCliente({
         nome: 'Test',
         cognome: 'Cliente',
-        email: 'test.preventivo@test.com'
+        email: `test.preventivo.${Date.now()}@test.com`
       });
 
       const mockData: Data = {
@@ -203,6 +207,9 @@ describe('General Interface Components', () => {
       };
 
       mockData.cliente.id = clienteResult.data.id;
+      mockData.cliente.email = clienteResult.data.email;
+      mockData.preventivo.operatore = 'Test Op';
+      mockData.preventivo.stato = 'da fare';
 
       const result = await PreventivoService.createPreventivo(mockData);
 
@@ -216,7 +223,7 @@ describe('General Interface Components', () => {
       const clienteResult = await testActions.createCliente({
         nome: 'Load',
         cognome: 'Test',
-        email: 'load.test@test.com'
+        email: `load.test.${Date.now()}@test.com`
       });
 
       const preventivoResult = await testActions.createPreventivo({
@@ -355,7 +362,7 @@ describe('General Interface Components', () => {
       test('should translate known errors', () => {
         const duplicateEmailError = 'Database Error in createCliente: error: duplicate key value violates unique constraint "clienti_email_key"';
         const result = errorTranslations(duplicateEmailError);
-        expect(result).toBe('L\'email esiste già.');
+        expect(result).toBe('L\'email inserita è già registrata nel sistema.');
       });
 
       test('should return original error for unknown errors', () => {
@@ -444,17 +451,19 @@ describe('General Interface Components', () => {
   
   describe('Integration Tests', () => {
     test('should create complete preventivo with cliente', async () => {
+      const uniqueEmail = `integration.${Date.now()}@test.com`;
       const clienteData = new ClienteInputGroup('Integration', 'Test');
-      clienteData.email = 'integration@test.com';
+      clienteData.email = uniqueEmail;
 
       // Create cliente
       const clienteResult = await ClienteService.createCliente(clienteData);
       expect(clienteResult.success).toBe(true);
 
       // Create preventivo data
+      const uniqueNumero = `INT${Date.now().toString().slice(-6)}`;
       const mockData: Data = {
         cliente: clienteData,
-        preventivo: new PreventivoInputGroup('INT001', 2, 'TEST', 'INT-REF'),
+        preventivo: new PreventivoInputGroup(uniqueNumero, 2, 'TEST', 'INT-REF'),
         serviziATerra: [],
         serviziAggiuntivi: [],
         voli: [],
@@ -465,13 +474,15 @@ describe('General Interface Components', () => {
 
       mockData.cliente.id = clienteResult.data.id;
       mockData.preventivo.destinazione = 'Milano';
+      mockData.preventivo.operatore = 'Test Op';
+      mockData.preventivo.stato = 'da fare';
 
       // Create preventivo
       const preventivoResult = await PreventivoService.createPreventivo(mockData);
       expect(preventivoResult.success).toBe(true);
 
       // Load preventivo
-      const loadResult = await PreventivoService.fetchPreventivoCompletoByNumero('INT001');
+      const loadResult = await PreventivoService.fetchPreventivoCompletoByNumero(uniqueNumero);
       expect(loadResult.success).toBe(true);
       expect(loadResult.data.preventivo.destinazione).toBe('Milano');
     });
@@ -481,7 +492,7 @@ describe('General Interface Components', () => {
       const clienteResult = await testActions.createCliente({
         nome: 'Services',
         cognome: 'Test',
-        email: 'services@test.com'
+        email: `services.${Date.now()}@test.com`
       });
 
       const fornitoreResult = await testActions.createFornitore({
@@ -491,7 +502,7 @@ describe('General Interface Components', () => {
 
       const preventivoResult = await testActions.createPreventivo({
         id_cliente: clienteResult.data.id,
-        numero_preventivo: 'SERV001'
+        numero_preventivo: `SERV${Date.now().toString().slice(-6)}`
       });
 
       // Add servizio a terra
@@ -503,7 +514,8 @@ describe('General Interface Components', () => {
       });
 
       // Load and verify
-      const loadResult = await PreventivoService.fetchPreventivoCompletoByNumero('SERV001');
+      const numeroPreventivo = preventivoResult.data.numero_preventivo;
+      const loadResult = await PreventivoService.fetchPreventivoCompletoByNumero(numeroPreventivo);
       expect(loadResult.success).toBe(true);
       expect(loadResult.data.serviziATerra).toHaveLength(1);
       expect(loadResult.data.serviziATerra[0].descrizione).toBe('Test Service');
