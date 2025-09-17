@@ -151,7 +151,7 @@ function GeneralInterfaceContent() {
               serviziAggiuntivi: transformedData.serviziAggiuntivi,
               voli: transformedData.voli,
               assicurazioni: transformedData.assicurazioni,
-              partecipanti: [], // Per ora array vuoto, da implementare se necessario
+              partecipanti: transformedData.partecipanti || [],
               preventivoAlCliente: transformedData.preventivoAlCliente
             });
             
@@ -266,6 +266,7 @@ function GeneralInterfaceContent() {
         serviziAggiuntiviActions.clearItems();
         voliActions.clearItems();
         assicurazioniActions.clearItems();
+        partecipantiActions.clearItems();
         setClienteDaAggiornare(c);
         setPreventivo(new PreventivoInputGroup(result.numeroPreventivo));
         setShowFormPreventivo(true);
@@ -326,7 +327,7 @@ function GeneralInterfaceContent() {
           serviziAggiuntivi: transformedData.serviziAggiuntivi,
           voli: transformedData.voli,
           assicurazioni: transformedData.assicurazioni,
-          partecipanti: [], // Per ora array vuoto, da implementare se necessario
+          partecipanti: transformedData.partecipanti || [],
           preventivoAlCliente: transformedData.preventivoAlCliente
         });
       } else {

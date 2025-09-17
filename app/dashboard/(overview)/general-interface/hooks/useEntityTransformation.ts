@@ -4,7 +4,8 @@ import {
   VoloInputGroup, 
   AssicurazioneInputGroup,
   PreventivoAlClienteInputGroup,
-  PreventivoAlClienteRow
+  PreventivoAlClienteRow,
+  PartecipanteInputGroup
 } from '../general-interface.defs';
 import { 
   getDestinazioneById, 
@@ -192,6 +193,51 @@ export function useEntityTransformation() {
     );
   }, []);
 
+  // Trasforma partecipanti da DB a InputGroup
+  const transformPartecipanti = useCallback(async (partecipanti: any[]): Promise<PartecipanteInputGroup[]> => {
+    console.log('🔍 transformPartecipanti - Raw partecipanti from DB:', JSON.stringify(partecipanti, null, 2));
+    const res: PartecipanteInputGroup[] = [];
+    
+    for (let i = 0; i < partecipanti.length; i++) {
+      const partecipante = partecipanti[i];
+      console.log(`🔍 Processing partecipante ${i + 1}:`, partecipante);
+      console.log(`🔍 incassi_partecipanti for partecipante ${i + 1}:`, partecipante?.incassi_partecipanti);
+      
+      // Trasforma gli incassi se presenti
+      let incassi = [];
+      if (partecipante?.incassi_partecipanti) {
+        console.log(`📊 Found ${partecipante.incassi_partecipanti.length} incassi for partecipante ${i + 1}`);
+        incassi = partecipante.incassi_partecipanti.map((incasso: any, incassoIndex: number) => {
+          console.log(`💰 Processing incasso ${incassoIndex + 1}:`, incasso);
+          return {
+            id: incasso.id,
+            banca: incasso.banche?.nome || '',
+            data_scadenza: incasso.data_scadenza,
+            data_pagamento: incasso.data_incasso,
+            importo_in_euro: incasso.importo,
+            importo_in_valuta: incasso.importo_in_valuta // FIX: era incasso.importo
+          };
+        });
+      } else {
+        console.log(`⚠️ No incassi_partecipanti found for partecipante ${i + 1}`);
+      }
+      
+      // Crea InputGroup
+      const inputGroup = new PartecipanteInputGroup(
+        i,
+        partecipante?.nome,
+        partecipante?.cognome,
+        Number(partecipante?.tot_quota) || 0,
+        partecipante?.id,
+        incassi
+      );
+      
+      res.push(inputGroup);
+    }
+    
+    return res;
+  }, []);
+
   // Trasforma tutti i dati di un preventivo in una volta
   const transformPreventivoCompleto = useCallback(async (data: {
     serviziATerra?: any[];
@@ -199,19 +245,22 @@ export function useEntityTransformation() {
     voli?: any[];
     assicurazioni?: any[];
     preventivoAlCliente?: PreventivoAlCliente;
+    partecipanti?: any[];
   }) => {
     const [
       serviziATerraInputGroup,
       serviziAggiuntiviInputGroup,
       voliInputGroup,
       assicurazioniInputGroup,
-      preventivoAlClienteInputGroup
+      preventivoAlClienteInputGroup,
+      partecipantiInputGroup
     ] = await Promise.all([
       data.serviziATerra ? transformServiziATerra(data.serviziATerra) : Promise.resolve([]),
       data.serviziAggiuntivi ? transformServiziATerra(data.serviziAggiuntivi) : Promise.resolve([]),
       data.voli ? transformVoli(data.voli) : Promise.resolve([]),
       data.assicurazioni ? transformAssicurazioni(data.assicurazioni) : Promise.resolve([]),
-      data.preventivoAlCliente ? transformPreventivoAlCliente(data.preventivoAlCliente) : Promise.resolve(new PreventivoAlClienteInputGroup())
+      data.preventivoAlCliente ? transformPreventivoAlCliente(data.preventivoAlCliente) : Promise.resolve(new PreventivoAlClienteInputGroup()),
+      data.partecipanti ? transformPartecipanti(data.partecipanti) : Promise.resolve([])
     ]);
 
     return {
@@ -219,15 +268,17 @@ export function useEntityTransformation() {
       serviziAggiuntivi: serviziAggiuntiviInputGroup,
       voli: voliInputGroup,
       assicurazioni: assicurazioniInputGroup,
-      preventivoAlCliente: preventivoAlClienteInputGroup
+      preventivoAlCliente: preventivoAlClienteInputGroup,
+      partecipanti: partecipantiInputGroup
     };
-  }, [transformServiziATerra, transformVoli, transformAssicurazioni, transformPreventivoAlCliente]);
+  }, [transformServiziATerra, transformVoli, transformAssicurazioni, transformPreventivoAlCliente, transformPartecipanti]);
 
   return {
     transformServiziATerra,
     transformVoli,
     transformAssicurazioni,
     transformPreventivoAlCliente,
+    transformPartecipanti,
     transformPreventivoCompleto
   };
 }

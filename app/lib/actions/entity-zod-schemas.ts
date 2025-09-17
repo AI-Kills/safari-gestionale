@@ -263,3 +263,37 @@ export const preventivoCompletoSchema = preventivoSchema.extend({
   assicurazioni: z.array(assicurazioneSchema),
   preventiviAlCliente: z.array(preventivoAlClienteSchema)
 });
+
+// Partecipante schemas
+export const partecipanteSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_preventivo: z.string().min(1, { message: "ID preventivo è obbligatorio" }),
+  nome: z.string().max(255, { message: "Nome troppo lungo" }).optional().nullable(),
+  cognome: z.string().max(255, { message: "Cognome troppo lungo" }).optional().nullable(),
+  tot_quota: z.number().min(0, { message: "Totale quota deve essere positivo" }).optional().nullable()
+});
+
+export const createPartecipanteSchema = partecipanteSchema.omit({ id: true }).extend({
+  id_preventivo: z.string().min(1, { message: "ID preventivo è obbligatorio" })
+});
+export const updatePartecipanteSchema = partecipanteSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});
+
+// Incasso Partecipante schemas
+export const incassoPartecipanteSchema = z.object({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" }),
+  id_partecipante: z.string().min(1, { message: "ID partecipante è obbligatorio" }),
+  id_banca: z.string().optional().nullable(),
+  importo: z.number().min(0, { message: "Importo deve essere positivo" }).optional().nullable(),
+  importo_in_valuta: z.number().min(0, { message: "Importo in valuta deve essere positivo" }).optional().nullable(),
+  data_scadenza: z.date({ message: "Data scadenza non valida" }).optional().nullable(),
+  data_incasso: z.date({ message: "Data incasso non valida" }).optional().nullable()
+});
+
+export const createIncassoPartecipanteSchema = incassoPartecipanteSchema.omit({ id: true }).extend({
+  id_partecipante: z.string().min(1, { message: "ID partecipante è obbligatorio" })
+});
+export const updateIncassoPartecipanteSchema = incassoPartecipanteSchema.partial().extend({
+  id: z.string().min(1, { message: "L'ID è obbligatorio" })
+});

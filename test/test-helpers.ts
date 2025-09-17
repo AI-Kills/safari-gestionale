@@ -848,6 +848,251 @@ export class TestActionsHelper {
   async getAllPreventiviAlCliente() { return []; }
 
   // ============================================================================
+  // PARTECIPANTE METHODS
+  // ============================================================================
+
+  async createPartecipante(data: any) {
+    // Validazione di base
+    if (!data.id_preventivo) {
+      return {
+        success: false,
+        error: 'ID preventivo is required',
+        errors: [{ message: 'ID preventivo è obbligatorio' }]
+      };
+    }
+
+    if (data.tot_quota !== undefined && data.tot_quota < 0) {
+      return {
+        success: false,
+        error: 'Tot quota must be positive',
+        errors: [{ message: 'Totale quota deve essere positivo' }]
+      };
+    }
+
+    try {
+      const partecipante = await testClient.partecipanti.create({
+        data: {
+          id_preventivo: data.id_preventivo,
+          nome: data.nome || null,
+          cognome: data.cognome || null,
+          tot_quota: data.tot_quota || null
+        }
+      });
+      return {
+        success: true,
+        data: partecipante
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        errors: [{ message: error.message }]
+      };
+    }
+  }
+
+  async updatePartecipante(data: any) {
+    if (!data.id) {
+      return {
+        success: false,
+        error: 'ID is required for update',
+        errors: [{ message: "L'ID è obbligatorio" }]
+      };
+    }
+
+    try {
+      const partecipante = await testClient.partecipanti.update({
+        where: { id: data.id },
+        data: {
+          nome: data.nome,
+          cognome: data.cognome,
+          tot_quota: data.tot_quota
+        }
+      });
+      return {
+        success: true,
+        data: partecipante
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        errors: [{ message: error.message }]
+      };
+    }
+  }
+
+  async deletePartecipante(id: string) {
+    try {
+      // Prima elimina gli incassi collegati
+      await testClient.incassi_partecipanti.deleteMany({
+        where: { id_partecipante: id }
+      });
+
+      // Poi elimina il partecipante
+      await testClient.partecipanti.delete({
+        where: { id }
+      });
+      return {
+        success: true
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        errors: [{ message: error.message }]
+      };
+    }
+  }
+
+  async fetchPartecipantiByPreventivoId(preventivoId: string) {
+    try {
+      const partecipanti = await testClient.partecipanti.findMany({
+        where: { id_preventivo: preventivoId },
+        orderBy: [{ cognome: 'asc' }, { nome: 'asc' }]
+      });
+      return {
+        success: true,
+        values: partecipanti
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        errorsMessage: error.message
+      };
+    }
+  }
+
+  async getAllPartecipanti() {
+    return await testClient.partecipanti.findMany({
+      orderBy: [{ cognome: 'asc' }, { nome: 'asc' }]
+    });
+  }
+
+  // ============================================================================
+  // INCASSO PARTECIPANTE METHODS
+  // ============================================================================
+
+  async createIncassoPartecipante(data: any) {
+    // Validazione di base
+    if (!data.id_partecipante) {
+      return {
+        success: false,
+        error: 'ID partecipante is required',
+        errors: [{ message: 'ID partecipante è obbligatorio' }]
+      };
+    }
+
+    if (data.importo !== undefined && data.importo < 0) {
+      return {
+        success: false,
+        error: 'Importo must be positive',
+        errors: [{ message: 'Importo deve essere positivo' }]
+      };
+    }
+
+    try {
+      const incasso = await testClient.incassi_partecipanti.create({
+        data: {
+          id_partecipante: data.id_partecipante,
+          id_banca: data.id_banca || undefined,
+          importo: data.importo || undefined,
+          importo_in_valuta: data.importo_in_valuta || undefined,
+          data_scadenza: data.data_scadenza || undefined,
+          data_incasso: data.data_incasso || undefined
+        }
+      });
+      return {
+        success: true,
+        data: incasso
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        errors: [{ message: error.message }]
+      };
+    }
+  }
+
+  async updateIncassoPartecipante(data: any) {
+    if (!data.id) {
+      return {
+        success: false,
+        error: 'ID is required for update',
+        errors: [{ message: "L'ID è obbligatorio" }]
+      };
+    }
+
+    try {
+      const incasso = await testClient.incassi_partecipanti.update({
+        where: { id: data.id },
+        data: {
+          id_banca: data.id_banca,
+          importo: data.importo,
+          importo_in_valuta: data.importo_in_valuta,
+          data_scadenza: data.data_scadenza,
+          data_incasso: data.data_incasso
+        }
+      });
+      return {
+        success: true,
+        data: incasso
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        errors: [{ message: error.message }]
+      };
+    }
+  }
+
+  async deleteIncassoPartecipante(id: string) {
+    try {
+      await testClient.incassi_partecipanti.delete({
+        where: { id }
+      });
+      return {
+        success: true
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        errors: [{ message: error.message }]
+      };
+    }
+  }
+
+  async fetchIncassiPartecipantiByPartecipanteId(partecipanteId: string) {
+    try {
+      const incassi = await testClient.incassi_partecipanti.findMany({
+        where: { id_partecipante: partecipanteId },
+        orderBy: { data_scadenza: 'asc' }
+      });
+      return {
+        success: true,
+        values: incassi
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        errorsMessage: error.message
+      };
+    }
+  }
+
+  async getAllIncassiPartecipanti() {
+    return await testClient.incassi_partecipanti.findMany({
+      include: {
+        partecipanti: true,
+        banche: true
+      }
+    });
+  }
+
+  // ============================================================================
   // BANCA METHODS
   // ============================================================================
 

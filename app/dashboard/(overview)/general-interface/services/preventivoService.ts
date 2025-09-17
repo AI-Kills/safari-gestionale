@@ -7,6 +7,7 @@ import {
   fetchVoliByPreventivoId,
   fetchAssicurazioniByPreventivoId,
   fetchPreventivoAlClienteByPreventivoId,
+  getPartecipantiByPreventivo,
   getPreventivoByNumero
 } from '@/app/lib/actions';
 import { 
@@ -109,6 +110,10 @@ export class PreventivoService {
         ...assicurazione,
         id: undefined // Rimuove gli ID esistenti
       })),
+      partecipanti: data.partecipanti?.map(partecipante => ({
+        ...partecipante,
+        id: undefined // Rimuove gli ID esistenti
+      })),
       preventivoAlCliente: data.preventivoAlCliente ? {
         ...data.preventivoAlCliente,
         id: undefined, // Rimuove l'ID esistente
@@ -208,16 +213,17 @@ export class PreventivoService {
 
   static async fetchPreventivoCompleto(preventivo: PreventivoInputGroup) {
     try {
-      const [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente] = await Promise.all([
+      const [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente, partecipanti] = await Promise.all([
         fetchServiziATerraByPreventivoId(preventivo.id),
         fetchServiziAggiuntiviByPreventivoId(preventivo.id),
         fetchVoliByPreventivoId(preventivo.id),
         fetchAssicurazioniByPreventivoId(preventivo.id),
-        fetchPreventivoAlClienteByPreventivoId(preventivo.id)
+        fetchPreventivoAlClienteByPreventivoId(preventivo.id),
+        getPartecipantiByPreventivo(preventivo.id)
       ]);
 
       // Verifica che tutte le chiamate siano andate a buon fine
-      const allResults = [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente];
+      const allResults = [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente, partecipanti];
       const failedResults = allResults.filter(r => !r.success);
       
       if (failedResults.length > 0) {
@@ -236,7 +242,8 @@ export class PreventivoService {
           serviziAggiuntivi: serviziAggiuntivi.values,
           voli: voli.values,
           assicurazioni: assicurazioni.values,
-          preventivoAlCliente: preventivoAlCliente.values
+          preventivoAlCliente: preventivoAlCliente.values,
+          partecipanti: partecipanti.values
         },
         error: null
       };
@@ -263,16 +270,17 @@ export class PreventivoService {
       }
 
       // Poi carica tutti i dati correlati
-      const [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente] = await Promise.all([
+      const [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente, partecipanti] = await Promise.all([
         fetchServiziATerraByPreventivoId(preventivo.id),
         fetchServiziAggiuntiviByPreventivoId(preventivo.id),
         fetchVoliByPreventivoId(preventivo.id),
         fetchAssicurazioniByPreventivoId(preventivo.id),
-        fetchPreventivoAlClienteByPreventivoId(preventivo.id)
+        fetchPreventivoAlClienteByPreventivoId(preventivo.id),
+        getPartecipantiByPreventivo(preventivo.id)
       ]);
 
       // Verifica che tutte le chiamate siano andate a buon fine
-      const allResults = [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente];
+      const allResults = [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente, partecipanti];
       const failedResults = allResults.filter(r => !r.success);
       
       if (failedResults.length > 0) {
@@ -292,7 +300,8 @@ export class PreventivoService {
           serviziAggiuntivi: serviziAggiuntivi.values,
           voli: voli.values,
           assicurazioni: assicurazioni.values,
-          preventivoAlCliente: preventivoAlCliente.values
+          preventivoAlCliente: preventivoAlCliente.values,
+          partecipanti: partecipanti.values
         },
         error: null
       };

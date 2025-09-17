@@ -488,6 +488,275 @@ describe('CRUD Operations with Test Database', () => {
   });
 
   // ============================================================================
+  // PARTECIPANTE TESTS
+  // ============================================================================
+
+  describe('Partecipante CRUD Operations', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+
+    beforeEach(async () => {
+      // Create test cliente
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Cliente',
+        email: 'test.cliente.partecipante@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      // Create test preventivo
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'PART001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+    });
+
+    test('should create a new partecipante successfully', async () => {
+      const partecipanteData = {
+        id_preventivo: testPreventivoId,
+        nome: 'Mario',
+        cognome: 'Rossi',
+        tot_quota: 1500.00
+      };
+
+      const result = await testActions.createPartecipante(partecipanteData);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.nome).toBe('Mario');
+      expect(result.data.cognome).toBe('Rossi');
+      expect(Number(result.data.tot_quota)).toBe(1500.00);
+      expect(result.data.id).toBeDefined();
+    });
+
+    test('should fetch partecipanti by preventivo id', async () => {
+      // Create test partecipanti
+      await testActions.createPartecipante({
+        id_preventivo: testPreventivoId,
+        nome: 'Mario',
+        cognome: 'Rossi',
+        tot_quota: 1500.00
+      });
+      await testActions.createPartecipante({
+        id_preventivo: testPreventivoId,
+        nome: 'Giulia',
+        cognome: 'Bianchi',
+        tot_quota: 1200.00
+      });
+
+      const result = await testActions.fetchPartecipantiByPreventivoId(testPreventivoId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+      expect(result.values[0].cognome).toBe('Bianchi'); // Ordinati per cognome
+      expect(result.values[1].cognome).toBe('Rossi');
+    });
+
+    test('should update partecipante successfully', async () => {
+      const createResult = await testActions.createPartecipante({
+        id_preventivo: testPreventivoId,
+        nome: 'Mario',
+        cognome: 'Rossi',
+        tot_quota: 1500.00
+      });
+
+      const updateResult = await testActions.updatePartecipante({
+        id: createResult.data.id,
+        nome: 'Marco',
+        tot_quota: 1800.00
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect(updateResult.data.nome).toBe('Marco');
+      expect(Number(updateResult.data.tot_quota)).toBe(1800.00);
+    });
+
+    test('should delete partecipante successfully', async () => {
+      const createResult = await testActions.createPartecipante({
+        id_preventivo: testPreventivoId,
+        nome: 'Mario',
+        cognome: 'Rossi',
+        tot_quota: 1500.00
+      });
+
+      const deleteResult = await testActions.deletePartecipante(createResult.data.id);
+
+      expect(deleteResult.success).toBe(true);
+
+      const partecipanti = await testActions.getAllPartecipanti();
+      expect(partecipanti).toHaveLength(0);
+    });
+
+    test('should handle validation errors for partecipante creation', async () => {
+      const partecipanteData = {
+        // Missing required id_preventivo
+        nome: 'Mario',
+        cognome: 'Rossi'
+      };
+
+      const result = await testActions.createPartecipante(partecipanteData);
+
+      expect(result.success).toBe(false);
+      expect(result.errors).toBeDefined();
+    });
+
+    test('should handle negative tot_quota validation', async () => {
+      const partecipanteData = {
+        id_preventivo: testPreventivoId,
+        nome: 'Mario',
+        cognome: 'Rossi',
+        tot_quota: -100.00 // Invalid negative value
+      };
+
+      const result = await testActions.createPartecipante(partecipanteData);
+
+      expect(result.success).toBe(false);
+      expect(result.errors).toBeDefined();
+    });
+  });
+
+  // ============================================================================
+  // INCASSO PARTECIPANTE TESTS
+  // ============================================================================
+
+  describe('Incasso Partecipante CRUD Operations', () => {
+    let testClienteId: string;
+    let testPreventivoId: string;
+    let testPartecipanteId: string;
+    let testBancaId: string;
+
+    beforeEach(async () => {
+      // Create test cliente
+      const clienteResult = await testActions.createCliente({
+        nome: 'Test',
+        cognome: 'Incasso',
+        email: 'test.incasso@example.com'
+      });
+      testClienteId = clienteResult.data.id;
+
+      // Create test preventivo
+      const preventivoResult = await testActions.createPreventivo({
+        id_cliente: testClienteId,
+        numero_preventivo: 'INC001'
+      });
+      testPreventivoId = preventivoResult.data.id;
+
+      // Create test partecipante
+      const partecipanteResult = await testActions.createPartecipante({
+        id_preventivo: testPreventivoId,
+        nome: 'Mario',
+        cognome: 'Rossi',
+        tot_quota: 1500.00
+      });
+      testPartecipanteId = partecipanteResult.data.id;
+
+      // Create test banca
+      const bancaResult = await testActions.createBanca({
+        nome: 'Banca Test Incassi'
+      });
+      testBancaId = bancaResult.data.id;
+    });
+
+    test('should create a new incasso partecipante successfully', async () => {
+      const incassoData = {
+        id_partecipante: testPartecipanteId,
+        id_banca: testBancaId,
+        importo: 500.00,
+        data_scadenza: new Date('2024-12-31'),
+        data_incasso: new Date('2024-12-25')
+      };
+
+      const result = await testActions.createIncassoPartecipante(incassoData);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(Number(result.data.importo)).toBe(500.00);
+      expect(result.data.id).toBeDefined();
+    });
+
+    test('should fetch incassi by partecipante id', async () => {
+      // Create test incassi
+      await testActions.createIncassoPartecipante({
+        id_partecipante: testPartecipanteId,
+        id_banca: testBancaId,
+        importo: 500.00,
+        data_scadenza: new Date('2024-12-31')
+      });
+      await testActions.createIncassoPartecipante({
+        id_partecipante: testPartecipanteId,
+        id_banca: testBancaId,
+        importo: 300.00,
+        data_scadenza: new Date('2024-11-30')
+      });
+
+      const result = await testActions.fetchIncassiPartecipantiByPartecipanteId(testPartecipanteId);
+
+      expect(result.success).toBe(true);
+      expect(result.values).toHaveLength(2);
+      // Ordinati per data_scadenza
+      expect(Number(result.values[0].importo)).toBe(300.00);
+      expect(Number(result.values[1].importo)).toBe(500.00);
+    });
+
+    test('should update incasso partecipante successfully', async () => {
+      const createResult = await testActions.createIncassoPartecipante({
+        id_partecipante: testPartecipanteId,
+        id_banca: testBancaId,
+        importo: 500.00
+      });
+
+      const updateResult = await testActions.updateIncassoPartecipante({
+        id: createResult.data.id,
+        importo: 750.00,
+        data_incasso: new Date('2024-12-20')
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect(Number(updateResult.data.importo)).toBe(750.00);
+    });
+
+    test('should delete incasso partecipante successfully', async () => {
+      const createResult = await testActions.createIncassoPartecipante({
+        id_partecipante: testPartecipanteId,
+        id_banca: testBancaId,
+        importo: 500.00
+      });
+
+      const deleteResult = await testActions.deleteIncassoPartecipante(createResult.data.id);
+
+      expect(deleteResult.success).toBe(true);
+
+      const incassi = await testActions.getAllIncassiPartecipanti();
+      expect(incassi).toHaveLength(0);
+    });
+
+    test('should handle validation errors for incasso creation', async () => {
+      const incassoData = {
+        // Missing required id_partecipante
+        importo: 500.00
+      };
+
+      const result = await testActions.createIncassoPartecipante(incassoData);
+
+      expect(result.success).toBe(false);
+      expect(result.errors).toBeDefined();
+    });
+
+    test('should handle negative importo validation', async () => {
+      const incassoData = {
+        id_partecipante: testPartecipanteId,
+        importo: -100.00 // Invalid negative value
+      };
+
+      const result = await testActions.createIncassoPartecipante(incassoData);
+
+      expect(result.success).toBe(false);
+      expect(result.errors).toBeDefined();
+    });
+  });
+
+  // ============================================================================
   // VOLO TESTS
   // ============================================================================
 

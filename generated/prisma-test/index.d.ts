@@ -2402,12 +2402,10 @@ export namespace Prisma {
 
   export type ClienteCountOutputType = {
     preventivi: number
-    partecipanti: number
   }
 
   export type ClienteCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     preventivi?: boolean | ClienteCountOutputTypeCountPreventiviArgs
-    partecipanti?: boolean | ClienteCountOutputTypeCountPartecipantiArgs
   }
 
   // Custom InputTypes
@@ -2426,13 +2424,6 @@ export namespace Prisma {
    */
   export type ClienteCountOutputTypeCountPreventiviArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PreventivoWhereInput
-  }
-
-  /**
-   * ClienteCountOutputType without action
-   */
-  export type ClienteCountOutputTypeCountPartecipantiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PartecipantiWhereInput
   }
 
 
@@ -2491,7 +2482,6 @@ export namespace Prisma {
 
   export type PreventivoCountOutputType = {
     assicurazioni: number
-    incassi_partecipanti: number
     pagamenti_assicurazioni: number
     pagamenti_servizi_a_terra: number
     pagamenti_voli: number
@@ -2505,7 +2495,6 @@ export namespace Prisma {
 
   export type PreventivoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assicurazioni?: boolean | PreventivoCountOutputTypeCountAssicurazioniArgs
-    incassi_partecipanti?: boolean | PreventivoCountOutputTypeCountIncassi_partecipantiArgs
     pagamenti_assicurazioni?: boolean | PreventivoCountOutputTypeCountPagamenti_assicurazioniArgs
     pagamenti_servizi_a_terra?: boolean | PreventivoCountOutputTypeCountPagamenti_servizi_a_terraArgs
     pagamenti_voli?: boolean | PreventivoCountOutputTypeCountPagamenti_voliArgs
@@ -2533,13 +2522,6 @@ export namespace Prisma {
    */
   export type PreventivoCountOutputTypeCountAssicurazioniArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AssicurazioneWhereInput
-  }
-
-  /**
-   * PreventivoCountOutputType without action
-   */
-  export type PreventivoCountOutputTypeCountIncassi_partecipantiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: incassi_partecipantiWhereInput
   }
 
   /**
@@ -6149,7 +6131,6 @@ export namespace Prisma {
     provincia?: boolean
     note?: boolean
     preventivi?: boolean | Cliente$preventiviArgs<ExtArgs>
-    partecipanti?: boolean | Cliente$partecipantiArgs<ExtArgs>
     _count?: boolean | ClienteCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cliente"]>
 
@@ -6228,7 +6209,6 @@ export namespace Prisma {
   export type ClienteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nome" | "cognome" | "tel" | "indirizzo" | "cap" | "citta" | "cf" | "email" | "tipo" | "provenienza" | "collegato" | "data_di_nascita" | "luogo_nascita" | "provincia_nascita" | "nazionalita" | "sesso" | "numero_passaporto" | "data_scadenza_passaporto" | "provincia" | "note", ExtArgs["result"]["cliente"]>
   export type ClienteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     preventivi?: boolean | Cliente$preventiviArgs<ExtArgs>
-    partecipanti?: boolean | Cliente$partecipantiArgs<ExtArgs>
     _count?: boolean | ClienteCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ClienteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6238,7 +6218,6 @@ export namespace Prisma {
     name: "Cliente"
     objects: {
       preventivi: Prisma.$PreventivoPayload<ExtArgs>[]
-      partecipanti: Prisma.$PartecipantiPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6657,7 +6636,6 @@ export namespace Prisma {
   export interface Prisma__ClienteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     preventivi<T extends Cliente$preventiviArgs<ExtArgs> = {}>(args?: Subset<T, Cliente$preventiviArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreventivoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    partecipanti<T extends Cliente$partecipantiArgs<ExtArgs> = {}>(args?: Subset<T, Cliente$partecipantiArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PartecipantiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7115,30 +7093,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PreventivoScalarFieldEnum | PreventivoScalarFieldEnum[]
-  }
-
-  /**
-   * Cliente.partecipanti
-   */
-  export type Cliente$partecipantiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Partecipanti
-     */
-    select?: PartecipantiSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Partecipanti
-     */
-    omit?: PartecipantiOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: PartecipantiInclude<ExtArgs> | null
-    where?: PartecipantiWhereInput
-    orderBy?: PartecipantiOrderByWithRelationInput | PartecipantiOrderByWithRelationInput[]
-    cursor?: PartecipantiWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: PartecipantiScalarFieldEnum | PartecipantiScalarFieldEnum[]
   }
 
   /**
@@ -8562,7 +8516,6 @@ export namespace Prisma {
     percentuale_ricarico?: boolean
     cliente?: boolean | ClienteDefaultArgs<ExtArgs>
     assicurazioni?: boolean | Preventivo$assicurazioniArgs<ExtArgs>
-    incassi_partecipanti?: boolean | Preventivo$incassi_partecipantiArgs<ExtArgs>
     pagamenti_assicurazioni?: boolean | Preventivo$pagamenti_assicurazioniArgs<ExtArgs>
     pagamenti_servizi_a_terra?: boolean | Preventivo$pagamenti_servizi_a_terraArgs<ExtArgs>
     pagamenti_voli?: boolean | Preventivo$pagamenti_voliArgs<ExtArgs>
@@ -8641,7 +8594,6 @@ export namespace Prisma {
   export type PreventivoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     cliente?: boolean | ClienteDefaultArgs<ExtArgs>
     assicurazioni?: boolean | Preventivo$assicurazioniArgs<ExtArgs>
-    incassi_partecipanti?: boolean | Preventivo$incassi_partecipantiArgs<ExtArgs>
     pagamenti_assicurazioni?: boolean | Preventivo$pagamenti_assicurazioniArgs<ExtArgs>
     pagamenti_servizi_a_terra?: boolean | Preventivo$pagamenti_servizi_a_terraArgs<ExtArgs>
     pagamenti_voli?: boolean | Preventivo$pagamenti_voliArgs<ExtArgs>
@@ -8665,7 +8617,6 @@ export namespace Prisma {
     objects: {
       cliente: Prisma.$ClientePayload<ExtArgs>
       assicurazioni: Prisma.$AssicurazionePayload<ExtArgs>[]
-      incassi_partecipanti: Prisma.$incassi_partecipantiPayload<ExtArgs>[]
       pagamenti_assicurazioni: Prisma.$pagamenti_assicurazioniPayload<ExtArgs>[]
       pagamenti_servizi_a_terra: Prisma.$pagamenti_servizi_a_terraPayload<ExtArgs>[]
       pagamenti_voli: Prisma.$pagamenti_voliPayload<ExtArgs>[]
@@ -9090,7 +9041,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     cliente<T extends ClienteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClienteDefaultArgs<ExtArgs>>): Prisma__ClienteClient<$Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     assicurazioni<T extends Preventivo$assicurazioniArgs<ExtArgs> = {}>(args?: Subset<T, Preventivo$assicurazioniArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssicurazionePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    incassi_partecipanti<T extends Preventivo$incassi_partecipantiArgs<ExtArgs> = {}>(args?: Subset<T, Preventivo$incassi_partecipantiArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$incassi_partecipantiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pagamenti_assicurazioni<T extends Preventivo$pagamenti_assicurazioniArgs<ExtArgs> = {}>(args?: Subset<T, Preventivo$pagamenti_assicurazioniArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$pagamenti_assicurazioniPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pagamenti_servizi_a_terra<T extends Preventivo$pagamenti_servizi_a_terraArgs<ExtArgs> = {}>(args?: Subset<T, Preventivo$pagamenti_servizi_a_terraArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$pagamenti_servizi_a_terraPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pagamenti_voli<T extends Preventivo$pagamenti_voliArgs<ExtArgs> = {}>(args?: Subset<T, Preventivo$pagamenti_voliArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$pagamenti_voliPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9561,30 +9511,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AssicurazioneScalarFieldEnum | AssicurazioneScalarFieldEnum[]
-  }
-
-  /**
-   * Preventivo.incassi_partecipanti
-   */
-  export type Preventivo$incassi_partecipantiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the incassi_partecipanti
-     */
-    select?: incassi_partecipantiSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the incassi_partecipanti
-     */
-    omit?: incassi_partecipantiOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: incassi_partecipantiInclude<ExtArgs> | null
-    where?: incassi_partecipantiWhereInput
-    orderBy?: incassi_partecipantiOrderByWithRelationInput | incassi_partecipantiOrderByWithRelationInput[]
-    cursor?: incassi_partecipantiWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Incassi_partecipantiScalarFieldEnum | Incassi_partecipantiScalarFieldEnum[]
   }
 
   /**
@@ -13427,106 +13353,76 @@ export namespace Prisma {
 
   export type AggregatePartecipanti = {
     _count: PartecipantiCountAggregateOutputType | null
+    _avg: PartecipantiAvgAggregateOutputType | null
+    _sum: PartecipantiSumAggregateOutputType | null
     _min: PartecipantiMinAggregateOutputType | null
     _max: PartecipantiMaxAggregateOutputType | null
   }
 
+  export type PartecipantiAvgAggregateOutputType = {
+    tot_quota: Decimal | null
+  }
+
+  export type PartecipantiSumAggregateOutputType = {
+    tot_quota: Decimal | null
+  }
+
   export type PartecipantiMinAggregateOutputType = {
     id: string | null
-    id_cliente: string | null
     id_preventivo: string | null
     nome: string | null
     cognome: string | null
-    data_di_nascita: Date | null
-    luogo_nascita: string | null
-    provincia_nascita: string | null
-    nazionalita: string | null
-    sesso: string | null
-    numero_passaporto: string | null
-    data_scadenza: Date | null
-    note: string | null
+    tot_quota: Decimal | null
   }
 
   export type PartecipantiMaxAggregateOutputType = {
     id: string | null
-    id_cliente: string | null
     id_preventivo: string | null
     nome: string | null
     cognome: string | null
-    data_di_nascita: Date | null
-    luogo_nascita: string | null
-    provincia_nascita: string | null
-    nazionalita: string | null
-    sesso: string | null
-    numero_passaporto: string | null
-    data_scadenza: Date | null
-    note: string | null
+    tot_quota: Decimal | null
   }
 
   export type PartecipantiCountAggregateOutputType = {
     id: number
-    id_cliente: number
     id_preventivo: number
     nome: number
     cognome: number
-    data_di_nascita: number
-    luogo_nascita: number
-    provincia_nascita: number
-    nazionalita: number
-    sesso: number
-    numero_passaporto: number
-    data_scadenza: number
-    note: number
+    tot_quota: number
     _all: number
   }
 
 
+  export type PartecipantiAvgAggregateInputType = {
+    tot_quota?: true
+  }
+
+  export type PartecipantiSumAggregateInputType = {
+    tot_quota?: true
+  }
+
   export type PartecipantiMinAggregateInputType = {
     id?: true
-    id_cliente?: true
     id_preventivo?: true
     nome?: true
     cognome?: true
-    data_di_nascita?: true
-    luogo_nascita?: true
-    provincia_nascita?: true
-    nazionalita?: true
-    sesso?: true
-    numero_passaporto?: true
-    data_scadenza?: true
-    note?: true
+    tot_quota?: true
   }
 
   export type PartecipantiMaxAggregateInputType = {
     id?: true
-    id_cliente?: true
     id_preventivo?: true
     nome?: true
     cognome?: true
-    data_di_nascita?: true
-    luogo_nascita?: true
-    provincia_nascita?: true
-    nazionalita?: true
-    sesso?: true
-    numero_passaporto?: true
-    data_scadenza?: true
-    note?: true
+    tot_quota?: true
   }
 
   export type PartecipantiCountAggregateInputType = {
     id?: true
-    id_cliente?: true
     id_preventivo?: true
     nome?: true
     cognome?: true
-    data_di_nascita?: true
-    luogo_nascita?: true
-    provincia_nascita?: true
-    nazionalita?: true
-    sesso?: true
-    numero_passaporto?: true
-    data_scadenza?: true
-    note?: true
+    tot_quota?: true
     _all?: true
   }
 
@@ -13568,6 +13464,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: PartecipantiAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PartecipantiSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: PartecipantiMinAggregateInputType
@@ -13598,25 +13506,21 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: PartecipantiCountAggregateInputType | true
+    _avg?: PartecipantiAvgAggregateInputType
+    _sum?: PartecipantiSumAggregateInputType
     _min?: PartecipantiMinAggregateInputType
     _max?: PartecipantiMaxAggregateInputType
   }
 
   export type PartecipantiGroupByOutputType = {
     id: string
-    id_cliente: string
     id_preventivo: string
     nome: string | null
     cognome: string | null
-    data_di_nascita: Date | null
-    luogo_nascita: string | null
-    provincia_nascita: string | null
-    nazionalita: string | null
-    sesso: string | null
-    numero_passaporto: string | null
-    data_scadenza: Date | null
-    note: string | null
+    tot_quota: Decimal | null
     _count: PartecipantiCountAggregateOutputType | null
+    _avg: PartecipantiAvgAggregateOutputType | null
+    _sum: PartecipantiSumAggregateOutputType | null
     _min: PartecipantiMinAggregateOutputType | null
     _max: PartecipantiMaxAggregateOutputType | null
   }
@@ -13637,19 +13541,10 @@ export namespace Prisma {
 
   export type PartecipantiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    id_cliente?: boolean
     id_preventivo?: boolean
     nome?: boolean
     cognome?: boolean
-    data_di_nascita?: boolean
-    luogo_nascita?: boolean
-    provincia_nascita?: boolean
-    nazionalita?: boolean
-    sesso?: boolean
-    numero_passaporto?: boolean
-    data_scadenza?: boolean
-    note?: boolean
-    cliente?: boolean | ClienteDefaultArgs<ExtArgs>
+    tot_quota?: boolean
     preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
     incassi_partecipanti?: boolean | Partecipanti$incassi_partecipantiArgs<ExtArgs>
     _count?: boolean | PartecipantiCountOutputTypeDefaultArgs<ExtArgs>
@@ -13657,93 +13552,55 @@ export namespace Prisma {
 
   export type PartecipantiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    id_cliente?: boolean
     id_preventivo?: boolean
     nome?: boolean
     cognome?: boolean
-    data_di_nascita?: boolean
-    luogo_nascita?: boolean
-    provincia_nascita?: boolean
-    nazionalita?: boolean
-    sesso?: boolean
-    numero_passaporto?: boolean
-    data_scadenza?: boolean
-    note?: boolean
-    cliente?: boolean | ClienteDefaultArgs<ExtArgs>
+    tot_quota?: boolean
     preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["partecipanti"]>
 
   export type PartecipantiSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    id_cliente?: boolean
     id_preventivo?: boolean
     nome?: boolean
     cognome?: boolean
-    data_di_nascita?: boolean
-    luogo_nascita?: boolean
-    provincia_nascita?: boolean
-    nazionalita?: boolean
-    sesso?: boolean
-    numero_passaporto?: boolean
-    data_scadenza?: boolean
-    note?: boolean
-    cliente?: boolean | ClienteDefaultArgs<ExtArgs>
+    tot_quota?: boolean
     preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["partecipanti"]>
 
   export type PartecipantiSelectScalar = {
     id?: boolean
-    id_cliente?: boolean
     id_preventivo?: boolean
     nome?: boolean
     cognome?: boolean
-    data_di_nascita?: boolean
-    luogo_nascita?: boolean
-    provincia_nascita?: boolean
-    nazionalita?: boolean
-    sesso?: boolean
-    numero_passaporto?: boolean
-    data_scadenza?: boolean
-    note?: boolean
+    tot_quota?: boolean
   }
 
-  export type PartecipantiOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "id_cliente" | "id_preventivo" | "nome" | "cognome" | "data_di_nascita" | "luogo_nascita" | "provincia_nascita" | "nazionalita" | "sesso" | "numero_passaporto" | "data_scadenza" | "note", ExtArgs["result"]["partecipanti"]>
+  export type PartecipantiOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "id_preventivo" | "nome" | "cognome" | "tot_quota", ExtArgs["result"]["partecipanti"]>
   export type PartecipantiInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    cliente?: boolean | ClienteDefaultArgs<ExtArgs>
     preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
     incassi_partecipanti?: boolean | Partecipanti$incassi_partecipantiArgs<ExtArgs>
     _count?: boolean | PartecipantiCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PartecipantiIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    cliente?: boolean | ClienteDefaultArgs<ExtArgs>
     preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }
   export type PartecipantiIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    cliente?: boolean | ClienteDefaultArgs<ExtArgs>
     preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }
 
   export type $PartecipantiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Partecipanti"
     objects: {
-      cliente: Prisma.$ClientePayload<ExtArgs>
       preventivo: Prisma.$PreventivoPayload<ExtArgs>
       incassi_partecipanti: Prisma.$incassi_partecipantiPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      id_cliente: string
       id_preventivo: string
       nome: string | null
       cognome: string | null
-      data_di_nascita: Date | null
-      luogo_nascita: string | null
-      provincia_nascita: string | null
-      nazionalita: string | null
-      sesso: string | null
-      numero_passaporto: string | null
-      data_scadenza: Date | null
-      note: string | null
+      tot_quota: Prisma.Decimal | null
     }, ExtArgs["result"]["partecipanti"]>
     composites: {}
   }
@@ -14138,7 +13995,6 @@ export namespace Prisma {
    */
   export interface Prisma__PartecipantiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    cliente<T extends ClienteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClienteDefaultArgs<ExtArgs>>): Prisma__ClienteClient<$Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     preventivo<T extends PreventivoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PreventivoDefaultArgs<ExtArgs>>): Prisma__PreventivoClient<$Result.GetResult<Prisma.$PreventivoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     incassi_partecipanti<T extends Partecipanti$incassi_partecipantiArgs<ExtArgs> = {}>(args?: Subset<T, Partecipanti$incassi_partecipantiArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$incassi_partecipantiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -14171,18 +14027,10 @@ export namespace Prisma {
    */
   interface PartecipantiFieldRefs {
     readonly id: FieldRef<"Partecipanti", 'String'>
-    readonly id_cliente: FieldRef<"Partecipanti", 'String'>
     readonly id_preventivo: FieldRef<"Partecipanti", 'String'>
     readonly nome: FieldRef<"Partecipanti", 'String'>
     readonly cognome: FieldRef<"Partecipanti", 'String'>
-    readonly data_di_nascita: FieldRef<"Partecipanti", 'DateTime'>
-    readonly luogo_nascita: FieldRef<"Partecipanti", 'String'>
-    readonly provincia_nascita: FieldRef<"Partecipanti", 'String'>
-    readonly nazionalita: FieldRef<"Partecipanti", 'String'>
-    readonly sesso: FieldRef<"Partecipanti", 'String'>
-    readonly numero_passaporto: FieldRef<"Partecipanti", 'String'>
-    readonly data_scadenza: FieldRef<"Partecipanti", 'DateTime'>
-    readonly note: FieldRef<"Partecipanti", 'String'>
+    readonly tot_quota: FieldRef<"Partecipanti", 'Decimal'>
   }
     
 
@@ -17861,80 +17709,84 @@ export namespace Prisma {
 
   export type Incassi_partecipantiAvgAggregateOutputType = {
     importo: Decimal | null
+    importo_in_valuta: Decimal | null
   }
 
   export type Incassi_partecipantiSumAggregateOutputType = {
     importo: Decimal | null
+    importo_in_valuta: Decimal | null
   }
 
   export type Incassi_partecipantiMinAggregateOutputType = {
     id: string | null
-    id_preventivo: string | null
     id_partecipante: string | null
     id_banca: string | null
     importo: Decimal | null
+    importo_in_valuta: Decimal | null
+    data_scadenza: Date | null
     data_incasso: Date | null
-    note: string | null
   }
 
   export type Incassi_partecipantiMaxAggregateOutputType = {
     id: string | null
-    id_preventivo: string | null
     id_partecipante: string | null
     id_banca: string | null
     importo: Decimal | null
+    importo_in_valuta: Decimal | null
+    data_scadenza: Date | null
     data_incasso: Date | null
-    note: string | null
   }
 
   export type Incassi_partecipantiCountAggregateOutputType = {
     id: number
-    id_preventivo: number
     id_partecipante: number
     id_banca: number
     importo: number
+    importo_in_valuta: number
+    data_scadenza: number
     data_incasso: number
-    note: number
     _all: number
   }
 
 
   export type Incassi_partecipantiAvgAggregateInputType = {
     importo?: true
+    importo_in_valuta?: true
   }
 
   export type Incassi_partecipantiSumAggregateInputType = {
     importo?: true
+    importo_in_valuta?: true
   }
 
   export type Incassi_partecipantiMinAggregateInputType = {
     id?: true
-    id_preventivo?: true
     id_partecipante?: true
     id_banca?: true
     importo?: true
+    importo_in_valuta?: true
+    data_scadenza?: true
     data_incasso?: true
-    note?: true
   }
 
   export type Incassi_partecipantiMaxAggregateInputType = {
     id?: true
-    id_preventivo?: true
     id_partecipante?: true
     id_banca?: true
     importo?: true
+    importo_in_valuta?: true
+    data_scadenza?: true
     data_incasso?: true
-    note?: true
   }
 
   export type Incassi_partecipantiCountAggregateInputType = {
     id?: true
-    id_preventivo?: true
     id_partecipante?: true
     id_banca?: true
     importo?: true
+    importo_in_valuta?: true
+    data_scadenza?: true
     data_incasso?: true
-    note?: true
     _all?: true
   }
 
@@ -18026,12 +17878,12 @@ export namespace Prisma {
 
   export type Incassi_partecipantiGroupByOutputType = {
     id: string
-    id_preventivo: string
     id_partecipante: string
-    id_banca: string
+    id_banca: string | null
     importo: Decimal | null
+    importo_in_valuta: Decimal | null
+    data_scadenza: Date | null
     data_incasso: Date | null
-    note: string | null
     _count: Incassi_partecipantiCountAggregateOutputType | null
     _avg: Incassi_partecipantiAvgAggregateOutputType | null
     _sum: Incassi_partecipantiSumAggregateOutputType | null
@@ -18055,85 +17907,78 @@ export namespace Prisma {
 
   export type incassi_partecipantiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    id_preventivo?: boolean
     id_partecipante?: boolean
     id_banca?: boolean
     importo?: boolean
+    importo_in_valuta?: boolean
+    data_scadenza?: boolean
     data_incasso?: boolean
-    note?: boolean
-    banca?: boolean | BancaDefaultArgs<ExtArgs>
+    banca?: boolean | incassi_partecipanti$bancaArgs<ExtArgs>
     partecipante?: boolean | PartecipantiDefaultArgs<ExtArgs>
-    preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["incassi_partecipanti"]>
 
   export type incassi_partecipantiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    id_preventivo?: boolean
     id_partecipante?: boolean
     id_banca?: boolean
     importo?: boolean
+    importo_in_valuta?: boolean
+    data_scadenza?: boolean
     data_incasso?: boolean
-    note?: boolean
-    banca?: boolean | BancaDefaultArgs<ExtArgs>
+    banca?: boolean | incassi_partecipanti$bancaArgs<ExtArgs>
     partecipante?: boolean | PartecipantiDefaultArgs<ExtArgs>
-    preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["incassi_partecipanti"]>
 
   export type incassi_partecipantiSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    id_preventivo?: boolean
     id_partecipante?: boolean
     id_banca?: boolean
     importo?: boolean
+    importo_in_valuta?: boolean
+    data_scadenza?: boolean
     data_incasso?: boolean
-    note?: boolean
-    banca?: boolean | BancaDefaultArgs<ExtArgs>
+    banca?: boolean | incassi_partecipanti$bancaArgs<ExtArgs>
     partecipante?: boolean | PartecipantiDefaultArgs<ExtArgs>
-    preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["incassi_partecipanti"]>
 
   export type incassi_partecipantiSelectScalar = {
     id?: boolean
-    id_preventivo?: boolean
     id_partecipante?: boolean
     id_banca?: boolean
     importo?: boolean
+    importo_in_valuta?: boolean
+    data_scadenza?: boolean
     data_incasso?: boolean
-    note?: boolean
   }
 
-  export type incassi_partecipantiOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "id_preventivo" | "id_partecipante" | "id_banca" | "importo" | "data_incasso" | "note", ExtArgs["result"]["incassi_partecipanti"]>
+  export type incassi_partecipantiOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "id_partecipante" | "id_banca" | "importo" | "importo_in_valuta" | "data_scadenza" | "data_incasso", ExtArgs["result"]["incassi_partecipanti"]>
   export type incassi_partecipantiInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    banca?: boolean | BancaDefaultArgs<ExtArgs>
+    banca?: boolean | incassi_partecipanti$bancaArgs<ExtArgs>
     partecipante?: boolean | PartecipantiDefaultArgs<ExtArgs>
-    preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }
   export type incassi_partecipantiIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    banca?: boolean | BancaDefaultArgs<ExtArgs>
+    banca?: boolean | incassi_partecipanti$bancaArgs<ExtArgs>
     partecipante?: boolean | PartecipantiDefaultArgs<ExtArgs>
-    preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }
   export type incassi_partecipantiIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    banca?: boolean | BancaDefaultArgs<ExtArgs>
+    banca?: boolean | incassi_partecipanti$bancaArgs<ExtArgs>
     partecipante?: boolean | PartecipantiDefaultArgs<ExtArgs>
-    preventivo?: boolean | PreventivoDefaultArgs<ExtArgs>
   }
 
   export type $incassi_partecipantiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "incassi_partecipanti"
     objects: {
-      banca: Prisma.$BancaPayload<ExtArgs>
+      banca: Prisma.$BancaPayload<ExtArgs> | null
       partecipante: Prisma.$PartecipantiPayload<ExtArgs>
-      preventivo: Prisma.$PreventivoPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      id_preventivo: string
       id_partecipante: string
-      id_banca: string
+      id_banca: string | null
       importo: Prisma.Decimal | null
+      importo_in_valuta: Prisma.Decimal | null
+      data_scadenza: Date | null
       data_incasso: Date | null
-      note: string | null
     }, ExtArgs["result"]["incassi_partecipanti"]>
     composites: {}
   }
@@ -18528,9 +18373,8 @@ export namespace Prisma {
    */
   export interface Prisma__incassi_partecipantiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    banca<T extends BancaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BancaDefaultArgs<ExtArgs>>): Prisma__BancaClient<$Result.GetResult<Prisma.$BancaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    banca<T extends incassi_partecipanti$bancaArgs<ExtArgs> = {}>(args?: Subset<T, incassi_partecipanti$bancaArgs<ExtArgs>>): Prisma__BancaClient<$Result.GetResult<Prisma.$BancaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     partecipante<T extends PartecipantiDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PartecipantiDefaultArgs<ExtArgs>>): Prisma__PartecipantiClient<$Result.GetResult<Prisma.$PartecipantiPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    preventivo<T extends PreventivoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PreventivoDefaultArgs<ExtArgs>>): Prisma__PreventivoClient<$Result.GetResult<Prisma.$PreventivoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -18561,12 +18405,12 @@ export namespace Prisma {
    */
   interface incassi_partecipantiFieldRefs {
     readonly id: FieldRef<"incassi_partecipanti", 'String'>
-    readonly id_preventivo: FieldRef<"incassi_partecipanti", 'String'>
     readonly id_partecipante: FieldRef<"incassi_partecipanti", 'String'>
     readonly id_banca: FieldRef<"incassi_partecipanti", 'String'>
     readonly importo: FieldRef<"incassi_partecipanti", 'Decimal'>
+    readonly importo_in_valuta: FieldRef<"incassi_partecipanti", 'Decimal'>
+    readonly data_scadenza: FieldRef<"incassi_partecipanti", 'DateTime'>
     readonly data_incasso: FieldRef<"incassi_partecipanti", 'DateTime'>
-    readonly note: FieldRef<"incassi_partecipanti", 'String'>
   }
     
 
@@ -18958,6 +18802,25 @@ export namespace Prisma {
      * Limit how many incassi_partecipantis to delete.
      */
     limit?: number
+  }
+
+  /**
+   * incassi_partecipanti.banca
+   */
+  export type incassi_partecipanti$bancaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Banca
+     */
+    select?: BancaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Banca
+     */
+    omit?: BancaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BancaInclude<ExtArgs> | null
+    where?: BancaWhereInput
   }
 
   /**
@@ -22521,18 +22384,10 @@ export namespace Prisma {
 
   export const PartecipantiScalarFieldEnum: {
     id: 'id',
-    id_cliente: 'id_cliente',
     id_preventivo: 'id_preventivo',
     nome: 'nome',
     cognome: 'cognome',
-    data_di_nascita: 'data_di_nascita',
-    luogo_nascita: 'luogo_nascita',
-    provincia_nascita: 'provincia_nascita',
-    nazionalita: 'nazionalita',
-    sesso: 'sesso',
-    numero_passaporto: 'numero_passaporto',
-    data_scadenza: 'data_scadenza',
-    note: 'note'
+    tot_quota: 'tot_quota'
   };
 
   export type PartecipantiScalarFieldEnum = (typeof PartecipantiScalarFieldEnum)[keyof typeof PartecipantiScalarFieldEnum]
@@ -22575,12 +22430,12 @@ export namespace Prisma {
 
   export const Incassi_partecipantiScalarFieldEnum: {
     id: 'id',
-    id_preventivo: 'id_preventivo',
     id_partecipante: 'id_partecipante',
     id_banca: 'id_banca',
     importo: 'importo',
-    data_incasso: 'data_incasso',
-    note: 'note'
+    importo_in_valuta: 'importo_in_valuta',
+    data_scadenza: 'data_scadenza',
+    data_incasso: 'data_incasso'
   };
 
   export type Incassi_partecipantiScalarFieldEnum = (typeof Incassi_partecipantiScalarFieldEnum)[keyof typeof Incassi_partecipantiScalarFieldEnum]
@@ -22846,7 +22701,6 @@ export namespace Prisma {
     provincia?: StringNullableFilter<"Cliente"> | string | null
     note?: StringNullableFilter<"Cliente"> | string | null
     preventivi?: PreventivoListRelationFilter
-    partecipanti?: PartecipantiListRelationFilter
   }
 
   export type ClienteOrderByWithRelationInput = {
@@ -22872,7 +22726,6 @@ export namespace Prisma {
     provincia?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
     preventivi?: PreventivoOrderByRelationAggregateInput
-    partecipanti?: PartecipantiOrderByRelationAggregateInput
   }
 
   export type ClienteWhereUniqueInput = Prisma.AtLeast<{
@@ -22901,7 +22754,6 @@ export namespace Prisma {
     provincia?: StringNullableFilter<"Cliente"> | string | null
     note?: StringNullableFilter<"Cliente"> | string | null
     preventivi?: PreventivoListRelationFilter
-    partecipanti?: PartecipantiListRelationFilter
   }, "id" | "email">
 
   export type ClienteOrderByWithAggregationInput = {
@@ -23032,7 +22884,6 @@ export namespace Prisma {
     percentuale_ricarico?: DecimalNullableFilter<"Preventivo"> | Decimal | DecimalJsLike | number | string | null
     cliente?: XOR<ClienteScalarRelationFilter, ClienteWhereInput>
     assicurazioni?: AssicurazioneListRelationFilter
-    incassi_partecipanti?: Incassi_partecipantiListRelationFilter
     pagamenti_assicurazioni?: Pagamenti_assicurazioniListRelationFilter
     pagamenti_servizi_a_terra?: Pagamenti_servizi_a_terraListRelationFilter
     pagamenti_voli?: Pagamenti_voliListRelationFilter
@@ -23064,7 +22915,6 @@ export namespace Prisma {
     percentuale_ricarico?: SortOrderInput | SortOrder
     cliente?: ClienteOrderByWithRelationInput
     assicurazioni?: AssicurazioneOrderByRelationAggregateInput
-    incassi_partecipanti?: incassi_partecipantiOrderByRelationAggregateInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniOrderByRelationAggregateInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraOrderByRelationAggregateInput
     pagamenti_voli?: pagamenti_voliOrderByRelationAggregateInput
@@ -23099,7 +22949,6 @@ export namespace Prisma {
     percentuale_ricarico?: DecimalNullableFilter<"Preventivo"> | Decimal | DecimalJsLike | number | string | null
     cliente?: XOR<ClienteScalarRelationFilter, ClienteWhereInput>
     assicurazioni?: AssicurazioneListRelationFilter
-    incassi_partecipanti?: Incassi_partecipantiListRelationFilter
     pagamenti_assicurazioni?: Pagamenti_assicurazioniListRelationFilter
     pagamenti_servizi_a_terra?: Pagamenti_servizi_a_terraListRelationFilter
     pagamenti_voli?: Pagamenti_voliListRelationFilter
@@ -23431,38 +23280,20 @@ export namespace Prisma {
     OR?: PartecipantiWhereInput[]
     NOT?: PartecipantiWhereInput | PartecipantiWhereInput[]
     id?: StringFilter<"Partecipanti"> | string
-    id_cliente?: StringFilter<"Partecipanti"> | string
     id_preventivo?: StringFilter<"Partecipanti"> | string
     nome?: StringNullableFilter<"Partecipanti"> | string | null
     cognome?: StringNullableFilter<"Partecipanti"> | string | null
-    data_di_nascita?: DateTimeNullableFilter<"Partecipanti"> | Date | string | null
-    luogo_nascita?: StringNullableFilter<"Partecipanti"> | string | null
-    provincia_nascita?: StringNullableFilter<"Partecipanti"> | string | null
-    nazionalita?: StringNullableFilter<"Partecipanti"> | string | null
-    sesso?: StringNullableFilter<"Partecipanti"> | string | null
-    numero_passaporto?: StringNullableFilter<"Partecipanti"> | string | null
-    data_scadenza?: DateTimeNullableFilter<"Partecipanti"> | Date | string | null
-    note?: StringNullableFilter<"Partecipanti"> | string | null
-    cliente?: XOR<ClienteScalarRelationFilter, ClienteWhereInput>
+    tot_quota?: DecimalNullableFilter<"Partecipanti"> | Decimal | DecimalJsLike | number | string | null
     preventivo?: XOR<PreventivoScalarRelationFilter, PreventivoWhereInput>
     incassi_partecipanti?: Incassi_partecipantiListRelationFilter
   }
 
   export type PartecipantiOrderByWithRelationInput = {
     id?: SortOrder
-    id_cliente?: SortOrder
     id_preventivo?: SortOrder
     nome?: SortOrderInput | SortOrder
     cognome?: SortOrderInput | SortOrder
-    data_di_nascita?: SortOrderInput | SortOrder
-    luogo_nascita?: SortOrderInput | SortOrder
-    provincia_nascita?: SortOrderInput | SortOrder
-    nazionalita?: SortOrderInput | SortOrder
-    sesso?: SortOrderInput | SortOrder
-    numero_passaporto?: SortOrderInput | SortOrder
-    data_scadenza?: SortOrderInput | SortOrder
-    note?: SortOrderInput | SortOrder
-    cliente?: ClienteOrderByWithRelationInput
+    tot_quota?: SortOrderInput | SortOrder
     preventivo?: PreventivoOrderByWithRelationInput
     incassi_partecipanti?: incassi_partecipantiOrderByRelationAggregateInput
   }
@@ -23472,40 +23303,25 @@ export namespace Prisma {
     AND?: PartecipantiWhereInput | PartecipantiWhereInput[]
     OR?: PartecipantiWhereInput[]
     NOT?: PartecipantiWhereInput | PartecipantiWhereInput[]
-    id_cliente?: StringFilter<"Partecipanti"> | string
     id_preventivo?: StringFilter<"Partecipanti"> | string
     nome?: StringNullableFilter<"Partecipanti"> | string | null
     cognome?: StringNullableFilter<"Partecipanti"> | string | null
-    data_di_nascita?: DateTimeNullableFilter<"Partecipanti"> | Date | string | null
-    luogo_nascita?: StringNullableFilter<"Partecipanti"> | string | null
-    provincia_nascita?: StringNullableFilter<"Partecipanti"> | string | null
-    nazionalita?: StringNullableFilter<"Partecipanti"> | string | null
-    sesso?: StringNullableFilter<"Partecipanti"> | string | null
-    numero_passaporto?: StringNullableFilter<"Partecipanti"> | string | null
-    data_scadenza?: DateTimeNullableFilter<"Partecipanti"> | Date | string | null
-    note?: StringNullableFilter<"Partecipanti"> | string | null
-    cliente?: XOR<ClienteScalarRelationFilter, ClienteWhereInput>
+    tot_quota?: DecimalNullableFilter<"Partecipanti"> | Decimal | DecimalJsLike | number | string | null
     preventivo?: XOR<PreventivoScalarRelationFilter, PreventivoWhereInput>
     incassi_partecipanti?: Incassi_partecipantiListRelationFilter
   }, "id">
 
   export type PartecipantiOrderByWithAggregationInput = {
     id?: SortOrder
-    id_cliente?: SortOrder
     id_preventivo?: SortOrder
     nome?: SortOrderInput | SortOrder
     cognome?: SortOrderInput | SortOrder
-    data_di_nascita?: SortOrderInput | SortOrder
-    luogo_nascita?: SortOrderInput | SortOrder
-    provincia_nascita?: SortOrderInput | SortOrder
-    nazionalita?: SortOrderInput | SortOrder
-    sesso?: SortOrderInput | SortOrder
-    numero_passaporto?: SortOrderInput | SortOrder
-    data_scadenza?: SortOrderInput | SortOrder
-    note?: SortOrderInput | SortOrder
+    tot_quota?: SortOrderInput | SortOrder
     _count?: PartecipantiCountOrderByAggregateInput
+    _avg?: PartecipantiAvgOrderByAggregateInput
     _max?: PartecipantiMaxOrderByAggregateInput
     _min?: PartecipantiMinOrderByAggregateInput
+    _sum?: PartecipantiSumOrderByAggregateInput
   }
 
   export type PartecipantiScalarWhereWithAggregatesInput = {
@@ -23513,18 +23329,10 @@ export namespace Prisma {
     OR?: PartecipantiScalarWhereWithAggregatesInput[]
     NOT?: PartecipantiScalarWhereWithAggregatesInput | PartecipantiScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Partecipanti"> | string
-    id_cliente?: StringWithAggregatesFilter<"Partecipanti"> | string
     id_preventivo?: StringWithAggregatesFilter<"Partecipanti"> | string
     nome?: StringNullableWithAggregatesFilter<"Partecipanti"> | string | null
     cognome?: StringNullableWithAggregatesFilter<"Partecipanti"> | string | null
-    data_di_nascita?: DateTimeNullableWithAggregatesFilter<"Partecipanti"> | Date | string | null
-    luogo_nascita?: StringNullableWithAggregatesFilter<"Partecipanti"> | string | null
-    provincia_nascita?: StringNullableWithAggregatesFilter<"Partecipanti"> | string | null
-    nazionalita?: StringNullableWithAggregatesFilter<"Partecipanti"> | string | null
-    sesso?: StringNullableWithAggregatesFilter<"Partecipanti"> | string | null
-    numero_passaporto?: StringNullableWithAggregatesFilter<"Partecipanti"> | string | null
-    data_scadenza?: DateTimeNullableWithAggregatesFilter<"Partecipanti"> | Date | string | null
-    note?: StringNullableWithAggregatesFilter<"Partecipanti"> | string | null
+    tot_quota?: DecimalNullableWithAggregatesFilter<"Partecipanti"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type PraticheWhereInput = {
@@ -23709,28 +23517,26 @@ export namespace Prisma {
     OR?: incassi_partecipantiWhereInput[]
     NOT?: incassi_partecipantiWhereInput | incassi_partecipantiWhereInput[]
     id?: StringFilter<"incassi_partecipanti"> | string
-    id_preventivo?: StringFilter<"incassi_partecipanti"> | string
     id_partecipante?: StringFilter<"incassi_partecipanti"> | string
-    id_banca?: StringFilter<"incassi_partecipanti"> | string
+    id_banca?: StringNullableFilter<"incassi_partecipanti"> | string | null
     importo?: DecimalNullableFilter<"incassi_partecipanti"> | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: DecimalNullableFilter<"incassi_partecipanti"> | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: DateTimeNullableFilter<"incassi_partecipanti"> | Date | string | null
     data_incasso?: DateTimeNullableFilter<"incassi_partecipanti"> | Date | string | null
-    note?: StringNullableFilter<"incassi_partecipanti"> | string | null
-    banca?: XOR<BancaScalarRelationFilter, BancaWhereInput>
+    banca?: XOR<BancaNullableScalarRelationFilter, BancaWhereInput> | null
     partecipante?: XOR<PartecipantiScalarRelationFilter, PartecipantiWhereInput>
-    preventivo?: XOR<PreventivoScalarRelationFilter, PreventivoWhereInput>
   }
 
   export type incassi_partecipantiOrderByWithRelationInput = {
     id?: SortOrder
-    id_preventivo?: SortOrder
     id_partecipante?: SortOrder
-    id_banca?: SortOrder
+    id_banca?: SortOrderInput | SortOrder
     importo?: SortOrderInput | SortOrder
+    importo_in_valuta?: SortOrderInput | SortOrder
+    data_scadenza?: SortOrderInput | SortOrder
     data_incasso?: SortOrderInput | SortOrder
-    note?: SortOrderInput | SortOrder
     banca?: BancaOrderByWithRelationInput
     partecipante?: PartecipantiOrderByWithRelationInput
-    preventivo?: PreventivoOrderByWithRelationInput
   }
 
   export type incassi_partecipantiWhereUniqueInput = Prisma.AtLeast<{
@@ -23738,25 +23544,24 @@ export namespace Prisma {
     AND?: incassi_partecipantiWhereInput | incassi_partecipantiWhereInput[]
     OR?: incassi_partecipantiWhereInput[]
     NOT?: incassi_partecipantiWhereInput | incassi_partecipantiWhereInput[]
-    id_preventivo?: StringFilter<"incassi_partecipanti"> | string
     id_partecipante?: StringFilter<"incassi_partecipanti"> | string
-    id_banca?: StringFilter<"incassi_partecipanti"> | string
+    id_banca?: StringNullableFilter<"incassi_partecipanti"> | string | null
     importo?: DecimalNullableFilter<"incassi_partecipanti"> | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: DecimalNullableFilter<"incassi_partecipanti"> | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: DateTimeNullableFilter<"incassi_partecipanti"> | Date | string | null
     data_incasso?: DateTimeNullableFilter<"incassi_partecipanti"> | Date | string | null
-    note?: StringNullableFilter<"incassi_partecipanti"> | string | null
-    banca?: XOR<BancaScalarRelationFilter, BancaWhereInput>
+    banca?: XOR<BancaNullableScalarRelationFilter, BancaWhereInput> | null
     partecipante?: XOR<PartecipantiScalarRelationFilter, PartecipantiWhereInput>
-    preventivo?: XOR<PreventivoScalarRelationFilter, PreventivoWhereInput>
   }, "id">
 
   export type incassi_partecipantiOrderByWithAggregationInput = {
     id?: SortOrder
-    id_preventivo?: SortOrder
     id_partecipante?: SortOrder
-    id_banca?: SortOrder
+    id_banca?: SortOrderInput | SortOrder
     importo?: SortOrderInput | SortOrder
+    importo_in_valuta?: SortOrderInput | SortOrder
+    data_scadenza?: SortOrderInput | SortOrder
     data_incasso?: SortOrderInput | SortOrder
-    note?: SortOrderInput | SortOrder
     _count?: incassi_partecipantiCountOrderByAggregateInput
     _avg?: incassi_partecipantiAvgOrderByAggregateInput
     _max?: incassi_partecipantiMaxOrderByAggregateInput
@@ -23769,12 +23574,12 @@ export namespace Prisma {
     OR?: incassi_partecipantiScalarWhereWithAggregatesInput[]
     NOT?: incassi_partecipantiScalarWhereWithAggregatesInput | incassi_partecipantiScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"incassi_partecipanti"> | string
-    id_preventivo?: StringWithAggregatesFilter<"incassi_partecipanti"> | string
     id_partecipante?: StringWithAggregatesFilter<"incassi_partecipanti"> | string
-    id_banca?: StringWithAggregatesFilter<"incassi_partecipanti"> | string
+    id_banca?: StringNullableWithAggregatesFilter<"incassi_partecipanti"> | string | null
     importo?: DecimalNullableWithAggregatesFilter<"incassi_partecipanti"> | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: DecimalNullableWithAggregatesFilter<"incassi_partecipanti"> | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: DateTimeNullableWithAggregatesFilter<"incassi_partecipanti"> | Date | string | null
     data_incasso?: DateTimeNullableWithAggregatesFilter<"incassi_partecipanti"> | Date | string | null
-    note?: StringNullableWithAggregatesFilter<"incassi_partecipanti"> | string | null
   }
 
   export type pagamenti_assicurazioniWhereInput = {
@@ -24158,7 +23963,6 @@ export namespace Prisma {
     provincia?: string | null
     note?: string | null
     preventivi?: PreventivoCreateNestedManyWithoutClienteInput
-    partecipanti?: PartecipantiCreateNestedManyWithoutClienteInput
   }
 
   export type ClienteUncheckedCreateInput = {
@@ -24184,7 +23988,6 @@ export namespace Prisma {
     provincia?: string | null
     note?: string | null
     preventivi?: PreventivoUncheckedCreateNestedManyWithoutClienteInput
-    partecipanti?: PartecipantiUncheckedCreateNestedManyWithoutClienteInput
   }
 
   export type ClienteUpdateInput = {
@@ -24210,7 +24013,6 @@ export namespace Prisma {
     provincia?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     preventivi?: PreventivoUpdateManyWithoutClienteNestedInput
-    partecipanti?: PartecipantiUpdateManyWithoutClienteNestedInput
   }
 
   export type ClienteUncheckedUpdateInput = {
@@ -24236,7 +24038,6 @@ export namespace Prisma {
     provincia?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     preventivi?: PreventivoUncheckedUpdateManyWithoutClienteNestedInput
-    partecipanti?: PartecipantiUncheckedUpdateManyWithoutClienteNestedInput
   }
 
   export type ClienteCreateManyInput = {
@@ -24384,7 +24185,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -24415,7 +24215,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -24446,7 +24245,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -24477,7 +24275,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -24830,33 +24627,17 @@ export namespace Prisma {
     id?: string
     nome?: string | null
     cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
-    cliente: ClienteCreateNestedOneWithoutPartecipantiInput
+    tot_quota?: Decimal | DecimalJsLike | number | string | null
     preventivo: PreventivoCreateNestedOneWithoutPartecipantiInput
     incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPartecipanteInput
   }
 
   export type PartecipantiUncheckedCreateInput = {
     id?: string
-    id_cliente: string
     id_preventivo: string
     nome?: string | null
     cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
+    tot_quota?: Decimal | DecimalJsLike | number | string | null
     incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPartecipanteInput
   }
 
@@ -24864,80 +24645,41 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    cliente?: ClienteUpdateOneRequiredWithoutPartecipantiNestedInput
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     preventivo?: PreventivoUpdateOneRequiredWithoutPartecipantiNestedInput
     incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPartecipanteNestedInput
   }
 
   export type PartecipantiUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_cliente?: StringFieldUpdateOperationsInput | string
     id_preventivo?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPartecipanteNestedInput
   }
 
   export type PartecipantiCreateManyInput = {
     id?: string
-    id_cliente: string
     id_preventivo: string
     nome?: string | null
     cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
+    tot_quota?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type PartecipantiUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type PartecipantiUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_cliente?: StringFieldUpdateOperationsInput | string
     id_preventivo?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type PraticheCreateInput = {
@@ -25122,68 +24864,69 @@ export namespace Prisma {
   export type incassi_partecipantiCreateInput = {
     id?: string
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
-    banca: BancaCreateNestedOneWithoutIncassi_partecipantiInput
+    banca?: BancaCreateNestedOneWithoutIncassi_partecipantiInput
     partecipante: PartecipantiCreateNestedOneWithoutIncassi_partecipantiInput
-    preventivo: PreventivoCreateNestedOneWithoutIncassi_partecipantiInput
   }
 
   export type incassi_partecipantiUncheckedCreateInput = {
     id?: string
-    id_preventivo: string
     id_partecipante: string
-    id_banca: string
+    id_banca?: string | null
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
   }
 
   export type incassi_partecipantiUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    banca?: BancaUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
+    banca?: BancaUpdateOneWithoutIncassi_partecipantiNestedInput
     partecipante?: PartecipantiUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
-    preventivo?: PreventivoUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
   }
 
   export type incassi_partecipantiUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_preventivo?: StringFieldUpdateOperationsInput | string
     id_partecipante?: StringFieldUpdateOperationsInput | string
-    id_banca?: StringFieldUpdateOperationsInput | string
+    id_banca?: NullableStringFieldUpdateOperationsInput | string | null
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type incassi_partecipantiCreateManyInput = {
     id?: string
-    id_preventivo: string
     id_partecipante: string
-    id_banca: string
+    id_banca?: string | null
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
   }
 
   export type incassi_partecipantiUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type incassi_partecipantiUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_preventivo?: StringFieldUpdateOperationsInput | string
     id_partecipante?: StringFieldUpdateOperationsInput | string
-    id_banca?: StringFieldUpdateOperationsInput | string
+    id_banca?: NullableStringFieldUpdateOperationsInput | string | null
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type pagamenti_assicurazioniCreateInput = {
@@ -25572,17 +25315,7 @@ export namespace Prisma {
     none?: PreventivoWhereInput
   }
 
-  export type PartecipantiListRelationFilter = {
-    every?: PartecipantiWhereInput
-    some?: PartecipantiWhereInput
-    none?: PartecipantiWhereInput
-  }
-
   export type PreventivoOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type PartecipantiOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -25748,6 +25481,12 @@ export namespace Prisma {
     isNot?: ClienteWhereInput
   }
 
+  export type PartecipantiListRelationFilter = {
+    every?: PartecipantiWhereInput
+    some?: PartecipantiWhereInput
+    none?: PartecipantiWhereInput
+  }
+
   export type PraticheListRelationFilter = {
     every?: PraticheWhereInput
     some?: PraticheWhereInput
@@ -25764,6 +25503,10 @@ export namespace Prisma {
     every?: PreventivoAlClienteRowWhereInput
     some?: PreventivoAlClienteRowWhereInput
     none?: PreventivoAlClienteRowWhereInput
+  }
+
+  export type PartecipantiOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type PraticheOrderByRelationAggregateInput = {
@@ -26060,50 +25803,34 @@ export namespace Prisma {
 
   export type PartecipantiCountOrderByAggregateInput = {
     id?: SortOrder
-    id_cliente?: SortOrder
     id_preventivo?: SortOrder
     nome?: SortOrder
     cognome?: SortOrder
-    data_di_nascita?: SortOrder
-    luogo_nascita?: SortOrder
-    provincia_nascita?: SortOrder
-    nazionalita?: SortOrder
-    sesso?: SortOrder
-    numero_passaporto?: SortOrder
-    data_scadenza?: SortOrder
-    note?: SortOrder
+    tot_quota?: SortOrder
+  }
+
+  export type PartecipantiAvgOrderByAggregateInput = {
+    tot_quota?: SortOrder
   }
 
   export type PartecipantiMaxOrderByAggregateInput = {
     id?: SortOrder
-    id_cliente?: SortOrder
     id_preventivo?: SortOrder
     nome?: SortOrder
     cognome?: SortOrder
-    data_di_nascita?: SortOrder
-    luogo_nascita?: SortOrder
-    provincia_nascita?: SortOrder
-    nazionalita?: SortOrder
-    sesso?: SortOrder
-    numero_passaporto?: SortOrder
-    data_scadenza?: SortOrder
-    note?: SortOrder
+    tot_quota?: SortOrder
   }
 
   export type PartecipantiMinOrderByAggregateInput = {
     id?: SortOrder
-    id_cliente?: SortOrder
     id_preventivo?: SortOrder
     nome?: SortOrder
     cognome?: SortOrder
-    data_di_nascita?: SortOrder
-    luogo_nascita?: SortOrder
-    provincia_nascita?: SortOrder
-    nazionalita?: SortOrder
-    sesso?: SortOrder
-    numero_passaporto?: SortOrder
-    data_scadenza?: SortOrder
-    note?: SortOrder
+    tot_quota?: SortOrder
+  }
+
+  export type PartecipantiSumOrderByAggregateInput = {
+    tot_quota?: SortOrder
   }
 
   export type PraticheCountOrderByAggregateInput = {
@@ -26192,9 +25919,9 @@ export namespace Prisma {
     riga?: SortOrder
   }
 
-  export type BancaScalarRelationFilter = {
-    is?: BancaWhereInput
-    isNot?: BancaWhereInput
+  export type BancaNullableScalarRelationFilter = {
+    is?: BancaWhereInput | null
+    isNot?: BancaWhereInput | null
   }
 
   export type PartecipantiScalarRelationFilter = {
@@ -26204,45 +25931,52 @@ export namespace Prisma {
 
   export type incassi_partecipantiCountOrderByAggregateInput = {
     id?: SortOrder
-    id_preventivo?: SortOrder
     id_partecipante?: SortOrder
     id_banca?: SortOrder
     importo?: SortOrder
+    importo_in_valuta?: SortOrder
+    data_scadenza?: SortOrder
     data_incasso?: SortOrder
-    note?: SortOrder
   }
 
   export type incassi_partecipantiAvgOrderByAggregateInput = {
     importo?: SortOrder
+    importo_in_valuta?: SortOrder
   }
 
   export type incassi_partecipantiMaxOrderByAggregateInput = {
     id?: SortOrder
-    id_preventivo?: SortOrder
     id_partecipante?: SortOrder
     id_banca?: SortOrder
     importo?: SortOrder
+    importo_in_valuta?: SortOrder
+    data_scadenza?: SortOrder
     data_incasso?: SortOrder
-    note?: SortOrder
   }
 
   export type incassi_partecipantiMinOrderByAggregateInput = {
     id?: SortOrder
-    id_preventivo?: SortOrder
     id_partecipante?: SortOrder
     id_banca?: SortOrder
     importo?: SortOrder
+    importo_in_valuta?: SortOrder
+    data_scadenza?: SortOrder
     data_incasso?: SortOrder
-    note?: SortOrder
   }
 
   export type incassi_partecipantiSumOrderByAggregateInput = {
     importo?: SortOrder
+    importo_in_valuta?: SortOrder
   }
 
   export type AssicurazioneScalarRelationFilter = {
     is?: AssicurazioneWhereInput
     isNot?: AssicurazioneWhereInput
+  }
+
+  export type BancaScalarRelationFilter = {
+    is?: BancaWhereInput
+    isNot?: BancaWhereInput
   }
 
   export type pagamenti_assicurazioniCountOrderByAggregateInput = {
@@ -26594,25 +26328,11 @@ export namespace Prisma {
     connect?: PreventivoWhereUniqueInput | PreventivoWhereUniqueInput[]
   }
 
-  export type PartecipantiCreateNestedManyWithoutClienteInput = {
-    create?: XOR<PartecipantiCreateWithoutClienteInput, PartecipantiUncheckedCreateWithoutClienteInput> | PartecipantiCreateWithoutClienteInput[] | PartecipantiUncheckedCreateWithoutClienteInput[]
-    connectOrCreate?: PartecipantiCreateOrConnectWithoutClienteInput | PartecipantiCreateOrConnectWithoutClienteInput[]
-    createMany?: PartecipantiCreateManyClienteInputEnvelope
-    connect?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-  }
-
   export type PreventivoUncheckedCreateNestedManyWithoutClienteInput = {
     create?: XOR<PreventivoCreateWithoutClienteInput, PreventivoUncheckedCreateWithoutClienteInput> | PreventivoCreateWithoutClienteInput[] | PreventivoUncheckedCreateWithoutClienteInput[]
     connectOrCreate?: PreventivoCreateOrConnectWithoutClienteInput | PreventivoCreateOrConnectWithoutClienteInput[]
     createMany?: PreventivoCreateManyClienteInputEnvelope
     connect?: PreventivoWhereUniqueInput | PreventivoWhereUniqueInput[]
-  }
-
-  export type PartecipantiUncheckedCreateNestedManyWithoutClienteInput = {
-    create?: XOR<PartecipantiCreateWithoutClienteInput, PartecipantiUncheckedCreateWithoutClienteInput> | PartecipantiCreateWithoutClienteInput[] | PartecipantiUncheckedCreateWithoutClienteInput[]
-    connectOrCreate?: PartecipantiCreateOrConnectWithoutClienteInput | PartecipantiCreateOrConnectWithoutClienteInput[]
-    createMany?: PartecipantiCreateManyClienteInputEnvelope
-    connect?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -26633,20 +26353,6 @@ export namespace Prisma {
     deleteMany?: PreventivoScalarWhereInput | PreventivoScalarWhereInput[]
   }
 
-  export type PartecipantiUpdateManyWithoutClienteNestedInput = {
-    create?: XOR<PartecipantiCreateWithoutClienteInput, PartecipantiUncheckedCreateWithoutClienteInput> | PartecipantiCreateWithoutClienteInput[] | PartecipantiUncheckedCreateWithoutClienteInput[]
-    connectOrCreate?: PartecipantiCreateOrConnectWithoutClienteInput | PartecipantiCreateOrConnectWithoutClienteInput[]
-    upsert?: PartecipantiUpsertWithWhereUniqueWithoutClienteInput | PartecipantiUpsertWithWhereUniqueWithoutClienteInput[]
-    createMany?: PartecipantiCreateManyClienteInputEnvelope
-    set?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-    disconnect?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-    delete?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-    connect?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-    update?: PartecipantiUpdateWithWhereUniqueWithoutClienteInput | PartecipantiUpdateWithWhereUniqueWithoutClienteInput[]
-    updateMany?: PartecipantiUpdateManyWithWhereWithoutClienteInput | PartecipantiUpdateManyWithWhereWithoutClienteInput[]
-    deleteMany?: PartecipantiScalarWhereInput | PartecipantiScalarWhereInput[]
-  }
-
   export type PreventivoUncheckedUpdateManyWithoutClienteNestedInput = {
     create?: XOR<PreventivoCreateWithoutClienteInput, PreventivoUncheckedCreateWithoutClienteInput> | PreventivoCreateWithoutClienteInput[] | PreventivoUncheckedCreateWithoutClienteInput[]
     connectOrCreate?: PreventivoCreateOrConnectWithoutClienteInput | PreventivoCreateOrConnectWithoutClienteInput[]
@@ -26659,20 +26365,6 @@ export namespace Prisma {
     update?: PreventivoUpdateWithWhereUniqueWithoutClienteInput | PreventivoUpdateWithWhereUniqueWithoutClienteInput[]
     updateMany?: PreventivoUpdateManyWithWhereWithoutClienteInput | PreventivoUpdateManyWithWhereWithoutClienteInput[]
     deleteMany?: PreventivoScalarWhereInput | PreventivoScalarWhereInput[]
-  }
-
-  export type PartecipantiUncheckedUpdateManyWithoutClienteNestedInput = {
-    create?: XOR<PartecipantiCreateWithoutClienteInput, PartecipantiUncheckedCreateWithoutClienteInput> | PartecipantiCreateWithoutClienteInput[] | PartecipantiUncheckedCreateWithoutClienteInput[]
-    connectOrCreate?: PartecipantiCreateOrConnectWithoutClienteInput | PartecipantiCreateOrConnectWithoutClienteInput[]
-    upsert?: PartecipantiUpsertWithWhereUniqueWithoutClienteInput | PartecipantiUpsertWithWhereUniqueWithoutClienteInput[]
-    createMany?: PartecipantiCreateManyClienteInputEnvelope
-    set?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-    disconnect?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-    delete?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-    connect?: PartecipantiWhereUniqueInput | PartecipantiWhereUniqueInput[]
-    update?: PartecipantiUpdateWithWhereUniqueWithoutClienteInput | PartecipantiUpdateWithWhereUniqueWithoutClienteInput[]
-    updateMany?: PartecipantiUpdateManyWithWhereWithoutClienteInput | PartecipantiUpdateManyWithWhereWithoutClienteInput[]
-    deleteMany?: PartecipantiScalarWhereInput | PartecipantiScalarWhereInput[]
   }
 
   export type AssicurazioneCreateNestedManyWithoutFornitoreInput = {
@@ -26814,13 +26506,6 @@ export namespace Prisma {
     connect?: AssicurazioneWhereUniqueInput | AssicurazioneWhereUniqueInput[]
   }
 
-  export type incassi_partecipantiCreateNestedManyWithoutPreventivoInput = {
-    create?: XOR<incassi_partecipantiCreateWithoutPreventivoInput, incassi_partecipantiUncheckedCreateWithoutPreventivoInput> | incassi_partecipantiCreateWithoutPreventivoInput[] | incassi_partecipantiUncheckedCreateWithoutPreventivoInput[]
-    connectOrCreate?: incassi_partecipantiCreateOrConnectWithoutPreventivoInput | incassi_partecipantiCreateOrConnectWithoutPreventivoInput[]
-    createMany?: incassi_partecipantiCreateManyPreventivoInputEnvelope
-    connect?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-  }
-
   export type pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput = {
     create?: XOR<pagamenti_assicurazioniCreateWithoutPreventivoInput, pagamenti_assicurazioniUncheckedCreateWithoutPreventivoInput> | pagamenti_assicurazioniCreateWithoutPreventivoInput[] | pagamenti_assicurazioniUncheckedCreateWithoutPreventivoInput[]
     connectOrCreate?: pagamenti_assicurazioniCreateOrConnectWithoutPreventivoInput | pagamenti_assicurazioniCreateOrConnectWithoutPreventivoInput[]
@@ -26889,13 +26574,6 @@ export namespace Prisma {
     connectOrCreate?: AssicurazioneCreateOrConnectWithoutPreventivoInput | AssicurazioneCreateOrConnectWithoutPreventivoInput[]
     createMany?: AssicurazioneCreateManyPreventivoInputEnvelope
     connect?: AssicurazioneWhereUniqueInput | AssicurazioneWhereUniqueInput[]
-  }
-
-  export type incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput = {
-    create?: XOR<incassi_partecipantiCreateWithoutPreventivoInput, incassi_partecipantiUncheckedCreateWithoutPreventivoInput> | incassi_partecipantiCreateWithoutPreventivoInput[] | incassi_partecipantiUncheckedCreateWithoutPreventivoInput[]
-    connectOrCreate?: incassi_partecipantiCreateOrConnectWithoutPreventivoInput | incassi_partecipantiCreateOrConnectWithoutPreventivoInput[]
-    createMany?: incassi_partecipantiCreateManyPreventivoInputEnvelope
-    connect?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
   }
 
   export type pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput = {
@@ -27001,20 +26679,6 @@ export namespace Prisma {
     update?: AssicurazioneUpdateWithWhereUniqueWithoutPreventivoInput | AssicurazioneUpdateWithWhereUniqueWithoutPreventivoInput[]
     updateMany?: AssicurazioneUpdateManyWithWhereWithoutPreventivoInput | AssicurazioneUpdateManyWithWhereWithoutPreventivoInput[]
     deleteMany?: AssicurazioneScalarWhereInput | AssicurazioneScalarWhereInput[]
-  }
-
-  export type incassi_partecipantiUpdateManyWithoutPreventivoNestedInput = {
-    create?: XOR<incassi_partecipantiCreateWithoutPreventivoInput, incassi_partecipantiUncheckedCreateWithoutPreventivoInput> | incassi_partecipantiCreateWithoutPreventivoInput[] | incassi_partecipantiUncheckedCreateWithoutPreventivoInput[]
-    connectOrCreate?: incassi_partecipantiCreateOrConnectWithoutPreventivoInput | incassi_partecipantiCreateOrConnectWithoutPreventivoInput[]
-    upsert?: incassi_partecipantiUpsertWithWhereUniqueWithoutPreventivoInput | incassi_partecipantiUpsertWithWhereUniqueWithoutPreventivoInput[]
-    createMany?: incassi_partecipantiCreateManyPreventivoInputEnvelope
-    set?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-    disconnect?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-    delete?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-    connect?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-    update?: incassi_partecipantiUpdateWithWhereUniqueWithoutPreventivoInput | incassi_partecipantiUpdateWithWhereUniqueWithoutPreventivoInput[]
-    updateMany?: incassi_partecipantiUpdateManyWithWhereWithoutPreventivoInput | incassi_partecipantiUpdateManyWithWhereWithoutPreventivoInput[]
-    deleteMany?: incassi_partecipantiScalarWhereInput | incassi_partecipantiScalarWhereInput[]
   }
 
   export type pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput = {
@@ -27155,20 +26819,6 @@ export namespace Prisma {
     update?: AssicurazioneUpdateWithWhereUniqueWithoutPreventivoInput | AssicurazioneUpdateWithWhereUniqueWithoutPreventivoInput[]
     updateMany?: AssicurazioneUpdateManyWithWhereWithoutPreventivoInput | AssicurazioneUpdateManyWithWhereWithoutPreventivoInput[]
     deleteMany?: AssicurazioneScalarWhereInput | AssicurazioneScalarWhereInput[]
-  }
-
-  export type incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput = {
-    create?: XOR<incassi_partecipantiCreateWithoutPreventivoInput, incassi_partecipantiUncheckedCreateWithoutPreventivoInput> | incassi_partecipantiCreateWithoutPreventivoInput[] | incassi_partecipantiUncheckedCreateWithoutPreventivoInput[]
-    connectOrCreate?: incassi_partecipantiCreateOrConnectWithoutPreventivoInput | incassi_partecipantiCreateOrConnectWithoutPreventivoInput[]
-    upsert?: incassi_partecipantiUpsertWithWhereUniqueWithoutPreventivoInput | incassi_partecipantiUpsertWithWhereUniqueWithoutPreventivoInput[]
-    createMany?: incassi_partecipantiCreateManyPreventivoInputEnvelope
-    set?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-    disconnect?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-    delete?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-    connect?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-    update?: incassi_partecipantiUpdateWithWhereUniqueWithoutPreventivoInput | incassi_partecipantiUpdateWithWhereUniqueWithoutPreventivoInput[]
-    updateMany?: incassi_partecipantiUpdateManyWithWhereWithoutPreventivoInput | incassi_partecipantiUpdateManyWithWhereWithoutPreventivoInput[]
-    deleteMany?: incassi_partecipantiScalarWhereInput | incassi_partecipantiScalarWhereInput[]
   }
 
   export type pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput = {
@@ -27521,12 +27171,6 @@ export namespace Prisma {
     deleteMany?: pagamenti_voliScalarWhereInput | pagamenti_voliScalarWhereInput[]
   }
 
-  export type ClienteCreateNestedOneWithoutPartecipantiInput = {
-    create?: XOR<ClienteCreateWithoutPartecipantiInput, ClienteUncheckedCreateWithoutPartecipantiInput>
-    connectOrCreate?: ClienteCreateOrConnectWithoutPartecipantiInput
-    connect?: ClienteWhereUniqueInput
-  }
-
   export type PreventivoCreateNestedOneWithoutPartecipantiInput = {
     create?: XOR<PreventivoCreateWithoutPartecipantiInput, PreventivoUncheckedCreateWithoutPartecipantiInput>
     connectOrCreate?: PreventivoCreateOrConnectWithoutPartecipantiInput
@@ -27545,14 +27189,6 @@ export namespace Prisma {
     connectOrCreate?: incassi_partecipantiCreateOrConnectWithoutPartecipanteInput | incassi_partecipantiCreateOrConnectWithoutPartecipanteInput[]
     createMany?: incassi_partecipantiCreateManyPartecipanteInputEnvelope
     connect?: incassi_partecipantiWhereUniqueInput | incassi_partecipantiWhereUniqueInput[]
-  }
-
-  export type ClienteUpdateOneRequiredWithoutPartecipantiNestedInput = {
-    create?: XOR<ClienteCreateWithoutPartecipantiInput, ClienteUncheckedCreateWithoutPartecipantiInput>
-    connectOrCreate?: ClienteCreateOrConnectWithoutPartecipantiInput
-    upsert?: ClienteUpsertWithoutPartecipantiInput
-    connect?: ClienteWhereUniqueInput
-    update?: XOR<XOR<ClienteUpdateToOneWithWhereWithoutPartecipantiInput, ClienteUpdateWithoutPartecipantiInput>, ClienteUncheckedUpdateWithoutPartecipantiInput>
   }
 
   export type PreventivoUpdateOneRequiredWithoutPartecipantiNestedInput = {
@@ -27645,16 +27281,12 @@ export namespace Prisma {
     connect?: PartecipantiWhereUniqueInput
   }
 
-  export type PreventivoCreateNestedOneWithoutIncassi_partecipantiInput = {
-    create?: XOR<PreventivoCreateWithoutIncassi_partecipantiInput, PreventivoUncheckedCreateWithoutIncassi_partecipantiInput>
-    connectOrCreate?: PreventivoCreateOrConnectWithoutIncassi_partecipantiInput
-    connect?: PreventivoWhereUniqueInput
-  }
-
-  export type BancaUpdateOneRequiredWithoutIncassi_partecipantiNestedInput = {
+  export type BancaUpdateOneWithoutIncassi_partecipantiNestedInput = {
     create?: XOR<BancaCreateWithoutIncassi_partecipantiInput, BancaUncheckedCreateWithoutIncassi_partecipantiInput>
     connectOrCreate?: BancaCreateOrConnectWithoutIncassi_partecipantiInput
     upsert?: BancaUpsertWithoutIncassi_partecipantiInput
+    disconnect?: BancaWhereInput | boolean
+    delete?: BancaWhereInput | boolean
     connect?: BancaWhereUniqueInput
     update?: XOR<XOR<BancaUpdateToOneWithWhereWithoutIncassi_partecipantiInput, BancaUpdateWithoutIncassi_partecipantiInput>, BancaUncheckedUpdateWithoutIncassi_partecipantiInput>
   }
@@ -27665,14 +27297,6 @@ export namespace Prisma {
     upsert?: PartecipantiUpsertWithoutIncassi_partecipantiInput
     connect?: PartecipantiWhereUniqueInput
     update?: XOR<XOR<PartecipantiUpdateToOneWithWhereWithoutIncassi_partecipantiInput, PartecipantiUpdateWithoutIncassi_partecipantiInput>, PartecipantiUncheckedUpdateWithoutIncassi_partecipantiInput>
-  }
-
-  export type PreventivoUpdateOneRequiredWithoutIncassi_partecipantiNestedInput = {
-    create?: XOR<PreventivoCreateWithoutIncassi_partecipantiInput, PreventivoUncheckedCreateWithoutIncassi_partecipantiInput>
-    connectOrCreate?: PreventivoCreateOrConnectWithoutIncassi_partecipantiInput
-    upsert?: PreventivoUpsertWithoutIncassi_partecipantiInput
-    connect?: PreventivoWhereUniqueInput
-    update?: XOR<XOR<PreventivoUpdateToOneWithWhereWithoutIncassi_partecipantiInput, PreventivoUpdateWithoutIncassi_partecipantiInput>, PreventivoUncheckedUpdateWithoutIncassi_partecipantiInput>
   }
 
   export type AssicurazioneCreateNestedOneWithoutPagamenti_assicurazioniInput = {
@@ -28059,19 +27683,19 @@ export namespace Prisma {
   export type incassi_partecipantiCreateWithoutBancaInput = {
     id?: string
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
     partecipante: PartecipantiCreateNestedOneWithoutIncassi_partecipantiInput
-    preventivo: PreventivoCreateNestedOneWithoutIncassi_partecipantiInput
   }
 
   export type incassi_partecipantiUncheckedCreateWithoutBancaInput = {
     id?: string
-    id_preventivo: string
     id_partecipante: string
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
   }
 
   export type incassi_partecipantiCreateOrConnectWithoutBancaInput = {
@@ -28185,12 +27809,12 @@ export namespace Prisma {
     OR?: incassi_partecipantiScalarWhereInput[]
     NOT?: incassi_partecipantiScalarWhereInput | incassi_partecipantiScalarWhereInput[]
     id?: StringFilter<"incassi_partecipanti"> | string
-    id_preventivo?: StringFilter<"incassi_partecipanti"> | string
     id_partecipante?: StringFilter<"incassi_partecipanti"> | string
-    id_banca?: StringFilter<"incassi_partecipanti"> | string
+    id_banca?: StringNullableFilter<"incassi_partecipanti"> | string | null
     importo?: DecimalNullableFilter<"incassi_partecipanti"> | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: DecimalNullableFilter<"incassi_partecipanti"> | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: DateTimeNullableFilter<"incassi_partecipanti"> | Date | string | null
     data_incasso?: DateTimeNullableFilter<"incassi_partecipanti"> | Date | string | null
-    note?: StringNullableFilter<"incassi_partecipanti"> | string | null
   }
 
   export type pagamenti_assicurazioniUpsertWithWhereUniqueWithoutBancaInput = {
@@ -28298,7 +27922,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -28328,7 +27951,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -28347,47 +27969,6 @@ export namespace Prisma {
 
   export type PreventivoCreateManyClienteInputEnvelope = {
     data: PreventivoCreateManyClienteInput | PreventivoCreateManyClienteInput[]
-  }
-
-  export type PartecipantiCreateWithoutClienteInput = {
-    id?: string
-    nome?: string | null
-    cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
-    preventivo: PreventivoCreateNestedOneWithoutPartecipantiInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPartecipanteInput
-  }
-
-  export type PartecipantiUncheckedCreateWithoutClienteInput = {
-    id?: string
-    id_preventivo: string
-    nome?: string | null
-    cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPartecipanteInput
-  }
-
-  export type PartecipantiCreateOrConnectWithoutClienteInput = {
-    where: PartecipantiWhereUniqueInput
-    create: XOR<PartecipantiCreateWithoutClienteInput, PartecipantiUncheckedCreateWithoutClienteInput>
-  }
-
-  export type PartecipantiCreateManyClienteInputEnvelope = {
-    data: PartecipantiCreateManyClienteInput | PartecipantiCreateManyClienteInput[]
   }
 
   export type PreventivoUpsertWithWhereUniqueWithoutClienteInput = {
@@ -28427,41 +28008,6 @@ export namespace Prisma {
     brand?: StringNullableFilter<"Preventivo"> | string | null
     feedback?: StringNullableFilter<"Preventivo"> | string | null
     percentuale_ricarico?: DecimalNullableFilter<"Preventivo"> | Decimal | DecimalJsLike | number | string | null
-  }
-
-  export type PartecipantiUpsertWithWhereUniqueWithoutClienteInput = {
-    where: PartecipantiWhereUniqueInput
-    update: XOR<PartecipantiUpdateWithoutClienteInput, PartecipantiUncheckedUpdateWithoutClienteInput>
-    create: XOR<PartecipantiCreateWithoutClienteInput, PartecipantiUncheckedCreateWithoutClienteInput>
-  }
-
-  export type PartecipantiUpdateWithWhereUniqueWithoutClienteInput = {
-    where: PartecipantiWhereUniqueInput
-    data: XOR<PartecipantiUpdateWithoutClienteInput, PartecipantiUncheckedUpdateWithoutClienteInput>
-  }
-
-  export type PartecipantiUpdateManyWithWhereWithoutClienteInput = {
-    where: PartecipantiScalarWhereInput
-    data: XOR<PartecipantiUpdateManyMutationInput, PartecipantiUncheckedUpdateManyWithoutClienteInput>
-  }
-
-  export type PartecipantiScalarWhereInput = {
-    AND?: PartecipantiScalarWhereInput | PartecipantiScalarWhereInput[]
-    OR?: PartecipantiScalarWhereInput[]
-    NOT?: PartecipantiScalarWhereInput | PartecipantiScalarWhereInput[]
-    id?: StringFilter<"Partecipanti"> | string
-    id_cliente?: StringFilter<"Partecipanti"> | string
-    id_preventivo?: StringFilter<"Partecipanti"> | string
-    nome?: StringNullableFilter<"Partecipanti"> | string | null
-    cognome?: StringNullableFilter<"Partecipanti"> | string | null
-    data_di_nascita?: DateTimeNullableFilter<"Partecipanti"> | Date | string | null
-    luogo_nascita?: StringNullableFilter<"Partecipanti"> | string | null
-    provincia_nascita?: StringNullableFilter<"Partecipanti"> | string | null
-    nazionalita?: StringNullableFilter<"Partecipanti"> | string | null
-    sesso?: StringNullableFilter<"Partecipanti"> | string | null
-    numero_passaporto?: StringNullableFilter<"Partecipanti"> | string | null
-    data_scadenza?: DateTimeNullableFilter<"Partecipanti"> | Date | string | null
-    note?: StringNullableFilter<"Partecipanti"> | string | null
   }
 
   export type AssicurazioneCreateWithoutFornitoreInput = {
@@ -28671,7 +28217,6 @@ export namespace Prisma {
     data_scadenza_passaporto?: Date | string | null
     provincia?: string | null
     note?: string | null
-    partecipanti?: PartecipantiCreateNestedManyWithoutClienteInput
   }
 
   export type ClienteUncheckedCreateWithoutPreventiviInput = {
@@ -28696,7 +28241,6 @@ export namespace Prisma {
     data_scadenza_passaporto?: Date | string | null
     provincia?: string | null
     note?: string | null
-    partecipanti?: PartecipantiUncheckedCreateNestedManyWithoutClienteInput
   }
 
   export type ClienteCreateOrConnectWithoutPreventiviInput = {
@@ -28737,33 +28281,6 @@ export namespace Prisma {
 
   export type AssicurazioneCreateManyPreventivoInputEnvelope = {
     data: AssicurazioneCreateManyPreventivoInput | AssicurazioneCreateManyPreventivoInput[]
-  }
-
-  export type incassi_partecipantiCreateWithoutPreventivoInput = {
-    id?: string
-    importo?: Decimal | DecimalJsLike | number | string | null
-    data_incasso?: Date | string | null
-    note?: string | null
-    banca: BancaCreateNestedOneWithoutIncassi_partecipantiInput
-    partecipante: PartecipantiCreateNestedOneWithoutIncassi_partecipantiInput
-  }
-
-  export type incassi_partecipantiUncheckedCreateWithoutPreventivoInput = {
-    id?: string
-    id_partecipante: string
-    id_banca: string
-    importo?: Decimal | DecimalJsLike | number | string | null
-    data_incasso?: Date | string | null
-    note?: string | null
-  }
-
-  export type incassi_partecipantiCreateOrConnectWithoutPreventivoInput = {
-    where: incassi_partecipantiWhereUniqueInput
-    create: XOR<incassi_partecipantiCreateWithoutPreventivoInput, incassi_partecipantiUncheckedCreateWithoutPreventivoInput>
-  }
-
-  export type incassi_partecipantiCreateManyPreventivoInputEnvelope = {
-    data: incassi_partecipantiCreateManyPreventivoInput | incassi_partecipantiCreateManyPreventivoInput[]
   }
 
   export type pagamenti_assicurazioniCreateWithoutPreventivoInput = {
@@ -28851,31 +28368,15 @@ export namespace Prisma {
     id?: string
     nome?: string | null
     cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
-    cliente: ClienteCreateNestedOneWithoutPartecipantiInput
+    tot_quota?: Decimal | DecimalJsLike | number | string | null
     incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPartecipanteInput
   }
 
   export type PartecipantiUncheckedCreateWithoutPreventivoInput = {
     id?: string
-    id_cliente: string
     nome?: string | null
     cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
+    tot_quota?: Decimal | DecimalJsLike | number | string | null
     incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPartecipanteInput
   }
 
@@ -29064,7 +28565,6 @@ export namespace Prisma {
     data_scadenza_passaporto?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     provincia?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
-    partecipanti?: PartecipantiUpdateManyWithoutClienteNestedInput
   }
 
   export type ClienteUncheckedUpdateWithoutPreventiviInput = {
@@ -29089,7 +28589,6 @@ export namespace Prisma {
     data_scadenza_passaporto?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     provincia?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
-    partecipanti?: PartecipantiUncheckedUpdateManyWithoutClienteNestedInput
   }
 
   export type AssicurazioneUpsertWithWhereUniqueWithoutPreventivoInput = {
@@ -29106,22 +28605,6 @@ export namespace Prisma {
   export type AssicurazioneUpdateManyWithWhereWithoutPreventivoInput = {
     where: AssicurazioneScalarWhereInput
     data: XOR<AssicurazioneUpdateManyMutationInput, AssicurazioneUncheckedUpdateManyWithoutPreventivoInput>
-  }
-
-  export type incassi_partecipantiUpsertWithWhereUniqueWithoutPreventivoInput = {
-    where: incassi_partecipantiWhereUniqueInput
-    update: XOR<incassi_partecipantiUpdateWithoutPreventivoInput, incassi_partecipantiUncheckedUpdateWithoutPreventivoInput>
-    create: XOR<incassi_partecipantiCreateWithoutPreventivoInput, incassi_partecipantiUncheckedCreateWithoutPreventivoInput>
-  }
-
-  export type incassi_partecipantiUpdateWithWhereUniqueWithoutPreventivoInput = {
-    where: incassi_partecipantiWhereUniqueInput
-    data: XOR<incassi_partecipantiUpdateWithoutPreventivoInput, incassi_partecipantiUncheckedUpdateWithoutPreventivoInput>
-  }
-
-  export type incassi_partecipantiUpdateManyWithWhereWithoutPreventivoInput = {
-    where: incassi_partecipantiScalarWhereInput
-    data: XOR<incassi_partecipantiUpdateManyMutationInput, incassi_partecipantiUncheckedUpdateManyWithoutPreventivoInput>
   }
 
   export type pagamenti_assicurazioniUpsertWithWhereUniqueWithoutPreventivoInput = {
@@ -29186,6 +28669,17 @@ export namespace Prisma {
   export type PartecipantiUpdateManyWithWhereWithoutPreventivoInput = {
     where: PartecipantiScalarWhereInput
     data: XOR<PartecipantiUpdateManyMutationInput, PartecipantiUncheckedUpdateManyWithoutPreventivoInput>
+  }
+
+  export type PartecipantiScalarWhereInput = {
+    AND?: PartecipantiScalarWhereInput | PartecipantiScalarWhereInput[]
+    OR?: PartecipantiScalarWhereInput[]
+    NOT?: PartecipantiScalarWhereInput | PartecipantiScalarWhereInput[]
+    id?: StringFilter<"Partecipanti"> | string
+    id_preventivo?: StringFilter<"Partecipanti"> | string
+    nome?: StringNullableFilter<"Partecipanti"> | string | null
+    cognome?: StringNullableFilter<"Partecipanti"> | string | null
+    tot_quota?: DecimalNullableFilter<"Partecipanti"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type PraticheUpsertWithWhereUniqueWithoutPreventivoInput = {
@@ -29342,7 +28836,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -29372,7 +28865,6 @@ export namespace Prisma {
     brand?: string | null
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -29472,7 +28964,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -29502,7 +28993,6 @@ export namespace Prisma {
     brand?: NullableStringFieldUpdateOperationsInput | string | null
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -29585,7 +29075,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -29615,7 +29104,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -29736,7 +29224,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -29766,7 +29253,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -29833,7 +29319,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -29863,7 +29348,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -29963,7 +29447,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -29993,7 +29476,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -30020,61 +29502,6 @@ export namespace Prisma {
     data: XOR<pagamenti_voliUpdateManyMutationInput, pagamenti_voliUncheckedUpdateManyWithoutVoloInput>
   }
 
-  export type ClienteCreateWithoutPartecipantiInput = {
-    id?: string
-    nome?: string | null
-    cognome?: string | null
-    tel?: string | null
-    indirizzo?: string | null
-    cap?: string | null
-    citta?: string | null
-    cf?: string | null
-    email: string
-    tipo?: string | null
-    provenienza?: string | null
-    collegato?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza_passaporto?: Date | string | null
-    provincia?: string | null
-    note?: string | null
-    preventivi?: PreventivoCreateNestedManyWithoutClienteInput
-  }
-
-  export type ClienteUncheckedCreateWithoutPartecipantiInput = {
-    id?: string
-    nome?: string | null
-    cognome?: string | null
-    tel?: string | null
-    indirizzo?: string | null
-    cap?: string | null
-    citta?: string | null
-    cf?: string | null
-    email: string
-    tipo?: string | null
-    provenienza?: string | null
-    collegato?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza_passaporto?: Date | string | null
-    provincia?: string | null
-    note?: string | null
-    preventivi?: PreventivoUncheckedCreateNestedManyWithoutClienteInput
-  }
-
-  export type ClienteCreateOrConnectWithoutPartecipantiInput = {
-    where: ClienteWhereUniqueInput
-    create: XOR<ClienteCreateWithoutPartecipantiInput, ClienteUncheckedCreateWithoutPartecipantiInput>
-  }
-
   export type PreventivoCreateWithoutPartecipantiInput = {
     id?: string
     data?: Date | string
@@ -30094,7 +29521,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -30124,7 +29550,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -30143,19 +29568,19 @@ export namespace Prisma {
   export type incassi_partecipantiCreateWithoutPartecipanteInput = {
     id?: string
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
-    banca: BancaCreateNestedOneWithoutIncassi_partecipantiInput
-    preventivo: PreventivoCreateNestedOneWithoutIncassi_partecipantiInput
+    banca?: BancaCreateNestedOneWithoutIncassi_partecipantiInput
   }
 
   export type incassi_partecipantiUncheckedCreateWithoutPartecipanteInput = {
     id?: string
-    id_preventivo: string
-    id_banca: string
+    id_banca?: string | null
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
   }
 
   export type incassi_partecipantiCreateOrConnectWithoutPartecipanteInput = {
@@ -30165,67 +29590,6 @@ export namespace Prisma {
 
   export type incassi_partecipantiCreateManyPartecipanteInputEnvelope = {
     data: incassi_partecipantiCreateManyPartecipanteInput | incassi_partecipantiCreateManyPartecipanteInput[]
-  }
-
-  export type ClienteUpsertWithoutPartecipantiInput = {
-    update: XOR<ClienteUpdateWithoutPartecipantiInput, ClienteUncheckedUpdateWithoutPartecipantiInput>
-    create: XOR<ClienteCreateWithoutPartecipantiInput, ClienteUncheckedCreateWithoutPartecipantiInput>
-    where?: ClienteWhereInput
-  }
-
-  export type ClienteUpdateToOneWithWhereWithoutPartecipantiInput = {
-    where?: ClienteWhereInput
-    data: XOR<ClienteUpdateWithoutPartecipantiInput, ClienteUncheckedUpdateWithoutPartecipantiInput>
-  }
-
-  export type ClienteUpdateWithoutPartecipantiInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    tel?: NullableStringFieldUpdateOperationsInput | string | null
-    indirizzo?: NullableStringFieldUpdateOperationsInput | string | null
-    cap?: NullableStringFieldUpdateOperationsInput | string | null
-    citta?: NullableStringFieldUpdateOperationsInput | string | null
-    cf?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    tipo?: NullableStringFieldUpdateOperationsInput | string | null
-    provenienza?: NullableStringFieldUpdateOperationsInput | string | null
-    collegato?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza_passaporto?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    provincia?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    preventivi?: PreventivoUpdateManyWithoutClienteNestedInput
-  }
-
-  export type ClienteUncheckedUpdateWithoutPartecipantiInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    tel?: NullableStringFieldUpdateOperationsInput | string | null
-    indirizzo?: NullableStringFieldUpdateOperationsInput | string | null
-    cap?: NullableStringFieldUpdateOperationsInput | string | null
-    citta?: NullableStringFieldUpdateOperationsInput | string | null
-    cf?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    tipo?: NullableStringFieldUpdateOperationsInput | string | null
-    provenienza?: NullableStringFieldUpdateOperationsInput | string | null
-    collegato?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza_passaporto?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    provincia?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    preventivi?: PreventivoUncheckedUpdateManyWithoutClienteNestedInput
   }
 
   export type PreventivoUpsertWithoutPartecipantiInput = {
@@ -30258,7 +29622,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -30288,7 +29651,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -30334,7 +29696,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -30364,7 +29725,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -30410,7 +29770,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -30440,7 +29799,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -30470,7 +29828,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -30500,7 +29857,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -30546,7 +29902,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -30576,7 +29931,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -30606,7 +29960,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
@@ -30636,7 +29989,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
@@ -30682,7 +30034,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -30712,7 +30063,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -30748,102 +30098,21 @@ export namespace Prisma {
     id?: string
     nome?: string | null
     cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
-    cliente: ClienteCreateNestedOneWithoutPartecipantiInput
+    tot_quota?: Decimal | DecimalJsLike | number | string | null
     preventivo: PreventivoCreateNestedOneWithoutPartecipantiInput
   }
 
   export type PartecipantiUncheckedCreateWithoutIncassi_partecipantiInput = {
     id?: string
-    id_cliente: string
     id_preventivo: string
     nome?: string | null
     cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
+    tot_quota?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type PartecipantiCreateOrConnectWithoutIncassi_partecipantiInput = {
     where: PartecipantiWhereUniqueInput
     create: XOR<PartecipantiCreateWithoutIncassi_partecipantiInput, PartecipantiUncheckedCreateWithoutIncassi_partecipantiInput>
-  }
-
-  export type PreventivoCreateWithoutIncassi_partecipantiInput = {
-    id?: string
-    data?: Date | string
-    destinazione?: string | null
-    data_partenza?: Date | string | null
-    adulti?: number | null
-    bambini?: number | null
-    tipo_viaggio?: string | null
-    numero_preventivo?: string | null
-    operatore?: string | null
-    riferimento?: string | null
-    note?: string | null
-    note_operative?: string | null
-    stato?: string | null
-    brand?: string | null
-    feedback?: string | null
-    percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
-    cliente: ClienteCreateNestedOneWithoutPreventiviInput
-    assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
-    pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
-    pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
-    partecipanti?: PartecipantiCreateNestedManyWithoutPreventivoInput
-    pratiche?: PraticheCreateNestedManyWithoutPreventivoInput
-    preventivoAlCliente?: PreventivoAlClienteCreateNestedManyWithoutPreventivoInput
-    preventivoAlClienteRow?: PreventivoAlClienteRowCreateNestedManyWithoutPreventivoInput
-    serviziATerra?: ServiziATerraCreateNestedManyWithoutPreventivoInput
-    voli?: VoloCreateNestedManyWithoutPreventivoInput
-  }
-
-  export type PreventivoUncheckedCreateWithoutIncassi_partecipantiInput = {
-    id?: string
-    id_cliente: string
-    data?: Date | string
-    destinazione?: string | null
-    data_partenza?: Date | string | null
-    adulti?: number | null
-    bambini?: number | null
-    tipo_viaggio?: string | null
-    numero_preventivo?: string | null
-    operatore?: string | null
-    riferimento?: string | null
-    note?: string | null
-    note_operative?: string | null
-    stato?: string | null
-    brand?: string | null
-    feedback?: string | null
-    percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
-    assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
-    pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
-    pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
-    partecipanti?: PartecipantiUncheckedCreateNestedManyWithoutPreventivoInput
-    pratiche?: PraticheUncheckedCreateNestedManyWithoutPreventivoInput
-    preventivoAlCliente?: PreventivoAlClienteUncheckedCreateNestedManyWithoutPreventivoInput
-    preventivoAlClienteRow?: PreventivoAlClienteRowUncheckedCreateNestedManyWithoutPreventivoInput
-    serviziATerra?: ServiziATerraUncheckedCreateNestedManyWithoutPreventivoInput
-    voli?: VoloUncheckedCreateNestedManyWithoutPreventivoInput
-  }
-
-  export type PreventivoCreateOrConnectWithoutIncassi_partecipantiInput = {
-    where: PreventivoWhereUniqueInput
-    create: XOR<PreventivoCreateWithoutIncassi_partecipantiInput, PreventivoUncheckedCreateWithoutIncassi_partecipantiInput>
   }
 
   export type BancaUpsertWithoutIncassi_partecipantiInput = {
@@ -30888,103 +30157,16 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    cliente?: ClienteUpdateOneRequiredWithoutPartecipantiNestedInput
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     preventivo?: PreventivoUpdateOneRequiredWithoutPartecipantiNestedInput
   }
 
   export type PartecipantiUncheckedUpdateWithoutIncassi_partecipantiInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_cliente?: StringFieldUpdateOperationsInput | string
     id_preventivo?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type PreventivoUpsertWithoutIncassi_partecipantiInput = {
-    update: XOR<PreventivoUpdateWithoutIncassi_partecipantiInput, PreventivoUncheckedUpdateWithoutIncassi_partecipantiInput>
-    create: XOR<PreventivoCreateWithoutIncassi_partecipantiInput, PreventivoUncheckedCreateWithoutIncassi_partecipantiInput>
-    where?: PreventivoWhereInput
-  }
-
-  export type PreventivoUpdateToOneWithWhereWithoutIncassi_partecipantiInput = {
-    where?: PreventivoWhereInput
-    data: XOR<PreventivoUpdateWithoutIncassi_partecipantiInput, PreventivoUncheckedUpdateWithoutIncassi_partecipantiInput>
-  }
-
-  export type PreventivoUpdateWithoutIncassi_partecipantiInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    data?: DateTimeFieldUpdateOperationsInput | Date | string
-    destinazione?: NullableStringFieldUpdateOperationsInput | string | null
-    data_partenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adulti?: NullableIntFieldUpdateOperationsInput | number | null
-    bambini?: NullableIntFieldUpdateOperationsInput | number | null
-    tipo_viaggio?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_preventivo?: NullableStringFieldUpdateOperationsInput | string | null
-    operatore?: NullableStringFieldUpdateOperationsInput | string | null
-    riferimento?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    note_operative?: NullableStringFieldUpdateOperationsInput | string | null
-    stato?: NullableStringFieldUpdateOperationsInput | string | null
-    brand?: NullableStringFieldUpdateOperationsInput | string | null
-    feedback?: NullableStringFieldUpdateOperationsInput | string | null
-    percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
-    assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
-    pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
-    pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
-    partecipanti?: PartecipantiUpdateManyWithoutPreventivoNestedInput
-    pratiche?: PraticheUpdateManyWithoutPreventivoNestedInput
-    preventivoAlCliente?: PreventivoAlClienteUpdateManyWithoutPreventivoNestedInput
-    preventivoAlClienteRow?: PreventivoAlClienteRowUpdateManyWithoutPreventivoNestedInput
-    serviziATerra?: ServiziATerraUpdateManyWithoutPreventivoNestedInput
-    voli?: VoloUpdateManyWithoutPreventivoNestedInput
-  }
-
-  export type PreventivoUncheckedUpdateWithoutIncassi_partecipantiInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    id_cliente?: StringFieldUpdateOperationsInput | string
-    data?: DateTimeFieldUpdateOperationsInput | Date | string
-    destinazione?: NullableStringFieldUpdateOperationsInput | string | null
-    data_partenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adulti?: NullableIntFieldUpdateOperationsInput | number | null
-    bambini?: NullableIntFieldUpdateOperationsInput | number | null
-    tipo_viaggio?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_preventivo?: NullableStringFieldUpdateOperationsInput | string | null
-    operatore?: NullableStringFieldUpdateOperationsInput | string | null
-    riferimento?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    note_operative?: NullableStringFieldUpdateOperationsInput | string | null
-    stato?: NullableStringFieldUpdateOperationsInput | string | null
-    brand?: NullableStringFieldUpdateOperationsInput | string | null
-    feedback?: NullableStringFieldUpdateOperationsInput | string | null
-    percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
-    pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
-    pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
-    partecipanti?: PartecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
-    pratiche?: PraticheUncheckedUpdateManyWithoutPreventivoNestedInput
-    preventivoAlCliente?: PreventivoAlClienteUncheckedUpdateManyWithoutPreventivoNestedInput
-    preventivoAlClienteRow?: PreventivoAlClienteRowUncheckedUpdateManyWithoutPreventivoNestedInput
-    serviziATerra?: ServiziATerraUncheckedUpdateManyWithoutPreventivoNestedInput
-    voli?: VoloUncheckedUpdateManyWithoutPreventivoNestedInput
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type AssicurazioneCreateWithoutPagamenti_assicurazioniInput = {
@@ -31058,7 +30240,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
     partecipanti?: PartecipantiCreateNestedManyWithoutPreventivoInput
@@ -31088,7 +30269,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
     partecipanti?: PartecipantiUncheckedCreateNestedManyWithoutPreventivoInput
@@ -31198,7 +30378,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
     partecipanti?: PartecipantiUpdateManyWithoutPreventivoNestedInput
@@ -31228,7 +30407,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
     partecipanti?: PartecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -31279,7 +30457,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliCreateNestedManyWithoutPreventivoInput
     partecipanti?: PartecipantiCreateNestedManyWithoutPreventivoInput
@@ -31309,7 +30486,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_voli?: pagamenti_voliUncheckedCreateNestedManyWithoutPreventivoInput
     partecipanti?: PartecipantiUncheckedCreateNestedManyWithoutPreventivoInput
@@ -31413,7 +30589,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
     partecipanti?: PartecipantiUpdateManyWithoutPreventivoNestedInput
@@ -31443,7 +30618,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
     partecipanti?: PartecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -31531,7 +30705,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     cliente: ClienteCreateNestedOneWithoutPreventiviInput
     assicurazioni?: AssicurazioneCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraCreateNestedManyWithoutPreventivoInput
     partecipanti?: PartecipantiCreateNestedManyWithoutPreventivoInput
@@ -31561,7 +30734,6 @@ export namespace Prisma {
     feedback?: string | null
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedCreateNestedManyWithoutPreventivoInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedCreateNestedManyWithoutPreventivoInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedCreateNestedManyWithoutPreventivoInput
     partecipanti?: PartecipantiUncheckedCreateNestedManyWithoutPreventivoInput
@@ -31665,7 +30837,6 @@ export namespace Prisma {
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cliente?: ClienteUpdateOneRequiredWithoutPreventiviNestedInput
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     partecipanti?: PartecipantiUpdateManyWithoutPreventivoNestedInput
@@ -31695,7 +30866,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     partecipanti?: PartecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -31795,11 +30965,11 @@ export namespace Prisma {
 
   export type incassi_partecipantiCreateManyBancaInput = {
     id?: string
-    id_preventivo: string
     id_partecipante: string
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
   }
 
   export type pagamenti_assicurazioniCreateManyBancaInput = {
@@ -31832,28 +31002,28 @@ export namespace Prisma {
   export type incassi_partecipantiUpdateWithoutBancaInput = {
     id?: StringFieldUpdateOperationsInput | string
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
     partecipante?: PartecipantiUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
-    preventivo?: PreventivoUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
   }
 
   export type incassi_partecipantiUncheckedUpdateWithoutBancaInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_preventivo?: StringFieldUpdateOperationsInput | string
     id_partecipante?: StringFieldUpdateOperationsInput | string
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type incassi_partecipantiUncheckedUpdateManyWithoutBancaInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_preventivo?: StringFieldUpdateOperationsInput | string
     id_partecipante?: StringFieldUpdateOperationsInput | string
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type pagamenti_assicurazioniUpdateWithoutBancaInput = {
@@ -31956,21 +31126,6 @@ export namespace Prisma {
     percentuale_ricarico?: Decimal | DecimalJsLike | number | string | null
   }
 
-  export type PartecipantiCreateManyClienteInput = {
-    id?: string
-    id_preventivo: string
-    nome?: string | null
-    cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
-  }
-
   export type PreventivoUpdateWithoutClienteInput = {
     id?: StringFieldUpdateOperationsInput | string
     data?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31989,7 +31144,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUpdateManyWithoutPreventivoNestedInput
@@ -32019,7 +31173,6 @@ export namespace Prisma {
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assicurazioni?: AssicurazioneUncheckedUpdateManyWithoutPreventivoNestedInput
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_assicurazioni?: pagamenti_assicurazioniUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_servizi_a_terra?: pagamenti_servizi_a_terraUncheckedUpdateManyWithoutPreventivoNestedInput
     pagamenti_voli?: pagamenti_voliUncheckedUpdateManyWithoutPreventivoNestedInput
@@ -32048,53 +31201,6 @@ export namespace Prisma {
     brand?: NullableStringFieldUpdateOperationsInput | string | null
     feedback?: NullableStringFieldUpdateOperationsInput | string | null
     percentuale_ricarico?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-  }
-
-  export type PartecipantiUpdateWithoutClienteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    preventivo?: PreventivoUpdateOneRequiredWithoutPartecipantiNestedInput
-    incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPartecipanteNestedInput
-  }
-
-  export type PartecipantiUncheckedUpdateWithoutClienteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    id_preventivo?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPartecipanteNestedInput
-  }
-
-  export type PartecipantiUncheckedUpdateManyWithoutClienteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    id_preventivo?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AssicurazioneCreateManyFornitoreInput = {
@@ -32259,15 +31365,6 @@ export namespace Prisma {
     note?: string | null
   }
 
-  export type incassi_partecipantiCreateManyPreventivoInput = {
-    id?: string
-    id_partecipante: string
-    id_banca: string
-    importo?: Decimal | DecimalJsLike | number | string | null
-    data_incasso?: Date | string | null
-    note?: string | null
-  }
-
   export type pagamenti_assicurazioniCreateManyPreventivoInput = {
     id?: string
     id_assicurazione: string
@@ -32297,17 +31394,9 @@ export namespace Prisma {
 
   export type PartecipantiCreateManyPreventivoInput = {
     id?: string
-    id_cliente: string
     nome?: string | null
     cognome?: string | null
-    data_di_nascita?: Date | string | null
-    luogo_nascita?: string | null
-    provincia_nascita?: string | null
-    nazionalita?: string | null
-    sesso?: string | null
-    numero_passaporto?: string | null
-    data_scadenza?: Date | string | null
-    note?: string | null
+    tot_quota?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type PraticheCreateManyPreventivoInput = {
@@ -32392,33 +31481,6 @@ export namespace Prisma {
     data_inizio_copertura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_fine_copertura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     numero_polizza?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type incassi_partecipantiUpdateWithoutPreventivoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    banca?: BancaUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
-    partecipante?: PartecipantiUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
-  }
-
-  export type incassi_partecipantiUncheckedUpdateWithoutPreventivoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    id_partecipante?: StringFieldUpdateOperationsInput | string
-    id_banca?: StringFieldUpdateOperationsInput | string
-    importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type incassi_partecipantiUncheckedUpdateManyWithoutPreventivoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    id_partecipante?: StringFieldUpdateOperationsInput | string
-    id_banca?: StringFieldUpdateOperationsInput | string
-    importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -32507,47 +31569,23 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    cliente?: ClienteUpdateOneRequiredWithoutPartecipantiNestedInput
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     incassi_partecipanti?: incassi_partecipantiUpdateManyWithoutPartecipanteNestedInput
   }
 
   export type PartecipantiUncheckedUpdateWithoutPreventivoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_cliente?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     incassi_partecipanti?: incassi_partecipantiUncheckedUpdateManyWithoutPartecipanteNestedInput
   }
 
   export type PartecipantiUncheckedUpdateManyWithoutPreventivoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_cliente?: StringFieldUpdateOperationsInput | string
     nome?: NullableStringFieldUpdateOperationsInput | string | null
     cognome?: NullableStringFieldUpdateOperationsInput | string | null
-    data_di_nascita?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    luogo_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    provincia_nascita?: NullableStringFieldUpdateOperationsInput | string | null
-    nazionalita?: NullableStringFieldUpdateOperationsInput | string | null
-    sesso?: NullableStringFieldUpdateOperationsInput | string | null
-    numero_passaporto?: NullableStringFieldUpdateOperationsInput | string | null
-    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    tot_quota?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type PraticheUpdateWithoutPreventivoInput = {
@@ -32805,38 +31843,38 @@ export namespace Prisma {
 
   export type incassi_partecipantiCreateManyPartecipanteInput = {
     id?: string
-    id_preventivo: string
-    id_banca: string
+    id_banca?: string | null
     importo?: Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: Date | string | null
     data_incasso?: Date | string | null
-    note?: string | null
   }
 
   export type incassi_partecipantiUpdateWithoutPartecipanteInput = {
     id?: StringFieldUpdateOperationsInput | string
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    banca?: BancaUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
-    preventivo?: PreventivoUpdateOneRequiredWithoutIncassi_partecipantiNestedInput
+    banca?: BancaUpdateOneWithoutIncassi_partecipantiNestedInput
   }
 
   export type incassi_partecipantiUncheckedUpdateWithoutPartecipanteInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_preventivo?: StringFieldUpdateOperationsInput | string
-    id_banca?: StringFieldUpdateOperationsInput | string
+    id_banca?: NullableStringFieldUpdateOperationsInput | string | null
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type incassi_partecipantiUncheckedUpdateManyWithoutPartecipanteInput = {
     id?: StringFieldUpdateOperationsInput | string
-    id_preventivo?: StringFieldUpdateOperationsInput | string
-    id_banca?: StringFieldUpdateOperationsInput | string
+    id_banca?: NullableStringFieldUpdateOperationsInput | string | null
     importo?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    importo_in_valuta?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    data_scadenza?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_incasso?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

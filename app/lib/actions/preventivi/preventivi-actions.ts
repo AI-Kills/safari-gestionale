@@ -17,6 +17,9 @@ import {
 import { createServizioATerra } from '../servizi-a-terra/servizi-a-terra-actions';
 import { createVolo } from '../voli/voli-actions';
 import { createAssicurazione } from '../assicurazioni/assicurazioni-actions';
+import { createPartecipante } from '../partecipanti/partecipanti-actions';
+import { createIncassoPartecipante } from '../partecipanti/incassi-partecipanti-actions';
+import { getBancaByNome } from '../banche/banche-actions';
 import { createPreventivoAlClienteRow } from './preventivi-al-cliente-actions';
 
 export async function createPreventivo(data: any): Promise<ApiResponse<PreventivoType>> {
@@ -101,6 +104,15 @@ export async function getPreventivo(id: string): Promise<any | null> {
           include: {
             rows: true
           }
+        },
+        partecipanti: {
+          include: {
+            incassi_partecipanti: {
+              include: {
+                banche: true
+              }
+            }
+          }
         }
       }
     });
@@ -136,6 +148,15 @@ export async function getPreventivoByNumero(numeroPreventivo: string): Promise<a
         preventiviAlCliente: {
           include: {
             rows: true
+          }
+        },
+        partecipanti: {
+          include: {
+            incassi_partecipanti: {
+              include: {
+                banche: true
+              }
+            }
           }
         }
       }
@@ -358,7 +379,54 @@ export async function submitCreatePreventivoGI(data: any): Promise<ApiResponse> 
       }
     }
 
-    // 6. Crea il preventivo al cliente
+    // 6. Crea i partecipanti
+    console.log('🏗️ Creating partecipanti:', data.partecipanti?.length || 0);
+    if (data.partecipanti && data.partecipanti.length > 0) {
+      for (const partecipante of data.partecipanti) {
+        console.log(`Creating partecipante:`, partecipante);
+        const partecipanteData = { ...partecipante, id_preventivo: result.id };
+        const partecipanteResult = await createPartecipante(partecipanteData);
+        if (!partecipanteResult.success) {
+          console.error(`Failed to create partecipante:`, partecipanteResult);
+          throw new Error(`Errore nella creazione del partecipante: ${partecipanteResult.error || 'Errore sconosciuto'}`);
+        }
+
+        // Crea gli incassi del partecipante se presenti
+        if (partecipante.incassi && partecipante.incassi.length > 0) {
+          console.log(`Creating ${partecipante.incassi.length} incassi for partecipante`);
+                     for (const incasso of partecipante.incassi) {
+             console.log(`Creating incasso:`, incasso);
+             
+             // Trova l'ID della banca se il nome è fornito
+             let id_banca = null;
+             if (incasso.banca && incasso.banca.trim() !== '') {
+               const bancaResult = await getBancaByNome(incasso.banca);
+               if (bancaResult.success && bancaResult.values) {
+                 id_banca = bancaResult.values.id;
+               } else {
+                 console.warn(`Banca '${incasso.banca}' non trovata, incasso salvato senza banca`);
+               }
+             }
+
+             const incassoData = { 
+               id_partecipante: partecipanteResult.data!.id,
+               id_banca: id_banca,
+               importo: incasso.importo_in_euro,
+               importo_in_valuta: incasso.importo_in_valuta,
+               data_scadenza: incasso.data_scadenza ? new Date(incasso.data_scadenza) : undefined,
+               data_incasso: incasso.data_pagamento ? new Date(incasso.data_pagamento) : undefined
+             };
+             const incassoResult = await createIncassoPartecipante(incassoData);
+            if (!incassoResult.success) {
+              console.error(`Failed to create incasso for partecipante:`, incassoResult);
+              throw new Error(`Errore nella creazione dell'incasso del partecipante: ${incassoResult.error || 'Errore sconosciuto'}`);
+            }
+          }
+        }
+      }
+    }
+
+    // 7. Crea il preventivo al cliente
     console.log('🏗️ Creating preventivo al cliente');
     if (data.preventivoAlCliente) {
       await updatePreventivoAlClienteCompleto(result.id, data.preventivoAlCliente);
@@ -402,7 +470,10 @@ export async function updatePreventivoCompleto(data: any): Promise<ApiResponse> 
     // 5. Gestisci assicurazioni (elimina tutti e ricrea)
     await updateAssicurazioniCompleto(data.preventivo.id, data.assicurazioni || []);
     
-    // 6. Gestisci preventivo al cliente
+    // 6. Gestisci partecipanti (elimina tutti e ricrea)
+    await updatePartecipantiCompleto(data.preventivo.id, data.partecipanti || []);
+    
+    // 7. Gestisci preventivo al cliente
     await updatePreventivoAlClienteCompleto(data.preventivo.id, data.preventivoAlCliente);
 
     revalidatePath('/dashboard/preventivi-table');
@@ -534,6 +605,91 @@ async function updateAssicurazioniCompleto(preventivoId: string, assicurazioni: 
       console.log(`Successfully created assicurazione ${i + 1}`);
     } catch (error) {
       console.error(`Error creating assicurazione ${i + 1}:`, error);
+      throw error;
+    }
+  }
+}
+
+async function updatePartecipantiCompleto(preventivoId: string, partecipanti: any[]): Promise<void> {
+  console.log(`Updating partecipanti: ${partecipanti.length} partecipanti`);
+  
+  // Prima trova tutti i partecipanti esistenti per eliminare gli incassi
+  const existingPartecipanti = await prisma.partecipanti.findMany({
+    where: { id_preventivo: preventivoId },
+    select: { id: true }
+  });
+
+  // Elimina tutti gli incassi dei partecipanti esistenti
+  if (existingPartecipanti.length > 0) {
+    await prisma.incassi_partecipanti.deleteMany({
+      where: {
+        id_partecipante: {
+          in: existingPartecipanti.map(p => p.id)
+        }
+      }
+    });
+  }
+
+  // Ora elimina tutti i partecipanti esistenti
+  await prisma.partecipanti.deleteMany({
+    where: { id_preventivo: preventivoId }
+  });
+
+  // Crea i nuovi partecipanti
+  for (let i = 0; i < partecipanti.length; i++) {
+    const partecipante = partecipanti[i];
+    console.log(`Creating partecipante ${i + 1}/${partecipanti.length}:`, partecipante);
+    
+    try {
+      const partecipanteData = { ...partecipante, id_preventivo: preventivoId };
+      const result = await createPartecipante(partecipanteData);
+      if (!result.success) {
+        console.error(`Failed to create partecipante ${i + 1}:`, result);
+        throw new Error(`Errore nella creazione del partecipante ${i + 1}: ${result.error || 'Errore sconosciuto'}`);
+      }
+      console.log(`Successfully created partecipante ${i + 1}`);
+
+      // Crea gli incassi del partecipante se presenti
+      if (partecipante.incassi && partecipante.incassi.length > 0) {
+        console.log(`Creating ${partecipante.incassi.length} incassi for partecipante ${i + 1}`);
+        for (let j = 0; j < partecipante.incassi.length; j++) {
+          const incasso = partecipante.incassi[j];
+          console.log(`Creating incasso ${j + 1}/${partecipante.incassi.length}:`, incasso);
+          
+                     try {
+                           // Trova l'ID della banca se il nome è fornito
+              let id_banca = null;
+              if (incasso.banca && incasso.banca.trim() !== '') {
+                const bancaResult = await getBancaByNome(incasso.banca);
+                if (bancaResult.success && bancaResult.values) {
+                  id_banca = bancaResult.values.id;
+                } else {
+                  console.warn(`Banca '${incasso.banca}' non trovata, incasso salvato senza banca`);
+                }
+              }
+
+             const incassoData = { 
+               id_partecipante: result.data!.id,
+               id_banca: id_banca,
+               importo: incasso.importo_in_euro,
+               importo_in_valuta: incasso.importo_in_valuta,
+               data_scadenza: incasso.data_scadenza ? new Date(incasso.data_scadenza) : undefined,
+               data_incasso: incasso.data_pagamento ? new Date(incasso.data_pagamento) : undefined
+             };
+             const incassoResult = await createIncassoPartecipante(incassoData);
+            if (!incassoResult.success) {
+              console.error(`Failed to create incasso ${j + 1} for partecipante ${i + 1}:`, incassoResult);
+              throw new Error(`Errore nella creazione dell'incasso ${j + 1} del partecipante ${i + 1}: ${incassoResult.error || 'Errore sconosciuto'}`);
+            }
+            console.log(`Successfully created incasso ${j + 1} for partecipante ${i + 1}`);
+          } catch (error) {
+            console.error(`Error creating incasso ${j + 1} for partecipante ${i + 1}:`, error);
+            throw error;
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error creating partecipante ${i + 1}:`, error);
       throw error;
     }
   }

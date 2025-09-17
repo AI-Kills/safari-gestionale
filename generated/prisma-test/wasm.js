@@ -225,18 +225,10 @@ exports.Prisma.VoloScalarFieldEnum = {
 
 exports.Prisma.PartecipantiScalarFieldEnum = {
   id: 'id',
-  id_cliente: 'id_cliente',
   id_preventivo: 'id_preventivo',
   nome: 'nome',
   cognome: 'cognome',
-  data_di_nascita: 'data_di_nascita',
-  luogo_nascita: 'luogo_nascita',
-  provincia_nascita: 'provincia_nascita',
-  nazionalita: 'nazionalita',
-  sesso: 'sesso',
-  numero_passaporto: 'numero_passaporto',
-  data_scadenza: 'data_scadenza',
-  note: 'note'
+  tot_quota: 'tot_quota'
 };
 
 exports.Prisma.PraticheScalarFieldEnum = {
@@ -267,12 +259,12 @@ exports.Prisma.PreventivoAlClienteRowScalarFieldEnum = {
 
 exports.Prisma.Incassi_partecipantiScalarFieldEnum = {
   id: 'id',
-  id_preventivo: 'id_preventivo',
   id_partecipante: 'id_partecipante',
   id_banca: 'id_banca',
   importo: 'importo',
-  data_incasso: 'data_incasso',
-  note: 'note'
+  importo_in_valuta: 'importo_in_valuta',
+  data_scadenza: 'data_scadenza',
+  data_incasso: 'data_incasso'
 };
 
 exports.Prisma.Pagamenti_assicurazioniScalarFieldEnum = {

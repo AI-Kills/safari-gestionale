@@ -37,7 +37,7 @@ model Banca {
 }
 
 model Cliente {
-  id                       String         @id @default(uuid())
+  id                       String       @id @default(uuid())
   nome                     String?
   cognome                  String?
   tel                      String?
@@ -45,7 +45,7 @@ model Cliente {
   cap                      String?
   citta                    String?
   cf                       String?
-  email                    String         @unique
+  email                    String       @unique
   tipo                     String?
   provenienza              String?
   collegato                String?
@@ -59,7 +59,6 @@ model Cliente {
   provincia                String?
   note                     String?
   preventivi               Preventivo[]
-  partecipanti             Partecipanti[]
 
   @@map("clienti")
 }
@@ -95,7 +94,6 @@ model Preventivo {
   percentuale_ricarico      Decimal?
   cliente                   Cliente                     @relation(fields: [id_cliente], references: [id], onDelete: Cascade)
   assicurazioni             Assicurazione[]
-  incassi_partecipanti      incassi_partecipanti[]
   pagamenti_assicurazioni   pagamenti_assicurazioni[]
   pagamenti_servizi_a_terra pagamenti_servizi_a_terra[]
   pagamenti_voli            pagamenti_voli[]
@@ -166,19 +164,10 @@ model Volo {
 
 model Partecipanti {
   id                   String                 @id @default(uuid())
-  id_cliente           String
   id_preventivo        String
   nome                 String?
   cognome              String?
-  data_di_nascita      DateTime?
-  luogo_nascita        String?
-  provincia_nascita    String?
-  nazionalita          String?
-  sesso                String?
-  numero_passaporto    String?
-  data_scadenza        DateTime?
-  note                 String?
-  cliente              Cliente                @relation(fields: [id_cliente], references: [id], onDelete: Cascade)
+  tot_quota            Decimal?
   preventivo           Preventivo             @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
   incassi_partecipanti incassi_partecipanti[]
 
@@ -221,16 +210,15 @@ model PreventivoAlClienteRow {
 }
 
 model incassi_partecipanti {
-  id              String       @id @default(uuid())
-  id_preventivo   String
-  id_partecipante String
-  id_banca        String
-  importo         Decimal?
-  data_incasso    DateTime?
-  note            String?
-  banca           Banca        @relation(fields: [id_banca], references: [id], onDelete: Cascade)
-  partecipante    Partecipanti @relation(fields: [id_partecipante], references: [id], onDelete: Cascade)
-  preventivo      Preventivo   @relation(fields: [id_preventivo], references: [id], onDelete: Cascade)
+  id                String       @id @default(uuid())
+  id_partecipante   String
+  id_banca          String?
+  importo           Decimal?
+  importo_in_valuta Decimal?
+  data_scadenza     DateTime?
+  data_incasso      DateTime?
+  banca             Banca?       @relation(fields: [id_banca], references: [id], onDelete: Cascade)
+  partecipante      Partecipanti @relation(fields: [id_partecipante], references: [id], onDelete: Cascade)
 
   @@map("incassi_partecipanti")
 }
