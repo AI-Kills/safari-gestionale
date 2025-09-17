@@ -144,6 +144,15 @@ function GeneralInterfaceContent() {
             const preventivoInputGroup = new PreventivoInputGroup(result.data.preventivo);
             
             // Load all data into context
+            console.log('🎯 GeneralInterfacePage - Loading preventivo data into context:', {
+              partecipantiCount: transformedData.partecipanti?.length || 0,
+              partecipantiWithIncassi: transformedData.partecipanti?.map((p: any) => ({
+                nome: p.nome,
+                cognome: p.cognome,
+                incassiCount: p.incassi?.length || 0
+              })) || []
+            });
+            
             loadPreventivoData({
               cliente: clienteInputGroup,
               preventivo: preventivoInputGroup,
@@ -320,6 +329,15 @@ function GeneralInterfaceContent() {
         setClienteDaAggiornare(c);
         
         // Load all data into context
+        console.log('🎯 GeneralInterfacePage - Loading existing preventivo data into context:', {
+          partecipantiCount: transformedData.partecipanti?.length || 0,
+          partecipantiWithIncassi: transformedData.partecipanti?.map((p: any) => ({
+            nome: p.nome,
+            cognome: p.cognome,
+            incassiCount: p.incassi?.length || 0
+          })) || []
+        });
+        
         loadPreventivoData({
           cliente: c,
           preventivo: p,

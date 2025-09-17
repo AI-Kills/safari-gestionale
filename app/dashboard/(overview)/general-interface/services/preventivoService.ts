@@ -143,7 +143,26 @@ export class PreventivoService {
     }
 
     try {
+      console.log('🎯 PreventivoService.createPreventivo - Partecipanti before conversion:', 
+        JSON.stringify(data.partecipanti?.map((p: any) => ({
+          nome: p.nome,
+          cognome: p.cognome,
+          incassiCount: p.incassi?.length || 0,
+          incassi: p.incassi
+        })), null, 2)
+      );
+      
       const plainData = PreventivoService.convertToPlainObject(data);
+      
+      console.log('🎯 PreventivoService.createPreventivo - Partecipanti after conversion:', 
+        JSON.stringify(plainData.partecipanti?.map((p: any) => ({
+          nome: p.nome,
+          cognome: p.cognome,
+          incassiCount: p.incassi?.length || 0,
+          incassi: p.incassi
+        })), null, 2)
+      );
+      
       const result = await submitCreatePreventivoGI(plainData);
       
       if (result.success) {
@@ -178,11 +197,27 @@ export class PreventivoService {
     try {
       // Debug data prima della conversione
       debugDataConversion(data, 'Data Before Conversion');
+      console.log('🎯 PreventivoService.updatePreventivo - Partecipanti before conversion:', 
+        JSON.stringify(data.partecipanti?.map((p: any) => ({
+          nome: p.nome,
+          cognome: p.cognome,
+          incassiCount: p.incassi?.length || 0,
+          incassi: p.incassi
+        })), null, 2)
+      );
       
       const plainData = PreventivoService.convertToPlainObject(data);
       
       // Debug data dopo la conversione
       debugDataConversion(plainData, 'Data After Conversion');
+      console.log('🎯 PreventivoService.updatePreventivo - Partecipanti after conversion:', 
+        JSON.stringify(plainData.partecipanti?.map((p: any) => ({
+          nome: p.nome,
+          cognome: p.cognome,
+          incassiCount: p.incassi?.length || 0,
+          incassi: p.incassi
+        })), null, 2)
+      );
       
       // Valida che non ci siano date invalide
       const dateErrors = validateDateFields(plainData, 'PlainData');
@@ -221,6 +256,8 @@ export class PreventivoService {
         fetchPreventivoAlClienteByPreventivoId(preventivo.id),
         getPartecipantiByPreventivo(preventivo.id)
       ]);
+      
+      console.log('🔍 PreventivoService.fetchPreventivoCompleto - Raw partecipanti from DB:', JSON.stringify(partecipanti, null, 2));
 
       // Verifica che tutte le chiamate siano andate a buon fine
       const allResults = [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente, partecipanti];
@@ -278,6 +315,8 @@ export class PreventivoService {
         fetchPreventivoAlClienteByPreventivoId(preventivo.id),
         getPartecipantiByPreventivo(preventivo.id)
       ]);
+      
+      console.log('🔍 PreventivoService.fetchPreventivoCompletoByNumero - Raw partecipanti from DB:', JSON.stringify(partecipanti, null, 2));
 
       // Verifica che tutte le chiamate siano andate a buon fine
       const allResults = [serviziATerra, serviziAggiuntivi, voli, assicurazioni, preventivoAlCliente, partecipanti];

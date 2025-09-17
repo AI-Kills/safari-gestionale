@@ -232,8 +232,25 @@ export function useEntityTransformation() {
         incassi
       );
       
+      console.log(`✅ Created InputGroup for partecipante ${i + 1}:`, {
+        id: inputGroup.id,
+        nome: inputGroup.nome,
+        cognome: inputGroup.cognome,
+        incassi: inputGroup.incassi,
+        incassiCount: inputGroup.incassi?.length || 0
+      });
+      
       res.push(inputGroup);
     }
+    
+    console.log(`🎯 transformPartecipanti final result: ${res.length} partecipanti with incassi summary:`, 
+      res.map((p, idx) => ({
+        index: idx,
+        nome: p.nome,
+        cognome: p.cognome,
+        incassiCount: p.incassi?.length || 0
+      }))
+    );
     
     return res;
   }, []);
