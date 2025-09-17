@@ -227,12 +227,49 @@ export async function getPreventiviByCliente(clienteId: string): Promise<Prevent
   }
 }
 
+export async function getMaxPreventivoNumber(): Promise<DBResult<number>> {
+  try {
+    const result = await prisma.preventivo.findMany({
+      select: { numero_preventivo: true },
+      where: { 
+        numero_preventivo: { not: null } 
+      }
+    });
+
+    // Se non ci sono preventivi, inizia da 0
+    if (result.length === 0) {
+      return { success: true, values: 0 };
+    }
+
+    // Estrae i numeri dai string formato "0001", "0015", etc.
+    const numbers = result
+      .map(p => {
+        if (!p.numero_preventivo) return 0;
+        // Converte da "0001" a 1, da "0015" a 15, etc.
+        return parseInt(p.numero_preventivo, 10);
+      })
+      .filter(n => !isNaN(n) && n > 0); // Filtra numeri validi
+
+    if (numbers.length === 0) {
+      return { success: true, values: 0 };
+    }
+
+    // Trova il massimo
+    const maxNumber = Math.max(...numbers);
+    return { success: true, values: maxNumber };
+  } catch (error) {
+    console.error('Error finding max preventivo number:', error);
+    return { success: false, errorsMessage: 'Errore nel recupero massimo numero preventivo' };
+  }
+}
+
 export async function getNumberOfPreventivi(): Promise<DBResult<number>> {
   try {
-    const count = await prisma.preventivo.count();
-    return { success: true, values: count };
+    // Ora utilizza il massimo numero invece del count
+    const result = await getMaxPreventivoNumber();
+    return result;
   } catch (error) {
-    console.error('Error counting preventivi:', error);
+    console.error('Error getting preventivi number:', error);
     return { success: false, errorsMessage: 'Errore nel conteggio preventivi' };
   }
 }

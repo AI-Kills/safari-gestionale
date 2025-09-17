@@ -39,14 +39,14 @@ function GeneralInterfaceContent() {
   const { transformPreventivoCompleto } = useEntityTransformation();
   const searchParams = useSearchParams();
   const [hasAutoLoaded, setHasAutoLoaded] = useState(false);
-  
+
   // Stati per modale pagamenti
   const [isPagamentoModalOpen, setIsPagamentoModalOpen] = useState(false);
   const [currentPagamento, setCurrentPagamento] = useState<Pagamento | undefined>();
   const [currentServiceGroupId, setCurrentServiceGroupId] = useState<number | null>(null);
   const [currentPagamentoIndex, setCurrentPagamentoIndex] = useState<number | null>(null);
   const [currentServiceType, setCurrentServiceType] = useState<'serviziATerra' | 'serviziAggiuntivi' | 'voli' | 'partecipanti' | null>(null);
-  
+
   const {
     // State
     cliente,
@@ -67,7 +67,7 @@ function GeneralInterfaceContent() {
     preventivoAlCliente,
     feedback,
     errorsList,
-    
+
     // Actions
     updateClienteField,
     setClientiTrovati,
@@ -100,21 +100,21 @@ function GeneralInterfaceContent() {
   // Auto-carica preventivo da URL parametri
   useEffect(() => {
     const numeroPreventivo = searchParams.get('preventivo');
-    
+
     // Solo se c'è un parametro URL, non abbiamo già caricato automaticamente, 
     // e non c'è già un preventivo caricato (per evitare conflitti con flusso normale)
     if (numeroPreventivo && !hasAutoLoaded && !preventivo?.id) {
       setHasAutoLoaded(true);
-      
+
       const loadPreventivoFromUrl = async () => {
         setIsActiveSpinner(true);
         try {
           const result = await PreventivoService.fetchPreventivoCompletoByNumero(numeroPreventivo);
-          
+
           if (result.success && result.data) {
             // Transform data using entity transformation
             const transformedData = await transformPreventivoCompleto(result.data);
-            
+
             // Crea oggetti InputGroup dal preventivo e cliente
             const clienteInputGroup = new ClienteInputGroup(
               result.data.preventivo.cliente.nome,           // nome
@@ -139,10 +139,10 @@ function GeneralInterfaceContent() {
               undefined,                                      // sesso
               result.data.preventivo.cliente.id              // id (ultimo parametro)
             );
-            
+
             // Usiamo il costruttore che accetta direttamente l'oggetto Preventivo
             const preventivoInputGroup = new PreventivoInputGroup(result.data.preventivo);
-            
+
             // Load all data into context
             console.log('🎯 GeneralInterfacePage - Loading preventivo data into context:', {
               partecipantiCount: transformedData.partecipanti?.length || 0,
@@ -152,7 +152,7 @@ function GeneralInterfaceContent() {
                 incassiCount: p.incassi?.length || 0
               })) || []
             });
-            
+
             loadPreventivoData({
               cliente: clienteInputGroup,
               preventivo: preventivoInputGroup,
@@ -163,7 +163,7 @@ function GeneralInterfaceContent() {
               partecipanti: transformedData.partecipanti || [],
               preventivoAlCliente: transformedData.preventivoAlCliente
             });
-            
+
             setClienteDaAggiornare(clienteInputGroup);
             setFeedback({ success: true });
           } else {
@@ -175,7 +175,7 @@ function GeneralInterfaceContent() {
           setIsActiveSpinner(false);
         }
       };
-      
+
       loadPreventivoFromUrl();
     }
   }, [searchParams, hasAutoLoaded, preventivo?.id, setIsActiveSpinner, transformPreventivoCompleto, loadPreventivoData, setClienteDaAggiornare, setFeedback, setErrorsList]);
@@ -197,7 +197,7 @@ function GeneralInterfaceContent() {
     if (['data_partenza', 'data'].includes(fieldName)) fieldType = 'date';
     else if (['adulti', 'bambini'].includes(fieldName)) fieldType = 'number';
     else if (['percentuale_ricarico'].includes(fieldName)) fieldType = 'float';
-    
+
     updatePreventivoField(fieldName as any, e.target.value, fieldType);
   };
 
@@ -206,14 +206,14 @@ function GeneralInterfaceContent() {
     setIsSearchingClienti(true);
     setShowClientiTrovati(false);
     setShowFormPreventivo(false);
-    
+
     try {
       const result = await ClienteService.searchClienti(cliente);
-      
+
       // Mostra sempre i risultati, anche se vuoti
       setClientiTrovati(result.data || []);
       setShowClientiTrovati(true);
-      
+
       // Gestisci gli errori separatamente
       if (!result.success && result.error) {
         setErrorsList([result.error]);
@@ -324,10 +324,10 @@ function GeneralInterfaceContent() {
       if (result.success) {
         // Transform data using entity transformation
         const transformedData = await transformPreventivoCompleto(result.data);
-        
+
         // Assicurati che il cliente sia impostato correttamente
         setClienteDaAggiornare(c);
-        
+
         // Load all data into context
         console.log('🎯 GeneralInterfacePage - Loading existing preventivo data into context:', {
           partecipantiCount: transformedData.partecipanti?.length || 0,
@@ -337,7 +337,7 @@ function GeneralInterfaceContent() {
             incassiCount: p.incassi?.length || 0
           })) || []
         });
-        
+
         loadPreventivoData({
           cliente: c,
           preventivo: p,
@@ -361,11 +361,11 @@ function GeneralInterfaceContent() {
   const submitCreatePreventivo = async () => {
     setErrorsList([]);
     setIsActiveSpinner(true);
-    
+
     try {
       // Per la creazione di un nuovo preventivo, usa clienteDaAggiornare invece di cliente
       const clienteToUse = clienteDaAggiornare.id ? clienteDaAggiornare : cliente;
-      
+
       if (!clienteToUse.id) {
         setErrorsList(['Errore: Nessun cliente selezionato per il preventivo']);
         return;
@@ -399,11 +399,11 @@ function GeneralInterfaceContent() {
   const submitUpdatePreventivo = async () => {
     setErrorsList([]);
     setIsActiveSpinner(true);
-    
+
     try {
       // Per l'aggiornamento, usa clienteDaAggiornare se disponibile
       const clienteToUse = clienteDaAggiornare.id ? clienteDaAggiornare : cliente;
-      
+
       if (!clienteToUse.id) {
         setErrorsList(['Errore: Nessun cliente selezionato per il preventivo']);
         return;
@@ -437,11 +437,11 @@ function GeneralInterfaceContent() {
   const submitDuplicatePreventivo = async () => {
     setErrorsList([]);
     setIsActiveSpinner(true);
-    
+
     try {
       // Per la duplicazione, usa clienteDaAggiornare
       const clienteToUse = clienteDaAggiornare.id ? clienteDaAggiornare : cliente;
-      
+
       if (!clienteToUse.id) {
         setErrorsList(['Errore: Nessun cliente selezionato per il preventivo']);
         return;
@@ -491,7 +491,7 @@ function GeneralInterfaceContent() {
     setCurrentServiceType(serviceType);
     setCurrentServiceGroupId(groupId);
     setCurrentPagamentoIndex(pagamentoIndex);
-    
+
     // Trova il pagamento da modificare
     let targetService;
     if (serviceType === 'serviziATerra') {
@@ -503,7 +503,7 @@ function GeneralInterfaceContent() {
     } else if (serviceType === 'partecipanti') {
       targetService = partecipanti.find(s => s.groupId === groupId);
     }
-    
+
     if (targetService) {
       let pagamenti;
       if (serviceType === 'partecipanti') {
@@ -511,12 +511,12 @@ function GeneralInterfaceContent() {
       } else {
         pagamenti = targetService.pagamenti;
       }
-      
+
       if (pagamenti && pagamenti[pagamentoIndex]) {
         setCurrentPagamento(pagamenti[pagamentoIndex]);
       }
     }
-    
+
     setIsPagamentoModalOpen(true);
   };
 
@@ -686,8 +686,8 @@ function GeneralInterfaceContent() {
                 {/* Servizi a Terra */}
                 {(() => {
                   const { fieldConfigs, calculationConfigs, calculateTotal } = getServiziATerraConfigs(
-                    destinazioniOptions, 
-                    fornitoriOptions, 
+                    destinazioniOptions,
+                    fornitoriOptions,
                     valuteOptions
                   );
                   return (
@@ -711,8 +711,8 @@ function GeneralInterfaceContent() {
                 {/* Servizi Aggiuntivi */}
                 {(() => {
                   const { fieldConfigs, calculationConfigs, calculateTotal } = getServiziATerraConfigs(
-                    destinazioniOptions, 
-                    fornitoriOptions, 
+                    destinazioniOptions,
+                    fornitoriOptions,
                     valuteOptions
                   );
                   return (
@@ -736,7 +736,7 @@ function GeneralInterfaceContent() {
                 {/* Voli */}
                 {(() => {
                   const { fieldConfigs, calculationConfigs, calculateTotal } = getVoliConfigs(
-                    fornitoriOptions, 
+                    fornitoriOptions,
                     valuteOptions
                   );
                   return (
@@ -792,7 +792,7 @@ function GeneralInterfaceContent() {
                         onAddPagamento={(groupId) => handleAddPagamento('partecipanti', groupId)}
                         onEditPagamento={(groupId, incassoIndex) => handleEditPagamento('partecipanti', groupId, incassoIndex)}
                       />
-                      
+
                       {/* Totali Partecipanti */}
                       <div className="flex flex-row justify-end pt-4 pr-11 space-x-8">
                         <div className="text-right">
@@ -806,45 +806,45 @@ function GeneralInterfaceContent() {
                   );
                 })()}
 
-                                 {/* Totale */}
-                 <div className="tot-euro-of-list flex flex-row items-center justify-end pt-4 pr-11">
-                   <p className='border-t-2 border-gray-300 pt-2'>
-                     somma di tutti i tot euro: {formatNumberItalian(getSommaTuttiTotEuro(preventivo?.percentuale_ricarico, serviziATerra, serviziAggiuntivi, voli, assicurazioni))}
-                   </p>
-                 </div>
+                {/* Totale */}
+                <div className="tot-euro-of-list flex flex-row items-center justify-end pt-4 pr-11">
+                  <p className='border-t-2 border-gray-300 pt-2'>
+                    somma di tutti i tot euro: {formatNumberItalian(getSommaTuttiTotEuro(preventivo?.percentuale_ricarico, serviziATerra, serviziAggiuntivi, voli, assicurazioni))}
+                  </p>
+                </div>
 
-                 {/* Preventivo al Cliente */}
-                 <PreventivoAlClienteForm
-                   preventivoAlCliente={preventivoAlCliente}
-                   destinazioniOptions={destinazioniOptions}
-                   onUpdateDescrizioneViaggio={updatePreventivoAlClienteDescrizioneViaggio}
-                   onAddRow={addPreventivoAlClienteRow}
-                   onRemoveRow={removePreventivoAlClienteRow}
-                   onUpdateRow={updatePreventivoAlClienteRow}
-                 />
+                {/* Preventivo al Cliente */}
+                <PreventivoAlClienteForm
+                  preventivoAlCliente={preventivoAlCliente}
+                  destinazioniOptions={destinazioniOptions}
+                  onUpdateDescrizioneViaggio={updatePreventivoAlClienteDescrizioneViaggio}
+                  onAddRow={addPreventivoAlClienteRow}
+                  onRemoveRow={removePreventivoAlClienteRow}
+                  onUpdateRow={updatePreventivoAlClienteRow}
+                />
 
-                                                                     {/* Buttons */}
-                 <div className="flex flex-row items-center justify-center pt-10 gap-4">
-                   {preventivo?.id ? (
-                     // Se il preventivo esiste, mostra "Duplica Preventivo"
-                     <Button size="lg" onClick={submitDuplicatePreventivo}>
-                       <PlusIcon className="w-4 h-4 mr-2" />
-                       Duplica Preventivo
-                     </Button>
-                   ) : (
-                     // Se è un nuovo preventivo, mostra "Crea Preventivo"
-                     <Button size="lg" onClick={submitCreatePreventivo}>
-                       <PlusIcon className="w-4 h-4 mr-2" />
-                       Crea Preventivo
-                     </Button>
-                   )}
-                   {preventivo?.id && (
-                     <Button variant="secondary" size="lg" onClick={submitUpdatePreventivo}>
-                       <DocumentTextIcon className="w-4 h-4 mr-2" />
-                       Aggiorna Preventivo
-                     </Button>
-                   )}
-                 </div>
+                {/* Buttons */}
+                <div className="flex flex-row items-center justify-center pt-10 gap-4">
+                  {preventivo?.id ? (
+                    // Se il preventivo esiste, mostra "Duplica Preventivo"
+                    <Button size="lg" onClick={submitDuplicatePreventivo}>
+                      <PlusIcon className="w-4 h-4 mr-2" />
+                      Duplica Preventivo
+                    </Button>
+                  ) : (
+                    // Se è un nuovo preventivo, mostra "Crea Preventivo"
+                    <Button size="lg" onClick={submitCreatePreventivo}>
+                      <PlusIcon className="w-4 h-4 mr-2" />
+                      Crea Preventivo
+                    </Button>
+                  )}
+                  {preventivo?.id && (
+                    <Button variant="secondary" size="lg" onClick={submitUpdatePreventivo}>
+                      <DocumentTextIcon className="w-4 h-4 mr-2" />
+                      Aggiorna Preventivo
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
