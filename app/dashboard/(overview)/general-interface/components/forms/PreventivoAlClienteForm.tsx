@@ -8,7 +8,7 @@ import {
   PreventivoAlClienteInputGroup, 
   PreventivoAlClienteRow 
 } from '../../general-interface.defs';
-import { formatNumberItalian } from '../../helpers';
+import { formatNumberItalian, formatPrecisionNumber } from '../../helpers';
 
 export interface PreventivoAlClienteFormProps {
   preventivoAlCliente: PreventivoAlClienteInputGroup;
@@ -165,10 +165,15 @@ export function PreventivoAlClienteForm({
           <div className="flex flex-row items-center justify-end">
             <p>totale generale:</p>
             <div className="w-60 mr-3 flex justify-end">
-              <p>{formatNumberItalian(
+              <p title={formatPrecisionNumber(
                 (preventivoAlCliente?.righePrimoTipo?.reduce((acc, row) => acc + ((row.individuale || 0) * (row.numero || 0)), 0) || 0) +
                 (preventivoAlCliente?.righeSecondoTipo?.reduce((acc, row) => acc + ((row.individuale || 0) * (row.numero || 0)), 0) || 0)
-              )}</p>
+              )}>
+                {formatNumberItalian(
+                  (preventivoAlCliente?.righePrimoTipo?.reduce((acc, row) => acc + ((row.individuale || 0) * (row.numero || 0)), 0) || 0) +
+                  (preventivoAlCliente?.righeSecondoTipo?.reduce((acc, row) => acc + ((row.individuale || 0) * (row.numero || 0)), 0) || 0)
+                )}
+              </p>
             </div>
           </div>
         </div>

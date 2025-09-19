@@ -7,7 +7,7 @@ import InputSelect from "@/app/ui/inputs/input-select";
 import InputNumber from "@/app/ui/inputs/input-number";
 import InputDate from "@/app/ui/inputs/input-date";
 import { InputLookup } from "@/app/ui/inputs/input-lookup";
-import { formatNumberItalian } from '../../helpers';
+import { formatNumberItalian, formatPrecisionNumber } from '../../helpers';
 
 export interface DynamicListItem {
   groupId: number;
@@ -219,7 +219,9 @@ export function DynamicServiceList<T extends DynamicListItem>({
                         </div>
                       )}
                       <div className={`w-20 mr-2 flex justify-end ${calcConfig.className || ''}`}>
-                        <p>{formatNumberItalian(calcConfig.calculate(item, ...calculationArgs))}</p>
+                        <p title={formatPrecisionNumber(calcConfig.calculate(item, ...calculationArgs))}>
+                          {formatNumberItalian(calcConfig.calculate(item, ...calculationArgs))}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -233,7 +235,9 @@ export function DynamicServiceList<T extends DynamicListItem>({
       {/* Totale generale */}
       {calculateTotal && (
         <div className="tot-euro-of-list flex flex-row items-center justify-end pt-4 pr-11">
-          <p>{totalLabel}: {formatNumberItalian(calculateTotal(items, ...calculationArgs))}</p>
+          <p title={formatPrecisionNumber(calculateTotal(items, ...calculationArgs))}>
+            {totalLabel}: {formatNumberItalian(calculateTotal(items, ...calculationArgs))}
+          </p>
         </div>
       )}
     </div>

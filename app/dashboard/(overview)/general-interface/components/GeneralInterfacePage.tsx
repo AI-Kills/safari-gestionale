@@ -11,7 +11,7 @@ import { useSearchParams } from 'next/navigation';
 import { GeneralInterfaceProvider, useGeneralInterface } from '../contexts/GeneralInterfaceContext';
 import { ClienteForm, PreventivoForm, DynamicServiceList, ClientiTrovatiList, PreventivoAlClienteForm, PagamentoModal, LoadingText } from './index';
 import { getServiziATerraConfigs, getVoliConfigs, getAssicurazioniConfigs, getPartecipantiConfigs } from './lists/ServiceListConfigs';
-import { getSommaTuttiTotEuro, formatNumberItalian } from '../helpers';
+import { getSommaTuttiTotEuro, formatNumberItalian, formatPrecisionNumber } from '../helpers';
 import { ClienteService, PreventivoService } from '../services';
 import { useSpinnerContext } from '@/app/context/spinner-context';
 import { useDebouncedCallback } from 'use-debounce';
@@ -825,7 +825,8 @@ function GeneralInterfaceContent() {
 
                 {/* Totale */}
                 <div className="tot-euro-of-list flex flex-row items-center justify-end pt-4 pr-11">
-                  <p className='border-t-2 border-gray-300 pt-2'>
+                  <p className='border-t-2 border-gray-300 pt-2' 
+                     title={formatPrecisionNumber(getSommaTuttiTotEuro(preventivo?.percentuale_ricarico, serviziATerra, serviziAggiuntivi, voli, assicurazioni))}>
                     somma di tutti i tot euro: {formatNumberItalian(getSommaTuttiTotEuro(preventivo?.percentuale_ricarico, serviziATerra, serviziAggiuntivi, voli, assicurazioni))}
                   </p>
                 </div>

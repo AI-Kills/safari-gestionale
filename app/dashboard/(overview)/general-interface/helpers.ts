@@ -1,5 +1,50 @@
 import { ServizioATerraInputGroup, VoloInputGroup, AssicurazioneInputGroup, Data } from "./general-interface.defs";
 
+// ### UTILITY FUNCTIONS PER CALCOLI MONETARI PRECISI ###
+
+/**
+ * Arrotonda un numero alla 4a cifra decimale con precisione monetaria
+ * Usa il metodo banker's rounding per massima accuratezza
+ */
+export const roundToCurrency = (value: number, decimals: number = 4): number => {
+  if (isNaN(value) || !isFinite(value)) {
+    return 0;
+  }
+  
+  // Moltiplica per 10^decimals, arrotonda e dividi
+  const multiplier = Math.pow(10, decimals);
+  
+  // Usa Number.EPSILON per gestire errori di virgola mobile
+  const adjustedValue = value * multiplier;
+  const rounded = Math.round(adjustedValue + Number.EPSILON);
+  
+  return rounded / multiplier;
+};
+
+/**
+ * Esegue divisione precisa per tassi di cambio
+ */
+export const preciseDivision = (dividend: number, divisor: number, decimals: number = 4): number => {
+  if (isNaN(dividend) || isNaN(divisor) || divisor === 0) {
+    return 0;
+  }
+  
+  const result = dividend / divisor;
+  return roundToCurrency(result, decimals);
+};
+
+/**
+ * Esegue moltiplicazione precisa per calcoli monetari
+ */
+export const preciseMultiplication = (...values: number[]): number => {
+  if (values.some(v => isNaN(v) || !isFinite(v))) {
+    return 0;
+  }
+  
+  const result = values.reduce((acc, val) => acc * val, 1);
+  return roundToCurrency(result, 4);
+};
+
 // ### servizi a terra e servizi aggiuntivi ###
 export const getTotServizio = (totale: number, cambio: number, percentualeRicarico: number, numeroNotti?: number, numeroCamere?: number) => {
     if(isNaN(totale) || isNaN(cambio) || isNaN(percentualeRicarico) || isNaN(numeroNotti) || isNaN(numeroCamere) || cambio === 0) {
@@ -7,9 +52,14 @@ export const getTotServizio = (totale: number, cambio: number, percentualeRicari
     }
     if(!numeroNotti) numeroNotti = 0;
     if(!numeroCamere) numeroCamere = 0;
-    const result = (totale*numeroNotti*numeroCamere / cambio) + getRicaricoServizio(totale, cambio, percentualeRicarico, numeroNotti, numeroCamere);
-    // Truncate the result to two decimal places
-    return Math.trunc(result * 100) / 100;
+    
+    // Calcolo preciso: (totale * notti * camere) / cambio + ricarico
+    const baseAmount = preciseMultiplication(totale, numeroNotti, numeroCamere);
+    const convertedAmount = preciseDivision(baseAmount, cambio, 4);
+    const ricarico = getRicaricoServizio(totale, cambio, percentualeRicarico, numeroNotti, numeroCamere);
+    
+    // Somma con precisione alla 4a cifra decimale
+    return roundToCurrency(convertedAmount + ricarico, 4);
 }
 export const getRicaricoServizio = (totale: number, cambio: number, percentualeRicarico: number, numeroNotti?: number, numeroCamere?: number) => {
     if(isNaN(totale) || isNaN(cambio) || isNaN(percentualeRicarico) || isNaN(numeroNotti) || isNaN(numeroCamere) || cambio === 0) {
@@ -17,9 +67,12 @@ export const getRicaricoServizio = (totale: number, cambio: number, percentualeR
     }
     if(!numeroNotti) numeroNotti = 0;
     if(!numeroCamere) numeroCamere = 0;
-    const result = (totale / cambio) * percentualeRicarico*numeroNotti*numeroCamere;
-    // Truncate the result to two decimal places
-    return Math.trunc(result * 100) / 100;
+    
+    // Calcolo preciso del ricarico: (totale / cambio) * percentualeRicarico * notti * camere
+    const baseInEuro = preciseDivision(totale, cambio, 4);
+    const ricarico = preciseMultiplication(baseInEuro, percentualeRicarico, numeroNotti, numeroCamere);
+    
+    return roundToCurrency(ricarico, 4);
 }
 
 // ### voli ###
@@ -27,9 +80,13 @@ export const getTotVolo = (totale: number, cambio: number, ricarico: number, num
     if (isNaN(totale) || isNaN(cambio) || isNaN(ricarico) || isNaN(numero) || cambio === 0) {
         return 0;
     }
-    const result = numero * (totale / cambio + ricarico);
-    // Truncate the result to two decimal places
-    return Math.trunc(result * 100) / 100;
+    
+    // Calcolo preciso: numero * (totale / cambio + ricarico)
+    const totaleInEuro = preciseDivision(totale, cambio, 4);
+    const costoConRicarico = roundToCurrency(totaleInEuro + ricarico, 4);
+    const totaleVolo = preciseMultiplication(numero, costoConRicarico);
+    
+    return roundToCurrency(totaleVolo, 4);
 }
 
 // ### assicurazioni ###
@@ -37,9 +94,12 @@ export const getTotAssicurazione = (netto: number, ricarico: number, numero: num
     if(isNaN(netto) || isNaN(ricarico) || isNaN(numero)) {
         return 0;
     }
-    const result = (netto + ricarico) * numero;
-    // Truncate the result to two decimal places
-    return Math.trunc(result * 100) / 100;
+    
+    // Calcolo preciso: (netto + ricarico) * numero
+    const costoUnitario = roundToCurrency(netto + ricarico, 4);
+    const totaleAssicurazione = preciseMultiplication(costoUnitario, numero);
+    
+    return roundToCurrency(totaleAssicurazione, 4);
 }
 
 export const getSommaTuttiTotEuro = (percentualeRicarico: number, serviziATerra: ServizioATerraInputGroup[], serviziAggiuntivi: ServizioATerraInputGroup[], voli: VoloInputGroup[], assicurazioni: AssicurazioneInputGroup[]) => {
@@ -47,18 +107,16 @@ export const getSommaTuttiTotEuro = (percentualeRicarico: number, serviziATerra:
     let totServiziAggiuntivi = serviziAggiuntivi.reduce((acc, servizio) => acc + getTotServizio(servizio.totale, servizio.cambio, percentualeRicarico, servizio.numero_notti, servizio.numero_camere), 0);
     let totVoli = voli.reduce((acc, volo) => acc + getTotVolo(volo.totale, volo.cambio, volo.ricarico, volo.numero), 0);
     let totAssicurazioni = assicurazioni.reduce((acc, assicurazione) => acc + getTotAssicurazione(assicurazione.netto, assicurazione.ricarico, assicurazione.numero), 0);
-    // se il totale è NaN, settalo a 0
-    switch(true) {
-        case isNaN(totServiziATerra):
-            totServiziATerra = 0;
-        case isNaN(totServiziAggiuntivi):
-            totServiziAggiuntivi = 0;
-        case isNaN(totVoli):
-            totVoli = 0;
-        case isNaN(totAssicurazioni):
-            totAssicurazioni = 0;
-    }    
-    return totServiziATerra + totServiziAggiuntivi + totVoli + totAssicurazioni;
+    
+    // Se il totale è NaN, settalo a 0 (correzione logica del switch)
+    if (isNaN(totServiziATerra)) totServiziATerra = 0;
+    if (isNaN(totServiziAggiuntivi)) totServiziAggiuntivi = 0;
+    if (isNaN(totVoli)) totVoli = 0;
+    if (isNaN(totAssicurazioni)) totAssicurazioni = 0;
+    
+    // Somma finale con precisione alla 4a cifra decimale
+    const totaleGenerale = totServiziATerra + totServiziAggiuntivi + totVoli + totAssicurazioni;
+    return roundToCurrency(totaleGenerale, 4);
 }
 
 export const formatDateToString = (date: Date): string => {
@@ -118,6 +176,50 @@ export const formatNumberItalian = (numero: number): string => {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(numero);
+}
+
+/**
+ * Formatta un numero in italiano con precisione variabile per calcoli monetari
+ * @param numero - Il numero da formattare
+ * @param decimals - Numero di decimali da mostrare (default: 2)
+ * @param showTrailingZeros - Se mostrare gli zeri finali (default: true)
+ */
+export const formatCurrencyItalian = (numero: number, decimals: number = 2, showTrailingZeros: boolean = true): string => {
+    if (typeof numero !== 'number' || isNaN(numero)) {
+        return '0' + ',00'.repeat(Math.max(1, decimals / 2));
+    }
+    
+    const options: Intl.NumberFormatOptions = {
+        minimumFractionDigits: showTrailingZeros ? decimals : 0,
+        maximumFractionDigits: decimals
+    };
+    
+    return new Intl.NumberFormat('it-IT', options).format(numero);
+}
+
+/**
+ * Formatta un numero per mostrare la massima precisione disponibile (fino a 4 decimali)
+ * Nasconde gli zeri finali non significativi
+ */
+export const formatPrecisionNumber = (numero: number): string => {
+    if (typeof numero !== 'number' || isNaN(numero)) {
+        return '0';
+    }
+    
+    // Determina quanti decimali significativi ha il numero
+    const str = numero.toString();
+    const decimalIndex = str.indexOf('.');
+    
+    if (decimalIndex === -1) {
+        // Numero intero
+        return new Intl.NumberFormat('it-IT').format(numero);
+    }
+    
+    // Conta i decimali significativi (rimuove zeri finali)
+    const decimals = str.slice(decimalIndex + 1).replace(/0+$/, '').length;
+    const maxDecimals = Math.min(Math.max(decimals, 2), 4); // Min 2, Max 4 decimali
+    
+    return formatCurrencyItalian(numero, maxDecimals, false);
 }
 
 export const isValidTel = (tel: string): boolean => {
